@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "368031970677",
+    "firebase_url": "https://budgey-a5d0e.firebaseio.com",
+    "project_id": "budgey-a5d0e",
+    "storage_bucket": "budgey-a5d0e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368031970677:android:c628acd85647fb1c",
+        "android_client_info": {
+          "package_name": "mjsma5.budgey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "368031970677-d44u8teopnan3k06vumsf1v77327cmv9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mjsma5.budgey",
+            "certificate_hash": "39134345f6256a4b59d62bdf7e2fc0e03eb2906b"
+          }
+        },
+        {
+          "client_id": "368031970677-23d8hp1sok6g8lo8qr213k5u9um2un7a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAhXS7HunC2zILNU2jFJjvVM9FK3xSsiM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "368031970677-23d8hp1sok6g8lo8qr213k5u9um2un7a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
