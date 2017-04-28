@@ -6,32 +6,205 @@
     android:layout_height="match_parent"
     tools:context="mjsma5.budgey.CreateTransaction">
 
-    <DatePicker
-        android:id="@+id/datePicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/btnSum"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="+"
+        app:layout_constraintLeft_toRightOf="@+id/btnEquals"
+        app:layout_constraintTop_toBottomOf="@+id/btnMin" />
+
+    <Button
+        android:id="@+id/btnEquals"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="="
+        app:layout_constraintLeft_toRightOf="@+id/btnDecimal"
+        app:layout_constraintTop_toBottomOf="@+id/btn3" />
+
+    <Button
+        android:id="@+id/btnDecimal"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="."
+        app:layout_constraintLeft_toRightOf="@+id/btn0"
+        app:layout_constraintTop_toBottomOf="@+id/btn2" />
+
+    <Button
+        android:id="@+id/btn0"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:text="0"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnDate"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/btn1" />
+
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="2"
+        app:layout_constraintLeft_toRightOf="@+id/btn1"
+        app:layout_constraintTop_toBottomOf="@+id/btn5" />
+
+    <Button
+        android:id="@+id/btn3"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="3"
+        app:layout_constraintLeft_toRightOf="@+id/btn2"
+        app:layout_constraintTop_toBottomOf="@+id/btn6" />
+
+    <Button
+        android:id="@+id/btnMin"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="-"
+        app:layout_constraintLeft_toRightOf="@+id/btn3"
+        app:layout_constraintTop_toBottomOf="@+id/btnMult" />
+
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="4dp"
+        android:text="1"
+        app:layout_constraintTop_toBottomOf="@+id/btn4"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/btn5"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="5"
+        app:layout_constraintLeft_toRightOf="@+id/btn4"
+        app:layout_constraintTop_toBottomOf="@+id/btn8" />
+
+    <Button
+        android:id="@+id/btn6"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="6"
+        app:layout_constraintLeft_toRightOf="@+id/btn5"
+        app:layout_constraintTop_toBottomOf="@+id/btn9" />
+
+    <Button
+        android:id="@+id/btnMult"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="X"
+        app:layout_constraintLeft_toRightOf="@+id/btn6"
+        app:layout_constraintTop_toBottomOf="@+id/btnDiv" />
+
+    <Button
+        android:id="@+id/btn4"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="4dp"
+        android:text="4"
+        app:layout_constraintTop_toBottomOf="@+id/btn7"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/btn7"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="4dp"
+        android:text="7"
+        app:layout_constraintTop_toBottomOf="@+id/btnOpen"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/btn8"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="8"
+        app:layout_constraintLeft_toRightOf="@+id/btn7"
+        app:layout_constraintTop_toBottomOf="@+id/btnClose" />
+
+    <Button
+        android:id="@+id/btn9"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="9"
+        app:layout_constraintLeft_toRightOf="@+id/btn8"
+        app:layout_constraintTop_toBottomOf="@+id/btnPercentage" />
+
+    <Button
+        android:id="@+id/btnDiv"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="/"
+        app:layout_constraintLeft_toRightOf="@+id/btn9"
+        app:layout_constraintTop_toBottomOf="@+id/btnClear" />
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text=")"
+        app:layout_constraintLeft_toRightOf="@+id/btnOpen"
+        app:layout_constraintTop_toBottomOf="@+id/txtNote" />
+
+    <Button
+        android:id="@+id/btnPercentage"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="%"
+        app:layout_constraintLeft_toRightOf="@+id/btnClose"
+        app:layout_constraintTop_toBottomOf="@+id/txtNote" />
+
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="CE"
+        app:layout_constraintLeft_toRightOf="@+id/btnPercentage"
+        app:layout_constraintTop_toBottomOf="@+id/txtNote" />
 
     <TextView
         android:id="@+id/txtTaxable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:text="Tax Deductable"
-        app:layout_constraintHorizontal_bias="0.52"
-        app:layout_constraintLeft_toRightOf="@+id/editText2"
-        app:layout_constraintRight_toLeftOf="@+id/rbTaxDeductable"
+        app:layout_constraintLeft_toRightOf="@+id/txtNote"
         app:layout_constraintTop_toBottomOf="@+id/txtIncome" />
 
     <TextView
@@ -39,41 +212,42 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Income"
-        tools:layout_editor_absoluteY="138dp"
-        app:layout_constraintRight_toLeftOf="@+id/rbIncome"
-        android:layout_marginRight="72dp"
-        android:layout_marginEnd="72dp" />
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/txtExpense"
+        android:layout_marginStart="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/txtNote"
+        android:layout_marginLeft="8dp" />
 
     <RadioButton
         android:id="@+id/rbIncome"
-        android:layout_width="31dp"
-        android:layout_height="26dp"
-        android:text=" "
-        tools:layout_editor_absoluteY="138dp"
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:text=" "
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/rbExpense" />
 
     <RadioButton
         android:id="@+id/rbTaxDeductable"
-        android:layout_width="31dp"
-        android:layout_height="26dp"
-        android:text=" "
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:text=" "
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rbIncome"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/rbIncome" />
 
     <Button
         android:id="@+id/btnDate"
-        android:layout_width="235dp"
-        android:layout_height="48dp"
+        android:layout_width="236dp"
+        android:layout_height="23dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/common_full_open_on_phone"
         android:text="[date-placeholder]"
-        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -82,70 +256,88 @@
 
     <Button
         android:id="@+id/btnMethod"
-        android:layout_width="88dp"
-        android:layout_height="61dp"
-        android:layout_marginRight="8dp"
+        android:layout_width="55dp"
+        android:layout_height="44dp"
         android:background="?android:attr/statusBarColor"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="4dp"
         app:layout_constraintTop_toBottomOf="@+id/btnDate"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginRight="16dp"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteY="23dp"
+        tools:layout_editor_absoluteX="313dp" />
 
     <EditText
-        android:id="@+id/editText2"
-        android:layout_width="176dp"
-        android:layout_height="74dp"
-        android:layout_marginLeft="16dp"
+        android:id="@+id/txtNote"
+        android:layout_width="171dp"
+        android:layout_height="72dp"
         android:ems="10"
         android:hint="Additional Notes"
-        android:inputType="textPersonName"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/txtIncome"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        tools:layout_editor_absoluteY="126dp" />
+        android:background="@drawable/back"
+        android:layout_marginLeft="16dp"
+        android:gravity="fill_horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:inputType="textMultiLine"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txtTaxable" />
 
     <RadioButton
         android:id="@+id/rbExpense"
-        android:layout_width="31dp"
-        android:layout_height="26dp"
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="8dp"
         android:text=" "
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="2dp"
         app:layout_constraintTop_toBottomOf="@+id/btnMethod"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/txtExpense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Expense"
-        app:layout_constraintRight_toLeftOf="@+id/rbExpense"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/txtIncome"
-        app:layout_constraintLeft_toRightOf="@+id/editText2"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintHorizontal_bias="0.185"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:text="Expense"
+        app:layout_constraintLeft_toRightOf="@+id/txtNote"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/btnMethod" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="268dp"
-        android:layout_height="59dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:id="@+id/txtTaxable"
+        android:layout_width="241dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="8dp"
         android:hint="$ 0.00"
-        app:layout_constraintBottom_toTopOf="@+id/editText2"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/btnMethod"
+        android:gravity="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:layout_marginTop="4dp"
         app:layout_constraintTop_toBottomOf="@+id/btnDate"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintRight_toLeftOf="@+id/btnMethod"
+        android:layout_marginRight="20dp" />
+
+    <Button
+        android:id="@+id/btnChooseCategory"
+        android:layout_width="182dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="0dp"
+        android:text="Choose Category"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/btn0"
+        app:layout_constraintRight_toLeftOf="@+id/btnSum"
+        app:layout_constraintTop_toBottomOf="@+id/btnDecimal" />
+
+    <Button
+        android:id="@+id/btnOpen"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="4dp"
+        android:text="("
+        app:layout_constraintTop_toBottomOf="@+id/txtNote"
+        android:layout_marginLeft="15dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
