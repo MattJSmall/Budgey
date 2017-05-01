@@ -51,6 +51,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
+        findViewById(R.id.btnGo).setOnClickListener(this);
 
         // Google Sign-In
         // Configure sign-in to request the user's ID, email address, and basic
@@ -67,7 +68,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        // firebase
+        // Firebase current signin user
         mAuth = FirebaseAuth.getInstance();
 
     }
@@ -88,6 +89,11 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 break;
             case R.id.sign_out_button:
                 signOut();
+                break;
+            case R.id.btnGo:
+                Intent intent = new Intent(this, CreateTransaction.class);
+                startActivity(intent);
+                Log.d("REACHED", "intent reached");
                 break;
         }
     }
