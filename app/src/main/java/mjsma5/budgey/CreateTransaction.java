@@ -1,14 +1,18 @@
 package mjsma5.budgey;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import java.util.Objects;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Stack;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -49,14 +53,13 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Button btn0;
 
     private String prev;
-    private String curr;
     private String func;
     private String tmp;
     private Boolean decimal;
     private String preview;
 
-    private Stack stack;
-    private boolean test;
+    private Stack<String> infix;
+    private String s;
 
     // NEED TO ADD PREVIEW FUNCTION
 
@@ -84,93 +87,107 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnSum).setOnClickListener(this);
         findViewById(R.id.btn0).setOnClickListener(this);
 
-        stack = new Stack();
+        txtResult = (TextView) findViewById(R.id.txtResult);
+        infix = new Stack<String>();
+        s = "";
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnClose:
-                evaluate(")");
-                break;
             case R.id.btnClear:
-                evaluate("c");
+                
                 break;
             case R.id.btnPercentage:
-                evaluate("%");
+                infix.push("%");
                 break;
             case R.id.btnOpen:
-                evaluate("(");
+                infix.push("(");
                 break;
-            case R.id.btn7:
-                evaluate("7");
-                break;
-            case R.id.btn8:
-                evaluate("8");
-                break;
-            case R.id.btn9:
-                evaluate("9");
+            case R.id.btnClose:
+                infix.push(")");
                 break;
             case R.id.btnDiv:
-                evaluate("/");
-                break;
-            case R.id.btn4:
-                evaluate("4");
-                break;
-            case R.id.btn5:
-                evaluate("5");
-                break;
-            case R.id.btn6:
-                evaluate("6");
+                infix.push("/");
                 break;
             case R.id.btnMult:
-                evaluate("*");
-                break;
-            case R.id.btn1:
-                evaluate("1");
-                break;
-            case R.id.btn2:
-                evaluate("2");
-                break;
-            case R.id.btn3:
-                evaluate("3");
-                break;
-            case R.id.btnMin:
-                evaluate("-");
-                break;
-            case R.id.btn0:
-                if (Objects.equals(func, "") && !Objects.equals(prev, "")) {
-                    // no function and prev contains numbers, replace
-                    prev = "";
-                    curr = "4";
-                } else {
-                    curr += "4";
-                }
-                break;
-            case R.id.btnDecimal:
-                evaluate(".");
-            case R.id.btnEquals:
-                evaluate("=");
+                infix.push("*");
                 break;
             case R.id.btnSum:
-                evaluate("+");
+                infix.push("+");
+                break;
+            case R.id.btnMin:
+                infix.push("-");
+                break;
+            case R.id.btn1:
+                infix.push("1");
+                break;
+            case R.id.btn2:
+                infix.push("2");
+                break;
+            case R.id.btn3:
+                infix.push("3");
+                break;
+            case R.id.btn4:
+                infix.push("4");
+                break;
+            case R.id.btn5:
+                infix.push("5");
+                break;
+            case R.id.btn6:
+                infix.push("6");
+                break;
+            case R.id.btn7:
+                infix.push("7");
+                break;
+            case R.id.btn8:
+                infix.push("8");
+                break;
+            case R.id.btn9:
+                infix.push("9");
+                break;
+            case R.id.btn0:
+                infix.push("0");
+                break;
+            case R.id.btnDecimal:
+                if (decimal) {
+                    infix.push(".");
+                } else {
+                    // error notification
+                }
+            case R.id.btnEquals:
+                txtResult.setText(String.valueOf(evaluate()));
                 break;
         }
-    }
-    
-    private void updateUI(Character value) {
-
-    }
-
-    private void evaluate(String item) {
-        int i = stack.size();
-        int r = 0;
-        while (i != 0) {
-            curr = stack.pop();
-
+        while (!infix.isEmpty()) {
+            s += infix.pop();
         }
-
+        txtResult.setText(s);
     }
 
+    public double evaluate() {
+        // Dijkstra's Algorithm
+        Stack<String> ops = new Stack<String>();
+        Stack<Double> vals = new Stack<Double>();
 
-
+        while (!infix.isEmpty()) {
+            String s = infix.pop();
+            if (s.equals("(")) ;
+            else if (s.equals("+")) ops.push(s);
+            else if (s.equals("-")) ops.push(s);
+            else if (s.equals("*")) ops.push(s);
+            else if (s.equals("/")) ops.push(s);
+            else if (s.equals("sqrt")) ops.push(s);
+            else if (s.equals(")")) {
+                String op = ops.pop();
+                double v = vals.pop();
+                if (op.equals("+")) v = vals.pop() + v;
+                else if (op.equals("-")) v = vals.pop() - v;
+                else if (op.equals("*")) v = vals.pop() * v;
+                else if (op.equals("/")) v = vals.pop() / v;
+                vals.push(v);
+            } else vals.push(Double.parseDouble(s));
+        }
+        return vals.pop();
+    }
 }
+
