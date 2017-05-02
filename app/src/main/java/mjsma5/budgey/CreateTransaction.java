@@ -9,10 +9,13 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Stack;
 
 
@@ -64,7 +67,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private int parenthesis;
     private boolean reset;
     private boolean lastitem;
-
     // NEED TO ADD PREVIEW FUNCTION
 
     @Override
@@ -123,7 +125,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                         case ".":
                             decimal = false;
                     }
-                    result = result.substring(0, result.length()-1);
+                    result = result.substring(0, result.length() - 1);
                 }
             case R.id.btnClear:
                 result = "";
@@ -144,7 +146,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     opUpdate(")");
                     parenthesis -= 1;
                 }
-                    // error display "incorrect function"
+                // error display "incorrect function"
 
                 break;
             case R.id.btnDiv:
@@ -191,14 +193,13 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btnDecimal:
                 if (!decimal) {
-                    decimal =  true;
+                    decimal = true;
                     result += ".";
 
                 } // else error
             case R.id.btnEquals:
                 result = evaluate(result);
                 Log.d("EVALUATION_OUTPUT", result);
-                txtResult.setText(result);
                 reset = true;
                 break;
         }
@@ -209,7 +210,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Converts infix string to postfix using Dijkstra's ShuntingYard
         String postfix = ShuntingYard.postfix(infix);
         // Evaluates postfix using the stack method.
-        String value = postfixEvaluate(postfix);
+        String value = postfixEvaluation(postfix);
         if (value.equals("ERROR")) {
             result = "";
             txtResult.setText(result);
@@ -230,7 +231,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         }
         lastitem = false;
     }
-    
+
     public void opUpdate(String input) {
         /*
         if (input.equals("%")) {
@@ -261,154 +262,31 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         result += input;
         lastitem = true;
     }
-    
-    
-    
 
-    /*
-     * Evaluate postfix expression
-     *
-     * @param postfix The postfix expression
-    */
-    public static String postfixEvaluate(String postfix) {
-        // Use a stack to track all the numbers and temporary results
-        Stack<Double> s = new Stack<Double>();
+    public String postfixEvaluation(String postfix) {
+        Stack<String> stack = new Stack<String>();
 
-        // Convert expression to char array
-        char[] chars = postfix.toCharArray();
-
-        // Cache the length of expression
-        int N = chars.length;
-
-        for (int i = 0; i < N; i++) {
-            char ch = chars[i];
-
-            if (isOperator(ch)) {
-                // Operator, simply pop out two numbers from stack and perfom operation
-                // Notice the order of operands
-                switch (ch) {
-                    case '+': s.push(s.pop() + s.pop());     break;
-                    case '*': s.push(s.pop() * s.pop());     break;
-                    case '-': s.push(-s.pop() + s.pop());    break;
-                    case '/': s.push(1 / s.pop() * s.pop()); break;
-                }
-            } else if(Character.isDigit(ch)) {
-                // Number, push to the stack
-                s.push(0.0);
-                while (Character.isDigit(chars[i]))
-                    s.push(10.0 * s.pop() + (chars[i++] - '0'));
+        while (!postfix.isEmpty()) {
+            String t = postfix.substring(postfix.length() - 1);
+            postfix = postfix.substring(0, postfix.length() - 1);
+            int a = Integer.valueOf(stack.pop());
+            int b = Integer.valueOf(stack.pop());
+            switch(t){
+                case "+":
+                    stack.push(String.valueOf(a+b));
+                    break;
+                case "-":
+                    stack.push(String.valueOf(b-a));
+                    break;
+                case "*":
+                    stack.push(String.valueOf(a*b));
+                    break;
+                case "/":
+                    stack.push(String.valueOf(b/a));
+                    break;
+                case ""
             }
         }
-
-        // The final result should be located in the bottom of stack
-        // Otherwise return
-        if (!s.isEmpty())
-            return String.valueOf(s.pop());
-        else
-            return "ERROR";
-    }
-
-    /**
-     * Check if the character is an operator
-     */
-    private static boolean isOperator(char ch) {
-        return ch == '*' || ch == '/' || ch == '+' || ch == '-';
-    }
-
-
-    public int eval(String expression)
-    {
-        char[] tokens = expression.toCharArray();
-
-        // Stack for numbers: 'values'
-        Stack<Integer> values = new Stack<Integer>();
-
-        // Stack for Operators: 'ops'
-        Stack<Character> ops = new Stack<Character>();
-
-        for (int i = 0; i < tokens.length; i++)
-        {
-            // Current token is a whitespace, skip it
-            if (tokens[i] == ' ')
-                continue;
-
-            // Current token is a number, push it to stack for numbers
-            if (tokens[i] >= '0' && tokens[i] <= '9')
-            {
-                StringBuffer sbuf = new StringBuffer();
-                // There may be more than one digits in number
-                while (i < tokens.length && tokens[i] >= '0' && tokens[i] <= '9')
-                    sbuf.append(tokens[i++]);
-                values.push(Integer.parseInt(sbuf.toString()));
-            }
-
-            // Current token is an opening brace, push it to 'ops'
-            else if (tokens[i] == '(')
-                ops.push(tokens[i]);
-
-                // Closing brace encountered, solve entire brace
-            else if (tokens[i] == ')')
-            {
-                while (ops.peek() != '(')
-                    values.push(applyOp(ops.pop(), values.pop(), values.pop()));
-                ops.pop();
-            }
-
-            // Current token is an operator.
-            else if (tokens[i] == '+' || tokens[i] == '-' ||
-                    tokens[i] == '*' || tokens[i] == '/')
-            {
-                // While top of 'ops' has same or greater precedence to current
-                // token, which is an operator. Apply operator on top of 'ops'
-                // to top two elements in values stack
-                while (!ops.empty() && hasPrecedence(tokens[i], ops.peek()))
-                    values.push(applyOp(ops.pop(), values.pop(), values.pop()));
-
-                // Push current token to 'ops'.
-                ops.push(tokens[i]);
-            }
-        }
-
-        // Entire expression has been parsed at this point, apply remaining
-        // ops to remaining values
-        while (!ops.empty())
-            values.push(applyOp(ops.pop(), values.pop(), values.pop()));
-
-        // Top of 'values' contains result, return it
-        return values.pop();
-    }
-
-    // Returns true if 'op2' has higher or same precedence as 'op1',
-    // otherwise returns false.
-    public static boolean hasPrecedence(char op1, char op2)
-    {
-        if (op2 == '(' || op2 == ')')
-            return false;
-        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
-            return false;
-        else
-            return true;
-    }
-
-    // A utility method to apply an operator 'op' on operands 'a'
-    // and 'b'. Return the result.
-    public static int applyOp(char op, int b, int a)
-    {
-        switch (op)
-        {
-            case '+':
-                return a + b;
-            case '-':
-                return a - b;
-            case '*':
-                return a * b;
-            case '/':
-                if (b == 0)
-                    throw new
-                            UnsupportedOperationException("Cannot divide by zero");
-                return a / b;
-        }
-        return 0;
+        return stack.pop();
     }
 }
-
