@@ -63,6 +63,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private String result;
     private int parenthesis;
     private boolean reset;
+    private boolean lastitem;
 
     // NEED TO ADD PREVIEW FUNCTION
 
@@ -103,6 +104,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         result = "";
         parenthesis = 0;
         reset = false;
+        decimal = false;
+        lastitem = false;
 
     }
 
@@ -110,81 +113,85 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case R.id.btnBack:
                 if (!result.isEmpty()) {
-                    if (result.substring(result.length() - 1).equals(")")) {
-                        parenthesis += 1;
-                    } else if (result.substring(result.length() - 1).equals("(")) {
-                        parenthesis -= 1;
-                    } else if (result.substring(result.length() - 1).equals(".")) {
-                        decimal = true;
+                    switch (result.substring(result.length() - 1)) {
+                        case ")":
+                            parenthesis += 1;
+
+                        case "(":
+                            parenthesis -= 1;
+
+                        case ".":
+                            decimal = false;
                     }
                     result = result.substring(0, result.length()-1);
-                } else {
-                    txtResult.setText("0.00");
                 }
             case R.id.btnClear:
-                result = "0.00";
+                result = "";
                 txtResult.setText(result);
+                reset = false;
+                parenthesis = 0;
+                decimal = false;
                 break;
             case R.id.btnPercentage:
-                result += "%";
+                opUpdate("%");
                 break;
             case R.id.btnOpen:
                 parenthesis += 1;
-                result += "(";
+                opUpdate("(");
                 break;
             case R.id.btnClose:
                 if (!(parenthesis == 0)) {
-                    result += ")";
+                    opUpdate(")");
                     parenthesis -= 1;
-                } else {
-                    // error display "incorrect function"
                 }
+                    // error display "incorrect function"
+
                 break;
             case R.id.btnDiv:
-                result += "/";
+                opUpdate("/");
                 break;
             case R.id.btnMult:
-                result += "*";
+                opUpdate("*");
                 break;
             case R.id.btnSum:
-                result += "+";
+                opUpdate("+");
                 break;
             case R.id.btnMin:
-                result += "-";
+                opUpdate("-");
                 break;
             case R.id.btn1:
-                result += "1";
+                numUpdate("1");
                 break;
             case R.id.btn2:
-                result += "2";
+                numUpdate("2");
                 break;
             case R.id.btn3:
-                result += "3";
+                numUpdate("3");
                 break;
             case R.id.btn4:
-                result += "4";
+                numUpdate("4");
                 break;
             case R.id.btn5:
-                result += "5";
+                numUpdate("5");
                 break;
             case R.id.btn6:
-                result += "6";
+                numUpdate("6");
                 break;
             case R.id.btn7:
-                result += "7";
+                numUpdate("7");
                 break;
             case R.id.btn8:
-                result += "8";
+                numUpdate("8");
                 break;
             case R.id.btn9:
-                result += "9";
+                numUpdate("9");
                 break;
             case R.id.btn0:
-                result += "0";
+                numUpdate("0");
                 break;
             case R.id.btnDecimal:
-                if (decimal) {
-                    decimal =  false;
+                if (!decimal) {
+                    decimal =  true;
                     result += ".";
 
                 } // else error
@@ -192,6 +199,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 result = evaluate(result);
                 Log.d("EVALUATION_OUTPUT", result);
                 txtResult.setText(result);
+                reset = true;
                 break;
         }
         txtResult.setText("$" + result);
@@ -203,16 +211,59 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Evaluates postfix using the stack method.
         String value = postfixEvaluate(postfix);
         if (value.equals("ERROR")) {
-            result = "$0.00";
+            result = "";
             txtResult.setText(result);
             return "error"; // insert error reporting
         } else {
             return value;
         }
-
-
     }
 
+    public void numUpdate(String input) {
+        // Update module for all numbers
+        if (reset) {
+            result = input;
+            txtResult.setText(result);
+            reset = false;
+        } else {
+            result += input;
+        }
+        lastitem = false;
+    }
+    
+    public void opUpdate(String input) {
+        /*
+        if (input.equals("%")) {
+            switch (result.substring(result.length() - 1)) {
+                case "*":
+            }
+            */
+                /*
+            }
+            if (, "x")) {
+                tmp = String.valueOf((Integer.parseInt(prev) / 100) * Integer.parseInt(curr));
+            } else if (Objects.equals(func, "/")) {
+                tmp = String.valueOf(Integer.parseInt(prev) / ((Integer.parseInt(prev) / 100)
+                        * Integer.parseInt(curr)));
+            } else if (Objects.equals(func, "-")) {
+                tmp = String.valueOf(Integer.parseInt(prev) - ((Integer.parseInt(prev) / 100)
+                        * Integer.parseInt(curr)));
+            } else if (Objects.equals(func, "/")) {
+                tmp = String.valueOf(Integer.parseInt(prev) + ((Integer.parseInt(prev) / 100)
+                        * Integer.parseInt(curr)));
+            } else {
+                tmp =  String.valueOf(1 / Integer.parseInt(prev));
+            }
+            */
+        if (lastitem) {
+            result = result.substring(0, result.length() - 1);
+        }
+        result += input;
+        lastitem = true;
+    }
+    
+    
+    
 
     /*
      * Evaluate postfix expression
@@ -264,6 +315,100 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         return ch == '*' || ch == '/' || ch == '+' || ch == '-';
     }
 
-    
+
+    public int eval(String expression)
+    {
+        char[] tokens = expression.toCharArray();
+
+        // Stack for numbers: 'values'
+        Stack<Integer> values = new Stack<Integer>();
+
+        // Stack for Operators: 'ops'
+        Stack<Character> ops = new Stack<Character>();
+
+        for (int i = 0; i < tokens.length; i++)
+        {
+            // Current token is a whitespace, skip it
+            if (tokens[i] == ' ')
+                continue;
+
+            // Current token is a number, push it to stack for numbers
+            if (tokens[i] >= '0' && tokens[i] <= '9')
+            {
+                StringBuffer sbuf = new StringBuffer();
+                // There may be more than one digits in number
+                while (i < tokens.length && tokens[i] >= '0' && tokens[i] <= '9')
+                    sbuf.append(tokens[i++]);
+                values.push(Integer.parseInt(sbuf.toString()));
+            }
+
+            // Current token is an opening brace, push it to 'ops'
+            else if (tokens[i] == '(')
+                ops.push(tokens[i]);
+
+                // Closing brace encountered, solve entire brace
+            else if (tokens[i] == ')')
+            {
+                while (ops.peek() != '(')
+                    values.push(applyOp(ops.pop(), values.pop(), values.pop()));
+                ops.pop();
+            }
+
+            // Current token is an operator.
+            else if (tokens[i] == '+' || tokens[i] == '-' ||
+                    tokens[i] == '*' || tokens[i] == '/')
+            {
+                // While top of 'ops' has same or greater precedence to current
+                // token, which is an operator. Apply operator on top of 'ops'
+                // to top two elements in values stack
+                while (!ops.empty() && hasPrecedence(tokens[i], ops.peek()))
+                    values.push(applyOp(ops.pop(), values.pop(), values.pop()));
+
+                // Push current token to 'ops'.
+                ops.push(tokens[i]);
+            }
+        }
+
+        // Entire expression has been parsed at this point, apply remaining
+        // ops to remaining values
+        while (!ops.empty())
+            values.push(applyOp(ops.pop(), values.pop(), values.pop()));
+
+        // Top of 'values' contains result, return it
+        return values.pop();
+    }
+
+    // Returns true if 'op2' has higher or same precedence as 'op1',
+    // otherwise returns false.
+    public static boolean hasPrecedence(char op1, char op2)
+    {
+        if (op2 == '(' || op2 == ')')
+            return false;
+        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
+            return false;
+        else
+            return true;
+    }
+
+    // A utility method to apply an operator 'op' on operands 'a'
+    // and 'b'. Return the result.
+    public static int applyOp(char op, int b, int a)
+    {
+        switch (op)
+        {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                if (b == 0)
+                    throw new
+                            UnsupportedOperationException("Cannot divide by zero");
+                return a / b;
+        }
+        return 0;
+    }
 }
 
