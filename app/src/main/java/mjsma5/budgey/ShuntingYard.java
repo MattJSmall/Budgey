@@ -9,8 +9,6 @@ import java.util.Map;
  * Created by Matts on 1/05/2017.
  */
 
-import java.util.*;
-
 public class ShuntingYard {
 
     private enum Operator

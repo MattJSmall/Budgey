@@ -2,6 +2,7 @@ package mjsma5.budgey;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,7 +60,9 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private String preview;
 
     private Stack<String> infix;
-    private String s;
+    private String result;
+    private int parenthesis;
+    private boolean reset;
 
     // NEED TO ADD PREVIEW FUNCTION
 
@@ -70,124 +73,197 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
         // Instantiate UI components
+        findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
         findViewById(R.id.btnClear).setOnClickListener(this);
         findViewById(R.id.btnPercentage).setOnClickListener(this);
-        findViewById(R.id.btnOpen).setOnClickListener(this);
-        findViewById(R.id.btn7).setOnClickListener(this);
-        findViewById(R.id.btn8).setOnClickListener(this);
-        findViewById(R.id.btn9).setOnClickListener(this);
+        findViewById(R.id.btnSum).setOnClickListener(this);
+        findViewById(R.id.btnMin).setOnClickListener(this);
+        findViewById(R.id.btnMult).setOnClickListener(this);
         findViewById(R.id.btnDiv).setOnClickListener(this);
+        findViewById(R.id.btn1).setOnClickListener(this);
+        findViewById(R.id.btn2).setOnClickListener(this);
+        findViewById(R.id.btn3).setOnClickListener(this);
         findViewById(R.id.btn4).setOnClickListener(this);
         findViewById(R.id.btn5).setOnClickListener(this);
         findViewById(R.id.btn6).setOnClickListener(this);
+        findViewById(R.id.btn7).setOnClickListener(this);
+        findViewById(R.id.btn8).setOnClickListener(this);
+        findViewById(R.id.btn9).setOnClickListener(this);
+
+
         findViewById(R.id.btnMin).setOnClickListener(this);
         findViewById(R.id.btnEquals).setOnClickListener(this);
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
         findViewById(R.id.btn0).setOnClickListener(this);
 
+        // calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
-        infix = new Stack<String>();
-        s = "";
+        result = "";
+        parenthesis = 0;
+        reset = false;
+
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btnBack:
+                if (!result.isEmpty()) {
+                    if (result.substring(result.length() - 1).equals(")")) {
+                        parenthesis += 1;
+                    } else if (result.substring(result.length() - 1).equals("(")) {
+                        parenthesis -= 1;
+                    } else if (result.substring(result.length() - 1).equals(".")) {
+                        decimal = true;
+                    }
+                    result = result.substring(0, result.length()-1);
+                } else {
+                    txtResult.setText("0.00");
+                }
             case R.id.btnClear:
-                
+                result = "0.00";
+                txtResult.setText(result);
                 break;
             case R.id.btnPercentage:
-                infix.push("%");
+                result += "%";
                 break;
             case R.id.btnOpen:
-                infix.push("(");
+                parenthesis += 1;
+                result += "(";
                 break;
             case R.id.btnClose:
-                infix.push(")");
+                if (!(parenthesis == 0)) {
+                    result += ")";
+                    parenthesis -= 1;
+                } else {
+                    // error display "incorrect function"
+                }
                 break;
             case R.id.btnDiv:
-                infix.push("/");
+                result += "/";
                 break;
             case R.id.btnMult:
-                infix.push("*");
+                result += "*";
                 break;
             case R.id.btnSum:
-                infix.push("+");
+                result += "+";
                 break;
             case R.id.btnMin:
-                infix.push("-");
+                result += "-";
                 break;
             case R.id.btn1:
-                infix.push("1");
+                result += "1";
                 break;
             case R.id.btn2:
-                infix.push("2");
+                result += "2";
                 break;
             case R.id.btn3:
-                infix.push("3");
+                result += "3";
                 break;
             case R.id.btn4:
-                infix.push("4");
+                result += "4";
                 break;
             case R.id.btn5:
-                infix.push("5");
+                result += "5";
                 break;
             case R.id.btn6:
-                infix.push("6");
+                result += "6";
                 break;
             case R.id.btn7:
-                infix.push("7");
+                result += "7";
                 break;
             case R.id.btn8:
-                infix.push("8");
+                result += "8";
                 break;
             case R.id.btn9:
-                infix.push("9");
+                result += "9";
                 break;
             case R.id.btn0:
-                infix.push("0");
+                result += "0";
                 break;
             case R.id.btnDecimal:
                 if (decimal) {
-                    infix.push(".");
-                } else {
-                    // error notification
-                }
+                    decimal =  false;
+                    result += ".";
+
+                } // else error
             case R.id.btnEquals:
-                txtResult.setText(String.valueOf(evaluate()));
+                result = evaluate(result);
+                Log.d("EVALUATION_OUTPUT", result);
+                txtResult.setText(result);
                 break;
         }
-        while (!infix.isEmpty()) {
-            s += infix.pop();
-        }
-        txtResult.setText(s);
+        txtResult.setText("$" + result);
     }
 
-    public double evaluate() {
-        // Dijkstra's Algorithm
-        Stack<String> ops = new Stack<String>();
-        Stack<Double> vals = new Stack<Double>();
-
-        while (!infix.isEmpty()) {
-            String s = infix.pop();
-            if (s.equals("(")) ;
-            else if (s.equals("+")) ops.push(s);
-            else if (s.equals("-")) ops.push(s);
-            else if (s.equals("*")) ops.push(s);
-            else if (s.equals("/")) ops.push(s);
-            else if (s.equals("sqrt")) ops.push(s);
-            else if (s.equals(")")) {
-                String op = ops.pop();
-                double v = vals.pop();
-                if (op.equals("+")) v = vals.pop() + v;
-                else if (op.equals("-")) v = vals.pop() - v;
-                else if (op.equals("*")) v = vals.pop() * v;
-                else if (op.equals("/")) v = vals.pop() / v;
-                vals.push(v);
-            } else vals.push(Double.parseDouble(s));
+    public String evaluate(String infix) {
+        // Converts infix string to postfix using Dijkstra's ShuntingYard
+        String postfix = ShuntingYard.postfix(infix);
+        // Evaluates postfix using the stack method.
+        String value = postfixEvaluate(postfix);
+        if (value.equals("ERROR")) {
+            result = "$0.00";
+            txtResult.setText(result);
+            return "error"; // insert error reporting
+        } else {
+            return value;
         }
-        return vals.pop();
+
+
     }
+
+
+    /*
+     * Evaluate postfix expression
+     *
+     * @param postfix The postfix expression
+    */
+    public static String postfixEvaluate(String postfix) {
+        // Use a stack to track all the numbers and temporary results
+        Stack<Double> s = new Stack<Double>();
+
+        // Convert expression to char array
+        char[] chars = postfix.toCharArray();
+
+        // Cache the length of expression
+        int N = chars.length;
+
+        for (int i = 0; i < N; i++) {
+            char ch = chars[i];
+
+            if (isOperator(ch)) {
+                // Operator, simply pop out two numbers from stack and perfom operation
+                // Notice the order of operands
+                switch (ch) {
+                    case '+': s.push(s.pop() + s.pop());     break;
+                    case '*': s.push(s.pop() * s.pop());     break;
+                    case '-': s.push(-s.pop() + s.pop());    break;
+                    case '/': s.push(1 / s.pop() * s.pop()); break;
+                }
+            } else if(Character.isDigit(ch)) {
+                // Number, push to the stack
+                s.push(0.0);
+                while (Character.isDigit(chars[i]))
+                    s.push(10.0 * s.pop() + (chars[i++] - '0'));
+            }
+        }
+
+        // The final result should be located in the bottom of stack
+        // Otherwise return
+        if (!s.isEmpty())
+            return String.valueOf(s.pop());
+        else
+            return "ERROR";
+    }
+
+    /**
+     * Check if the character is an operator
+     */
+    private static boolean isOperator(char ch) {
+        return ch == '*' || ch == '/' || ch == '+' || ch == '-';
+    }
+
+    
 }
 

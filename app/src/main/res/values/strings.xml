@@ -25,10 +25,33 @@
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="submit">Submit</string>
+    <string name="b">B</string>
     <string name="date_placeholder">[date-placeholder]</string>
-    <string name="_0_00">$ 0.00</string>
     <string name="additional_notes">Additional Notes</string>
-    <string name="income">Income</string>
+    <string name="choose_category">Choose Category</string>
+    <string name="_0_00">$ 0.00</string>
     <string name="expense">Expense</string>
+    <string name="blank" />
+    <string name="income">Income</string>
     <string name="tax_deductable">Tax Deductable</string>
+    <string name="openp">(</string>
+    <string name="closep">)</string>
+    <string name="ce">CE</string>
+    <string name="percent">%</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="div">/</string>
+    <string name="_5">5</string>
+    <string name="_4">4</string>
+    <string name="_6">6</string>
+    <string name="x">X</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="min">-</string>
+    <string name="_0">0</string>
+    <string name="dec">.</string>
+    <string name="equals">=</string>
+    <string name="plus">+</string>
 </resources>

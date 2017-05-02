@@ -13,9 +13,26 @@
         android:layout_width="239dp"
         android:layout_height="29dp"
         android:background="@drawable/common_full_open_on_phone"
-        android:text="[date-placeholder]"
-        tools:layout_editor_absoluteY="4dp"
-        tools:layout_editor_absoluteX="75dp" />
+        android:text="@string/date_placeholder"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="44dp"
+        android:layout_height="42dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:text="@string/b"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/txtResult"
+        app:layout_constraintRight_toLeftOf="@+id/btnMethod"
+        android:layout_marginTop="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/btnDate" />
 
     <Button
         android:id="@+id/btnMethod"
@@ -24,7 +41,7 @@
         android:background="?android:attr/statusBarColor"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="2dp"
         app:layout_constraintTop_toBottomOf="@+id/btnDate"
         android:layout_marginEnd="8dp" />
 
@@ -33,7 +50,7 @@
         android:layout_width="171dp"
         android:layout_height="72dp"
         android:ems="10"
-        android:hint="Additional Notes"
+        android:hint="@string/additional_notes"
         android:background="@drawable/back"
         android:gravity="fill_horizontal"
         android:inputType="textMultiLine"
@@ -46,7 +63,7 @@
         android:id="@+id/btnChooseCategory"
         android:layout_width="182dp"
         android:layout_height="48dp"
-        android:text="Choose Category"
+        android:text="@string/choose_category"
         tools:layout_editor_absoluteX="101dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="2dp" />
@@ -56,13 +73,12 @@
         android:layout_width="243dp"
         android:layout_height="41dp"
         android:gravity="center"
-        android:hint="$ 0.00"
+        android:hint="@string/_0_00"
         android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintRight_toLeftOf="@+id/btnMethod"
-        android:layout_marginRight="8dp"
         android:layout_marginTop="2dp"
         app:layout_constraintTop_toBottomOf="@+id/btnDate"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="8dp"
+        tools:layout_editor_absoluteX="16dp" />
 
     <TableLayout
         android:layout_width="wrap_content"
@@ -84,7 +100,7 @@
                 android:id="@+id/txtExpense"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Expense"
+                android:text="@string/expense"
                 tools:layout_editor_absoluteX="195dp"
                 tools:layout_editor_absoluteY="80dp" />
 
@@ -96,7 +112,6 @@
                 android:id="@+id/rbExpense"
                 android:layout_width="30dp"
                 android:layout_height="25dp"
-                android:text=" "
                 tools:layout_editor_absoluteX="346dp"
                 tools:layout_editor_absoluteY="77dp" />
         </TableRow>
@@ -109,7 +124,7 @@
                 android:id="@+id/txtIncome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Income"
+                android:text="@string/income"
                 tools:layout_editor_absoluteX="195dp"
                 tools:layout_editor_absoluteY="107dp" />
 
@@ -121,7 +136,6 @@
                 android:id="@+id/rbIncome"
                 android:layout_width="30dp"
                 android:layout_height="25dp"
-                android:text=" "
                 tools:layout_editor_absoluteX="346dp"
                 tools:layout_editor_absoluteY="102dp" />
         </TableRow>
@@ -134,7 +148,7 @@
                 android:id="@+id/txtTaxable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tax Deductable"
+                android:text="@string/tax_deductable"
                 tools:layout_editor_absoluteX="195dp"
                 tools:layout_editor_absoluteY="133dp" />
 
@@ -146,14 +160,9 @@
                 android:id="@+id/rbTaxDeductable"
                 android:layout_width="30dp"
                 android:layout_height="25dp"
-                android:text=" "
                 tools:layout_editor_absoluteX="346dp"
                 tools:layout_editor_absoluteY="127dp" />
         </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </TableLayout>
 
     <TableLayout
@@ -178,7 +187,7 @@
                 android:id="@+id/btnOpen"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="("
+                android:text="@string/openp"
                 tools:layout_editor_absoluteX="15dp"
                 tools:layout_editor_absoluteY="151dp" />
 
@@ -186,7 +195,7 @@
                 android:id="@+id/btnClose"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text=")"
+                android:text="@string/closep"
                 tools:layout_editor_absoluteX="103dp"
                 tools:layout_editor_absoluteY="151dp" />
 
@@ -194,7 +203,7 @@
                 android:id="@+id/btnClear"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="CE"
+                android:text="@string/ce"
                 tools:layout_editor_absoluteX="279dp"
                 tools:layout_editor_absoluteY="151dp" />
 
@@ -202,7 +211,7 @@
                 android:id="@+id/btnPercentage"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="%"
+                android:text="@string/percent"
                 tools:layout_editor_absoluteX="191dp"
                 tools:layout_editor_absoluteY="151dp" />
 
@@ -216,7 +225,7 @@
                 android:id="@+id/btn7"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="7"
+                android:text="@string/_7"
                 tools:layout_editor_absoluteX="15dp"
                 tools:layout_editor_absoluteY="215dp" />
 
@@ -224,7 +233,7 @@
                 android:id="@+id/btn8"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="8"
+                android:text="@string/_8"
                 tools:layout_editor_absoluteX="103dp"
                 tools:layout_editor_absoluteY="215dp" />
 
@@ -232,7 +241,7 @@
                 android:id="@+id/btn9"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="9"
+                android:text="@string/_9"
                 tools:layout_editor_absoluteX="191dp"
                 tools:layout_editor_absoluteY="215dp" />
 
@@ -240,7 +249,7 @@
                 android:id="@+id/btnDiv"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="/"
+                android:text="@string/div"
                 tools:layout_editor_absoluteX="88dp"
                 tools:layout_editor_absoluteY="-416dp" />
         </TableRow>
@@ -250,26 +259,26 @@
             android:layout_height="match_parent">
 
             <Button
-                android:id="@+id/btn5"
-                android:layout_width="88dp"
-                android:layout_height="60dp"
-                android:text="5"
-                tools:layout_editor_absoluteX="103dp"
-                tools:layout_editor_absoluteY="279dp" />
-
-            <Button
                 android:id="@+id/btn4"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="4"
+                android:text="@string/_4"
                 tools:layout_editor_absoluteX="15dp"
+                tools:layout_editor_absoluteY="279dp" />
+
+            <Button
+                android:id="@+id/btn5"
+                android:layout_width="88dp"
+                android:layout_height="60dp"
+                android:text="@string/_5"
+                tools:layout_editor_absoluteX="103dp"
                 tools:layout_editor_absoluteY="279dp" />
 
             <Button
                 android:id="@+id/btn6"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="6"
+                android:text="@string/_6"
                 tools:layout_editor_absoluteX="191dp"
                 tools:layout_editor_absoluteY="279dp" />
 
@@ -277,7 +286,7 @@
                 android:id="@+id/btnMult"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:text="X"
+                android:text="@string/x"
                 tools:layout_editor_absoluteX="279dp"
                 tools:layout_editor_absoluteY="279dp" />
         </TableRow>
@@ -290,7 +299,7 @@
                 android:id="@+id/btn1"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="1"
+                android:text="@string/_1"
                 tools:layout_editor_absoluteX="15dp"
                 tools:layout_editor_absoluteY="343dp" />
 
@@ -298,7 +307,7 @@
                 android:id="@+id/btn2"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="2"
+                android:text="@string/_2"
                 tools:layout_editor_absoluteX="103dp"
                 tools:layout_editor_absoluteY="343dp" />
 
@@ -306,7 +315,7 @@
                 android:id="@+id/btn3"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="3"
+                android:text="@string/_3"
                 tools:layout_editor_absoluteX="191dp"
                 tools:layout_editor_absoluteY="343dp" />
 
@@ -314,7 +323,7 @@
                 android:id="@+id/btnMin"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="-"
+                android:text="@string/min"
                 tools:layout_editor_absoluteX="279dp"
                 tools:layout_editor_absoluteY="343dp" />
 
@@ -328,7 +337,7 @@
                 android:id="@+id/btn0"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="0"
+                android:text="@string/_0"
                 tools:layout_editor_absoluteX="16dp"
                 tools:layout_editor_absoluteY="407dp" />
 
@@ -336,7 +345,7 @@
                 android:id="@+id/btnDecimal"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="."
+                android:text="@string/dec"
                 tools:layout_editor_absoluteX="104dp"
                 tools:layout_editor_absoluteY="407dp" />
 
@@ -344,7 +353,7 @@
                 android:id="@+id/btnEquals"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="="
+                android:text="@string/equals"
                 tools:layout_editor_absoluteX="192dp"
                 tools:layout_editor_absoluteY="407dp" />
 
@@ -352,7 +361,7 @@
                 android:id="@+id/btnSum"
                 android:layout_width="88dp"
                 android:layout_height="60dp"
-                android:text="+"
+                android:text="@string/plus"
                 tools:layout_editor_absoluteX="280dp"
                 tools:layout_editor_absoluteY="407dp" />
 
