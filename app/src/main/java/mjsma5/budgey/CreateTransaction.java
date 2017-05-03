@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -62,18 +63,15 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Boolean decimal;
     private String preview;
 
-    private Stack<String> infix;
     private String result;
     private int parenthesis;
     private boolean reset;
-    private boolean lastitem;
-    // NEED TO ADD PREVIEW FUNCTION
+    private boolean operatorLast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
-
 
         // Instantiate UI components
         findViewById(R.id.btnOpen).setOnClickListener(this);
@@ -84,6 +82,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnMin).setOnClickListener(this);
         findViewById(R.id.btnMult).setOnClickListener(this);
         findViewById(R.id.btnDiv).setOnClickListener(this);
+
+        findViewById(R.id.btn0).setOnClickListener(this);
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
         findViewById(R.id.btn3).setOnClickListener(this);
@@ -94,12 +94,10 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btn8).setOnClickListener(this);
         findViewById(R.id.btn9).setOnClickListener(this);
 
-
         findViewById(R.id.btnMin).setOnClickListener(this);
         findViewById(R.id.btnEquals).setOnClickListener(this);
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
-        findViewById(R.id.btn0).setOnClickListener(this);
 
         // calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
@@ -107,7 +105,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         parenthesis = 0;
         reset = false;
         decimal = false;
-        lastitem = false;
+        operatorLast = false;
 
     }
 
@@ -129,9 +127,9 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 }
             case R.id.btnClear:
                 result = "";
-                txtResult.setText(result);
                 reset = false;
                 parenthesis = 0;
+                operatorLast = false;
                 decimal = false;
                 break;
             case R.id.btnPercentage:
@@ -147,7 +145,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     parenthesis -= 1;
                 }
                 // error display "incorrect function"
-
                 break;
             case R.id.btnDiv:
                 opUpdate("/");
@@ -192,15 +189,28 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 numUpdate("0");
                 break;
             case R.id.btnDecimal:
-                if (!decimal) {
+                if (!decimal && !operatorLast) {
                     decimal = true;
                     result += ".";
+                    Log.d("INFO", "DECIMAL INPUT");
+                } else {
+                    Log.d("INPUT ERROR", "DECIMAL ERROR");
+                }
+                break;
 
-                } // else error
             case R.id.btnEquals:
-                result = evaluate(result);
-                Log.d("EVALUATION_OUTPUT", result);
-                reset = true;
+                if (operatorLast) {
+                    result = result.substring(0, result.length() - 1);
+                    // if the last token entered was an operator, remove it, then evaluate.
+                }
+                if (parenthesis == 0) {
+                    Log.d("EVALUATION_INPUT", result);
+                    result = evaluate(result);
+                    Log.d("EVALUATION_OUTPUT", result);
+                    reset = true;
+                } else {
+                Log.d("INPUT ERROR", "PARENTHESIS");
+                }
                 break;
         }
         txtResult.setText("$" + result);
@@ -214,6 +224,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         if (value.equals("ERROR")) {
             result = "";
             txtResult.setText(result);
+            Log.d("INPUT ERROR", "EVALUATION ERROR");
             return "error"; // insert error reporting
         } else {
             return value;
@@ -229,64 +240,59 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         } else {
             result += input;
         }
-        lastitem = false;
+        operatorLast = false;
     }
 
     public void opUpdate(String input) {
-        /*
-        if (input.equals("%")) {
-            switch (result.substring(result.length() - 1)) {
-                case "*":
-            }
-            */
-                /*
-            }
-            if (, "x")) {
-                tmp = String.valueOf((Integer.parseInt(prev) / 100) * Integer.parseInt(curr));
-            } else if (Objects.equals(func, "/")) {
-                tmp = String.valueOf(Integer.parseInt(prev) / ((Integer.parseInt(prev) / 100)
-                        * Integer.parseInt(curr)));
-            } else if (Objects.equals(func, "-")) {
-                tmp = String.valueOf(Integer.parseInt(prev) - ((Integer.parseInt(prev) / 100)
-                        * Integer.parseInt(curr)));
-            } else if (Objects.equals(func, "/")) {
-                tmp = String.valueOf(Integer.parseInt(prev) + ((Integer.parseInt(prev) / 100)
-                        * Integer.parseInt(curr)));
-            } else {
-                tmp =  String.valueOf(1 / Integer.parseInt(prev));
-            }
-            */
-        if (lastitem) {
-            result = result.substring(0, result.length() - 1);
+        reset = false;
+        if (operatorLast) {
+            result = result.substring(0, result.length() -3);
         }
-        result += input;
-        lastitem = true;
+        result += " " + input + " ";
+        operatorLast = true;
     }
 
     public String postfixEvaluation(String postfix) {
-        Stack<String> stack = new Stack<String>();
+        // Use a stack to track all the numbers and temporary results
+        Stack<Double> s = new Stack<Double>();
 
-        while (!postfix.isEmpty()) {
-            String t = postfix.substring(postfix.length() - 1);
-            postfix = postfix.substring(0, postfix.length() - 1);
-            int a = Integer.valueOf(stack.pop());
-            int b = Integer.valueOf(stack.pop());
-            switch(t){
-                case "+":
-                    stack.push(String.valueOf(a+b));
-                    break;
-                case "-":
-                    stack.push(String.valueOf(b-a));
-                    break;
-                case "*":
-                    stack.push(String.valueOf(a*b));
-                    break;
-                case "/":
-                    stack.push(String.valueOf(b/a));
-                    break;
-                case ""
+        // Convert expression to char array
+        char[] chars = postfix.toCharArray();
+
+        // Cache the length of expression
+        int N = chars.length;
+
+        for (int i = 0; i < N; i++) {
+            char ch = chars[i];
+
+            if (isOperator(ch)) {
+                // Operator,pop out two numbers from stack and perform operation
+                switch (ch) {
+                    case '+': s.push(s.pop() + s.pop());     break;
+                    case '*': s.push(s.pop() * s.pop());     break;
+                    case '-': s.push(-s.pop() + s.pop());    break;
+                    case '/': s.push(1 / s.pop() * s.pop()); break;
+                }
+            } else if(Character.isDigit(ch)) {
+                // if Number, push to the stack
+                s.push(0.0);
+                while (Character.isDigit(chars[i]))
+                    s.push(10.0 * s.pop() + (chars[i++] - '0'));
             }
         }
-        return stack.pop();
+
+        // The final result should be located in the bottom of stack
+        // Otherwise return 0.0
+        if (!s.isEmpty())
+            return String.valueOf(s.pop());
+        else
+            return String.valueOf("ERROR");
+    }
+
+    /**
+     * Check if the character is an operator
+     */
+    private boolean isOperator(char ch) {
+        return ch == '*' || ch == '/' || ch == '+' || ch == '-';
     }
 }
