@@ -5,11 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,6 +25,7 @@ import java.util.StringTokenizer;
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
 
+    private Button btnDateFinish;
     private Button btnDate;
     private TextView txtResult;
     private Button btnMethod;
@@ -68,12 +72,29 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private boolean reset;
     private boolean operatorLast;
 
+    private Transaction transaction;
+
+    private DatePicker datePicker;
+    private Calendar date;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
-        // Instantiate UI components
+        // Transaction details
+        findViewById(R.id.rbExpense).setOnClickListener(this);
+        findViewById(R.id.rbIncome).setOnClickListener(this);
+        findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
+        findViewById(R.id.btnChooseCategory).setOnClickListener(this);
+        findViewById(R.id.btnMethod).setOnClickListener(this);
+        findViewById(R.id.btnDate).setOnClickListener(this);
+        findViewById(R.id.txtNote).setOnClickListener(this);
+
+
+        findViewById(R.id.btnFinish).setOnClickListener(this);
+
+        // Calculator UI componenets
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
         findViewById(R.id.btnClear).setOnClickListener(this);
@@ -99,7 +120,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
 
-        // calculator additional requirements
+        // Calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
         result = "";
         parenthesis = 0;
@@ -107,10 +128,56 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         decimal = false;
         operatorLast = false;
 
+        // Date Picker
+        btnDate = (Button) findViewById(R.id.btnDate);
+        findViewById(R.id.btnDateFinish).setOnClickListener(this);
+        btnDateFinish = (Button) findViewById(R.id.btnDateFinish);
+        date = Calendar.getInstance();
+        setDate(Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR);
+
+        // Transaction initialisation
+        transaction = new Transaction("ID", 0.00, "NULL", date, "", "NULL", false, false);
+        // (String nID, Double nAmount, String nCategory, String nDate, String nNote,
+        // String nMethod, Boolean nTaxable, Boolean nType) {
     }
+    private StringBuilder setDate(int year, int month, int day) {
+        StringBuilder currDate = new StringBuilder().append(day).append("/")
+                .append(month).append("/").append(year);
+        btnDate.setText(currDate);
+        return currDate;
+
+    }
+
+
 
     public void onClick(View v) {
         switch (v.getId()) {
+            // radial expense
+            // radial income
+            // radial taxable
+            case R.id.btnFinish:
+                transaction.setNote(txtNote.getText().toString());
+                //intent return to details
+                break;
+            case R.id.btnChooseCategory:
+                // intent open list
+                break;
+            case R.id.btnMethod:
+                // intent open buttons menu
+                break;
+            case R.id.btnDate:
+                datePicker.setVisibility(View.VISIBLE);
+                btnDateFinish.setVisibility(View.VISIBLE);
+
+                // intent start datepicker
+                break;
+            case R.id.btnDateFinish:
+                setDate(Calendar.DAY_OF_YEAR, Calendar.MONTH, Calendar.YEAR);
+                datePicker.setVisibility(View.GONE);
+                btnDateFinish.setVisibility(View.GONE);
+                break;
+
+            // Calculator buttons
             case R.id.btnBack:
                 if (!result.isEmpty()) {
                     switch (result.substring(result.length() - 1)) {

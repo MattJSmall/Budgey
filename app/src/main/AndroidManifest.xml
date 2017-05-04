@@ -24,7 +24,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateTransaction" />
-        <activity android:name=".Details"></activity>
     </application>
 
 </manifest>

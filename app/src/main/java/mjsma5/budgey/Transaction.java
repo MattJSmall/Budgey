@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -19,14 +20,14 @@ public class Transaction {
     private String id;             // Unique transaction ID
     private Double amount;       // Transaction's Cost
     private String category;    // Transaction's user chosen category
-    private String date;          // Date transaction entered, default current day
+    private Calendar date;          // Date transaction entered, default current day
     private String note;        // Extra user entered details
     private String method;      // Payment used (eg, Paypal, Visa ...)
     private boolean taxable;    // Boolean if transaction flagged for taxable
     private boolean type;       // true: positive, false: negative
 
-    public Transaction(String nID, Double nAmount, String nCategory, String nDate, String nNote,
-                 String nMethod, Boolean nTaxable, Boolean nType) {
+    public Transaction(String nID, Double nAmount, String nCategory, Calendar nDate, String nNote,
+                       String nMethod, Boolean nTaxable, Boolean nType) {
         if (nID == null) {
             // set unique id
         } else {
@@ -42,17 +43,22 @@ public class Transaction {
     }
 
     // Methods to set
-    private void setId(String item) { id = item; };
-    private void setAmount(Double item) { amount = item; }
-    private void setCategory(String item) { category = item; }
-    private void setDate(String item) { date = item; }
-    private void setNote(String item) { note = item; }
-    private void setMethod(String item) { method = item; }
-    private void setTaxable(Boolean item) { taxable = item; }
-    private void setType(Boolean item) { type = item; }
+    public void setId(String item) { id = item; };
+    public void setAmount(Double item) { amount = item; }
+    public void setCategory(String item) { category = item; }
+    public void setDate(Calendar item) { date = item; }
+    public void setNote(String item) { note = item; }
+    public void setMethod(String item) { method = item; }
+    void switchType(boolean t) {
+        type = t;
+    }
+    void switchTaxable() {
+        taxable = !taxable;
+    }
+    public void setType(Boolean item) { type = item; }
 
     // Method to update databsase
-    void updateDatabase() {
+    public void updateDatabase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
