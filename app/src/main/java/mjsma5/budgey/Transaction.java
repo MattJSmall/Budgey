@@ -28,11 +28,6 @@ public class Transaction {
 
     public Transaction(String nID, Double nAmount, String nCategory, Calendar nDate, String nNote,
                        String nMethod, Boolean nTaxable, Boolean nType) {
-        if (nID == null) {
-            // set unique id
-        } else {
-            id = UUID.randomUUID().toString();
-        }
         amount = nAmount;
         category = nCategory;
         date = nDate;
@@ -64,8 +59,8 @@ public class Transaction {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference userRef = database.getReference("users/").child(id);
-
+        DatabaseReference userRef = database.getReference("users/").child(user.getUid());
+        String key = userRef.child("transactions").push().getKey();
         HashMap<String, Object> result = new HashMap<>();
         result.put("amount", amount);
         result.put("category", category);
@@ -74,7 +69,12 @@ public class Transaction {
         result.put("method", method);
         result.put("taxable", taxable);
         result.put("type", type);
-        userRef.setValue(result);
+        userRef = userRef.getRef().child("/" + key);
+        userRef.updateChildren(result);
+    }
+
+    public String getMethod() {
+        return method;
     }
 }
 

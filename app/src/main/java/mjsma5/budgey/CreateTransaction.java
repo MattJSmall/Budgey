@@ -1,6 +1,9 @@
 package mjsma5.budgey;
 
+import android.content.DialogInterface;
+import android.media.Image;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,7 +31,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private TextView txtResult;
 
     /*
-    private Button btnMethod;
     private EditText txtNote;
     private RadioButton rbExpense;
     private RadioButton rbIncome;
@@ -67,6 +70,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     private Boolean decimal;
     // private String preview;
+    private ImageButton btnMethod;
 
     private String result;
     private int parenthesis;
@@ -79,6 +83,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Calendar date;
     private TextView txtNote;
 
+    public AlertDialog.Builder methodMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +93,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Transaction details
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
         findViewById(R.id.btnChooseCategory).setOnClickListener(this);
+        btnMethod = (ImageButton) findViewById(R.id.btnMethod);
         findViewById(R.id.btnMethod).setOnClickListener(this);
         findViewById(R.id.btnDate).setOnClickListener(this);
         txtNote = (TextView) findViewById(R.id.txtNote);
@@ -97,7 +104,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Calculator UI components
         ImageButton btnBackSpace = (ImageButton) findViewById(R.id.btnBack);
         findViewById(R.id.btnBack).setOnClickListener(this);
-        btnBackSpace.setBackgroundResource(R.drawable.back); // backspace visualisation
+        btnBackSpace.setImageResource(R.drawable.backspace); // backspace visualisation
 
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
@@ -144,9 +151,34 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         datePicker.setVisibility(View.GONE);
 
         // Transaction initialisation
-        transaction = new Transaction("ID", 0.00, "NULL", date, "", "NULL", false, false);
+        transaction = new Transaction("ID", 0.00, "NULL", date, "", "cash", false, false);
         // (String nID, Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
+        setMethodImage();
+        methodMenu = new AlertDialog.Builder(this);
+        methodMenu.setTitle("Select a Transaction Method");
+        methodMenu.setItems(new CharSequence[] {"Cash", "Paypal", "Debit", "Credit"},
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // The 'which' argument contains the index position
+                    // of the selected item
+                    switch (which) {
+                        case 0:
+                            transaction.setMethod("cash");
+                            break;
+                        case 1:
+                            transaction.setMethod("paypal");
+                            break;
+                        case 2:
+                            transaction.setMethod("debit");
+                            break;
+                        case 3:
+                            transaction.setMethod("credit");
+                            break;
+                    }
+                }
+        });
+
     }
 
     private void updateDate(Calendar c) {
@@ -173,6 +205,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case R.id.btnFinish:
                 transaction.setNote(txtNote.getText().toString());
+                transaction.updateDatabase();
                 /*
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 // DatabaseReference myRef = database.getReference('message');
@@ -187,7 +220,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 // intent open list
                 break;
             case R.id.btnMethod:
-                // intent open buttons menu
+                methodMenu.show();
+                setMethodImage();
                 break;
             case R.id.btnDate:
                 btnDateFinish.setVisibility(View.VISIBLE);
@@ -304,6 +338,24 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         }
         txtResult.setText("$" + result);
     }
+
+    public void setMethodImage() {
+        switch (transaction.getMethod()) {
+            case "cash":
+                btnMethod.setImageResource(R.drawable.cash);
+                break;
+            case "credit":
+                btnMethod.setImageResource(R.drawable.visa);
+                break;
+            case "debit":
+                btnMethod.setImageResource(R.drawable.card);
+                break;
+            case "paypal":
+                btnMethod.setImageResource(R.drawable.paypal);
+        }
+    }
+
+
 
     public String evaluate(String infix) {
         // Converts infix string to postfix using Dijkstra's ShuntingYard
