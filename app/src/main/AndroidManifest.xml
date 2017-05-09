@@ -24,7 +24,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateTransaction" />
-        <activity android:name=".testActivity"></activity>
+        <activity android:name=".testActivity" />
+        <activity
+            android:name=".tab_navigation"
+            android:label="@string/title_activity_tab_navigation"></activity>
     </application>
 
 </manifest>

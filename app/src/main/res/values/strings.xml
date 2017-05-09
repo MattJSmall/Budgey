@@ -56,4 +56,8 @@
     <string name="plus">+</string>
     <string name="btn_logout_from_google">Logout</string>
     <string name="btn_revoke_access">Revoke Access</string>
+    <string name="title_activity_tab_navigation">tab_navigation</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
