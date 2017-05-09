@@ -41,6 +41,8 @@ public class Transaction {
         taxable = nTaxable;
         type = nType;
     }
+    // methods to get
+    public String getID() { return id; }
 
     // Methods to set
     public void setId(String item) { id = item; };

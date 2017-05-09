@@ -33,7 +33,7 @@
     <string name="expense">Expense</string>
     <string name="blank" />
     <string name="income">Income</string>
-    <string name="tax_deductable">Tax Deductable</string>
+    <string name="tax_deductable">Tax\nDeductable</string>
     <string name="openp">(</string>
     <string name="closep">)</string>
     <string name="ce">CE</string>
@@ -54,4 +54,6 @@
     <string name="dec">.</string>
     <string name="equals">=</string>
     <string name="plus">+</string>
+    <string name="btn_logout_from_google">Logout</string>
+    <string name="btn_revoke_access">Revoke Access</string>
 </resources>

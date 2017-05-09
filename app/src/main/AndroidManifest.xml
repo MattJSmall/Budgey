@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateTransaction" />
+        <activity android:name=".testActivity"></activity>
     </application>
 
 </manifest>

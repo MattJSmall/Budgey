@@ -1,6 +1,5 @@
 package mjsma5.budgey;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,10 +16,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -27,12 +25,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.text.CollationElementIterator;
-import java.text.DateFormat;
-import java.util.Date;
 
 public class Login extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
@@ -42,16 +34,38 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
     private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mAuth;
 
+    private TextView txtPersonName;
+    private TextView txtEmail;
+    private ImageView imgPhoto;
+    
+    
+    private SignInButton btnSignIn;
+    private Button btnSignOut;
+    private Button btn_go;      //// edit out
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Button listeners
-        findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.btnGo).setOnClickListener(this);
+        // Button init
+        btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
+        findViewById(R.id.btn_sign_in).setOnClickListener(this);
+
+        btnSignOut = (Button) findViewById(R.id.btn_sign_out);
+        findViewById(R.id.btn_sign_out).setOnClickListener(this);
+
+        btn_go = (Button) findViewById(R.id.btn_go);
+        findViewById(R.id.btn_go).setOnClickListener(this);
+
+
+        // Login items
+        txtPersonName = (TextView) findViewById(R.id.txtDisplayName);
+        txtEmail = (TextView) findViewById(R.id.txtEmail);
+        imgPhoto = (ImageView) findViewById(R.id.imgProfile);
+
+        // Initial Visibility
+        //setVisibility(false); // boolean represents signed in.
 
         // Google Sign-In
         // Configure sign-in to request the user's ID, email address, and basic
@@ -64,12 +78,17 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        // Firebase current signin user
+        if (mGoogleApiClient.isConnected()) {
+            signIn();
+        }
+
+        // Firebase currently signed in account
         mAuth = FirebaseAuth.getInstance();
+
 
     }
 
@@ -77,20 +96,18 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.sign_in_button:
+            case R.id.btn_sign_in:
                 signIn();
                 break;
-            case R.id.sign_out_button:
+            case R.id.btn_sign_out:
                 signOut();
                 break;
-            case R.id.btnGo:
+            case R.id.btn_go:
                 Intent intent = new Intent(this, CreateTransaction.class);
                 startActivity(intent);
                 Log.d("REACHED", "intent reached");
@@ -105,6 +122,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
 
     private void signOut() {
         Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+        setVisibility(false);
     }
 
     @Override
@@ -119,9 +137,13 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
                 Log.d(TAG, "FirebaseAuthentication:Success");
+                updateUI(account);
+                setVisibility(true);
+
             } else {
                 // Google Sign in failed update accordingly
                 Log.d(TAG, "FirebaseAuthentication:Failed");
+                signOut();
             }
         }
     }
@@ -135,32 +157,23 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-
-
-
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(Login.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            // display users details
-        } else {
-            // reset to past or do nothing (notify?)
-        }
+    private void updateUI(GoogleSignInAccount account) {
+        txtPersonName.setText(account.getDisplayName());
+        txtEmail.setText(account.getEmail());
+        new ImageLoadTask(account.getPhotoUrl().toString(), imgPhoto).execute();
+        
     }
 
     // [required] error reporting
@@ -169,5 +182,25 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
+    }
+
+    public void setVisibility(boolean signed) {
+
+        if (signed) {
+            txtPersonName.setVisibility(View.VISIBLE);
+            txtEmail.setVisibility(View.VISIBLE);
+            imgPhoto.setVisibility(View.VISIBLE);
+            btn_go.setVisibility(View.VISIBLE);
+            btnSignOut.setVisibility(View.VISIBLE);
+            btnSignIn.setVisibility(View.GONE);
+        } else {
+            txtPersonName.setVisibility(View.GONE);
+            txtEmail.setVisibility(View.GONE);
+            imgPhoto.setVisibility(View.GONE);
+            btn_go.setVisibility(View.GONE);
+            btnSignOut.setVisibility(View.VISIBLE);
+            btnSignIn.setVisibility(View.VISIBLE);
+        }
+
     }
 }

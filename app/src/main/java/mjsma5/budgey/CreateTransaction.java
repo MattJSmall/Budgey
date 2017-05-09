@@ -10,17 +10,13 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import java.util.Arrays;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.Stack;
-import java.util.StringTokenizer;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -28,6 +24,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Button btnDateFinish;
     private Button btnDate;
     private TextView txtResult;
+
+    /*
     private Button btnMethod;
     private EditText txtNote;
     private RadioButton rbExpense;
@@ -64,8 +62,10 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private String prev;
     private String func;
     private String tmp;
+    */
+
     private Boolean decimal;
-    private String preview;
+    // private String preview;
 
     private String result;
     private int parenthesis;
@@ -76,6 +76,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     private DatePicker datePicker;
     private Calendar date;
+    private TextView txtNote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,13 +84,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_create_transaction);
 
         // Transaction details
-        findViewById(R.id.rbExpense).setOnClickListener(this);
-        findViewById(R.id.rbIncome).setOnClickListener(this);
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
         findViewById(R.id.btnChooseCategory).setOnClickListener(this);
         findViewById(R.id.btnMethod).setOnClickListener(this);
         findViewById(R.id.btnDate).setOnClickListener(this);
-        findViewById(R.id.txtNote).setOnClickListener(this);
+        txtNote = (TextView) findViewById(R.id.txtNote);
 
 
         findViewById(R.id.btnFinish).setOnClickListener(this);
@@ -120,6 +119,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
 
+        datePicker = (DatePicker) findViewById(R.id.datePicker);
+
         // Calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
         result = "";
@@ -133,30 +134,49 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnDateFinish).setOnClickListener(this);
         btnDateFinish = (Button) findViewById(R.id.btnDateFinish);
         date = Calendar.getInstance();
-        setDate(Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR);
+        updateDate(date);
+
+        btnDateFinish.setVisibility(View.GONE);
+        datePicker.setVisibility(View.GONE);
 
         // Transaction initialisation
         transaction = new Transaction("ID", 0.00, "NULL", date, "", "NULL", false, false);
         // (String nID, Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
     }
-    private StringBuilder setDate(int year, int month, int day) {
+
+    private void updateDate(Calendar c) {
+        int day = c.get(Calendar.DAY_OF_WEEK);
+        int month = c.get(Calendar.MONTH);
+        int year = c.get(Calendar.YEAR);
+
         StringBuilder currDate = new StringBuilder().append(day).append("/")
                 .append(month).append("/").append(year);
         btnDate.setText(currDate);
-        return currDate;
-
     }
 
+    public void onRadioButtonClicked(View view) {
+        boolean taxableChecked = ((RadioButton) view).isChecked();
 
+        switch(view.getId()) {
+            case R.id.rbTaxDeductable:
+                taxableChecked = !taxableChecked;
+                break;
+        }
+    }
 
     public void onClick(View v) {
         switch (v.getId()) {
-            // radial expense
-            // radial income
-            // radial taxable
             case R.id.btnFinish:
                 transaction.setNote(txtNote.getText().toString());
+                /*
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                // DatabaseReference myRef = database.getReference('message');
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                DatabaseReference tranRef = database.getReference("users/" + currentUser.getUid());
+                tranRef.push()
+                test.setValue("Hello, World!");
+                */
                 //intent return to details
                 break;
             case R.id.btnChooseCategory:
@@ -166,13 +186,14 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 // intent open buttons menu
                 break;
             case R.id.btnDate:
-                datePicker.setVisibility(View.VISIBLE);
                 btnDateFinish.setVisibility(View.VISIBLE);
+                datePicker.setVisibility(View.VISIBLE);
 
-                // intent start datepicker
+                // intent start datePicker
                 break;
             case R.id.btnDateFinish:
-                setDate(Calendar.DAY_OF_YEAR, Calendar.MONTH, Calendar.YEAR);
+                date.set (datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                updateDate(date);
                 datePicker.setVisibility(View.GONE);
                 btnDateFinish.setVisibility(View.GONE);
                 break;
