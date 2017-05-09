@@ -102,7 +102,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
         findViewById(R.id.btnClear).setOnClickListener(this);
-        findViewById(R.id.btnPercentage).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
         findViewById(R.id.btnMin).setOnClickListener(this);
         findViewById(R.id.btnMult).setOnClickListener(this);
@@ -224,9 +223,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 parenthesis = 0;
                 operatorLast = false;
                 decimal = false;
-                break;
-            case R.id.btnPercentage:
-                opUpdate("%");
                 break;
             case R.id.btnOpen:
                 parenthesis += 1;

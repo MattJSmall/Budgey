@@ -65,7 +65,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         imgPhoto = (ImageView) findViewById(R.id.imgProfile);
 
         // Initial Visibility
-        //setVisibility(false); // boolean represents signed in.
+        setVisibility(false); // boolean represents signed in.
 
         // Google Sign-In
         // Configure sign-in to request the user's ID, email address, and basic
@@ -82,9 +82,8 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        if (mGoogleApiClient.isConnected()) {
-            signIn();
-        }
+        signIn();
+        setVisibility(true);
 
         // Firebase currently signed in account
         mAuth = FirebaseAuth.getInstance();
@@ -182,6 +181,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
+        setVisibility(false);
     }
 
     public void setVisibility(boolean signed) {
