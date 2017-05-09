@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -93,7 +94,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         findViewById(R.id.btnFinish).setOnClickListener(this);
 
-        // Calculator UI componenets
+        // Calculator UI components
+        ImageButton btnBackSpace = (ImageButton) findViewById(R.id.btnBack);
+        findViewById(R.id.btnBack).setOnClickListener(this);
+        btnBackSpace.setBackgroundResource(R.drawable.back); // backspace visualisation
+
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
         findViewById(R.id.btnClear).setOnClickListener(this);
