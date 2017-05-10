@@ -1,6 +1,9 @@
 package mjsma5.budgey;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -8,17 +11,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.Stack;
@@ -26,7 +34,6 @@ import java.util.Stack;
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
 
-    private Button btnDateFinish;
     private Button btnDate;
     private TextView txtResult;
 
@@ -72,6 +79,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     // private String preview;
     private ImageButton btnMethod;
 
+    private String input;
     private String result;
     private int parenthesis;
     private boolean reset;
@@ -83,16 +91,22 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Calendar date;
     private TextView txtNote;
 
+    private RelativeLayout layoutDate;
+
     public AlertDialog.Builder methodMenu;
+    public AlertDialog.Builder categoryMenu;
+    public CheckBox taxable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
+
         // Transaction details
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
-        findViewById(R.id.btnChooseCategory).setOnClickListener(this);
+        findViewById(R.id.btnCategory).setOnClickListener(this);
         btnMethod = (ImageButton) findViewById(R.id.btnMethod);
         findViewById(R.id.btnMethod).setOnClickListener(this);
         findViewById(R.id.btnDate).setOnClickListener(this);
@@ -104,7 +118,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Calculator UI components
         ImageButton btnBackSpace = (ImageButton) findViewById(R.id.btnBack);
         findViewById(R.id.btnBack).setOnClickListener(this);
-        btnBackSpace.setImageResource(R.drawable.backspace); // backspace visualisation
+        btnBackSpace.setImageResource(R.drawable.backspace_main); // backspace visualisation
 
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
@@ -142,22 +156,18 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         // Date Picker
         btnDate = (Button) findViewById(R.id.btnDate);
-        findViewById(R.id.btnDateFinish).setOnClickListener(this);
-        btnDateFinish = (Button) findViewById(R.id.btnDateFinish);
         date = Calendar.getInstance();
-        updateDate(date);
+        setDate();
 
-        btnDateFinish.setVisibility(View.GONE);
-        datePicker.setVisibility(View.GONE);
 
         // Transaction initialisation
-        transaction = new Transaction("ID", 0.00, "NULL", date, "", "cash", false, false);
+        transaction = new Transaction("ID", "0.00", "NULL",  "0 0 0", "Note", "cash", false, false);
         // (String nID, Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
         methodMenu.setTitle("Select a Transaction Method");
-        methodMenu.setItems(new CharSequence[] {"Cash", "Paypal", "Debit", "Credit"},
+        methodMenu.setItems(new CharSequence[] {"Cash", "PayPal", "Debit", "Credit"},
             new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     // The 'which' argument contains the index position
@@ -179,33 +189,55 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 }
         });
 
+        categoryMenu = new AlertDialog.Builder(this);
+        categoryMenu.setTitle("Select a Category");
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference userRef = database.getReference("users/").child(user.getUid());
+        userRef.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                input = dataSnapshot.getValue().toString();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+
+        });
+        final String[] categories = input.split(" ");
+        categoryMenu.setItems(categories,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                transaction.setMethod(categories[0]);
+                                break;
+                            case 1:
+                                transaction.setMethod(categories[1]);
+                                break;
+                            case 2:
+                                transaction.setMethod(categories[2]);
+                                break;
+                            case 3:
+                                transaction.setMethod(categories[3]);
+                                break;
+                        }
+                    }
+                });
     }
-
-    private void updateDate(Calendar c) {
-        int day = c.get(Calendar.DAY_OF_WEEK);
-        int month = c.get(Calendar.MONTH);
-        int year = c.get(Calendar.YEAR);
-
-        StringBuilder currDate = new StringBuilder().append(day).append("/")
-                .append(month).append("/").append(year);
-        btnDate.setText(currDate);
-    }
-
-    public void onRadioButtonClicked(View view) {
-        boolean taxableChecked = ((RadioButton) view).isChecked();
-
-        switch(view.getId()) {
-            case R.id.rbTaxDeductable:
-                taxableChecked = !taxableChecked;
-                break;
-        }
-    }
-
-    public void onClick(View v) {
+  public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnFinish:
                 transaction.setNote(txtNote.getText().toString());
+                transaction.setAmount(txtResult.getText().toString());
+                transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
                 transaction.updateDatabase();
+                Intent home = new Intent(this, Landing.class);
+                startActivity(home);
                 /*
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 // DatabaseReference myRef = database.getReference('message');
@@ -216,24 +248,22 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 */
                 //intent return to details
                 break;
-            case R.id.btnChooseCategory:
-                // intent open list
+            case R.id.btnCategory:
+                categoryMenu.show();
+                break;
+            case R.id.rbTaxDeductable:
+                transaction.switchTaxable();
                 break;
             case R.id.btnMethod:
                 methodMenu.show();
                 setMethodImage();
                 break;
             case R.id.btnDate:
-                btnDateFinish.setVisibility(View.VISIBLE);
-                datePicker.setVisibility(View.VISIBLE);
-
-                // intent start datePicker
-                break;
-            case R.id.btnDateFinish:
-                date.set (datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
-                updateDate(date);
-                datePicker.setVisibility(View.GONE);
-                btnDateFinish.setVisibility(View.GONE);
+                showDialog(R.id.datePicker);
+                // btnDateFinish.setVisibility(View.VISIBLE);
+                // datePicker.setVisibility(View.VISIBLE);
+                // layoutDate.setTranslationY(datePicker.getY() + 8);
+                // close on date select
                 break;
 
             // Calculator buttons
@@ -435,5 +465,31 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
      */
     private boolean isOperator(char ch) {
         return ch == '*' || ch == '/' || ch == '+' || ch == '-';
+    }
+
+    //date functions
+    private void setDate() {
+        StringBuilder currDate = new StringBuilder().append(date.get(Calendar.DAY_OF_WEEK)).append(", ")
+                .append(date.get(Calendar.DAY_OF_MONTH)).append(" ").append(date.get(Calendar.MONTH)).append(" ").append(date.get(Calendar.YEAR));
+        btnDate.setText(currDate);
+    }
+
+    private DatePickerDialog.OnDateSetListener myDateListener = new
+            DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    date.set(year, month, dayOfMonth);
+                    setDate();
+                }
+            };
+
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case R.id.datePicker:
+                return new DatePickerDialog(this,
+                        myDateListener,
+                        date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH));
+        }
+        return null;
     }
 }

@@ -42,7 +42,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.04000002"
-        app:srcCompat="@drawable/back" />
+        app:srcCompat="@drawable/back"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
 
     <TextView
@@ -59,7 +61,9 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgProfile"
-        app:layout_constraintHorizontal_bias="0.517" />
+        app:layout_constraintHorizontal_bias="0.517"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
     <TextView
         android:id="@+id/txtEmail"
@@ -77,11 +81,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDisplayName"
-        app:layout_constraintVertical_bias="0.065" />
+        app:layout_constraintVertical_bias="0.065"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/btn_sign_in"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="47dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"

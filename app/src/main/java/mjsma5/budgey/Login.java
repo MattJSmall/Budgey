@@ -197,7 +197,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
             txtPersonName.setVisibility(View.GONE);
             txtEmail.setVisibility(View.GONE);
             imgPhoto.setVisibility(View.GONE);
-            btn_go.setVisibility(View.GONE);
+            btn_go.setVisibility(View.VISIBLE);
             btnSignOut.setVisibility(View.VISIBLE);
             btnSignIn.setVisibility(View.VISIBLE);
         }

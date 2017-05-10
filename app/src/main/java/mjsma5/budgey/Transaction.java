@@ -18,15 +18,15 @@ import mjsma5.budgey.Login;
 
 public class Transaction {
     private String id;             // Unique transaction ID
-    private Double amount;       // Transaction's Cost
+    private String amount;       // Transaction's Cost
     private String category;    // Transaction's user chosen category
-    private Calendar date;          // Date transaction entered, default current day
+    private String date;          // Date transaction entered, default current day
     private String note;        // Extra user entered details
     private String method;      // Payment used (eg, Paypal, Visa ...)
     private boolean taxable;    // Boolean if transaction flagged for taxable
     private boolean type;       // true: positive, false: negative
 
-    public Transaction(String nID, Double nAmount, String nCategory, Calendar nDate, String nNote,
+    public Transaction(String nID, String nAmount, String nCategory, String nDate, String nNote,
                        String nMethod, Boolean nTaxable, Boolean nType) {
         amount = nAmount;
         category = nCategory;
@@ -41,9 +41,9 @@ public class Transaction {
 
     // Methods to set
     public void setId(String item) { id = item; };
-    public void setAmount(Double item) { amount = item; }
+    public void setAmount(String item) { amount = item; }
     public void setCategory(String item) { category = item; }
-    public void setDate(Calendar item) { date = item; }
+    public void setDate(String item) { date = item; }
     public void setNote(String item) { note = item; }
     public void setMethod(String item) { method = item; }
     void switchType(boolean t) {
@@ -54,7 +54,7 @@ public class Transaction {
     }
     public void setType(Boolean item) { type = item; }
 
-    // Method to update databsase
+    // Method to update database
     public void updateDatabase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
