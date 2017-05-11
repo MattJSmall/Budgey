@@ -15,6 +15,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -22,13 +23,18 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Comment;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Stack;
 
 
@@ -96,13 +102,24 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
     public CheckBox taxable;
+    public String uID;
+    public CategoryList categories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        categories = new CategoryList();
         layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
+
+        // Establish connection to Firebase User account
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        uID = user.getUid();
+
+        DatabaseReference userRef = database.getReference("users/").child(uID);
+
 
         // Transaction details
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
@@ -192,43 +209,26 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference userRef = database.getReference("users/").child(user.getUid());
-        userRef.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
+        final DatabaseReference categoryRef = database.getReference("users/" + uID + "/categories");
+        categoryRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                input = dataSnapshot.getValue().toString();
+                for (DataSnapshot categorySnapshot: dataSnapshot.getChildren()) {
+                    categories.addItem(categorySnapshot.getKey(), categorySnapshot.getValue().toString());
+                }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadCategory:onCancelled", databaseError.toException());
+                // ...
             }
-
         });
-        final String[] categories = input.split(" ");
-        categoryMenu.setItems(categories,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
-                        switch (which) {
-                            case 0:
-                                transaction.setMethod(categories[0]);
-                                break;
-                            case 1:
-                                transaction.setMethod(categories[1]);
-                                break;
-                            case 2:
-                                transaction.setMethod(categories[2]);
-                                break;
-                            case 3:
-                                transaction.setMethod(categories[3]);
-                                break;
-                        }
-                    }
-                });
+        
+
+        categoryRef.addChildEventListener(childEventListener);
     }
+
   public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnFinish:
@@ -238,17 +238,30 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 transaction.updateDatabase();
                 Intent home = new Intent(this, Landing.class);
                 startActivity(home);
-                /*
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                // DatabaseReference myRef = database.getReference('message');
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                DatabaseReference tranRef = database.getReference("users/" + currentUser.getUid());
-                tranRef.push()
-                test.setValue("Hello, World!");
-                */
-                //intent return to details
                 break;
             case R.id.btnCategory:
+                final String[] menuItems= categories.getAll();
+                categoryMenu.setItems(menuItems,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                                switch (which) {
+                                    case 0:
+                                        transaction.setMethod(menuItems[0]);
+                                        break;
+                                    case 1:
+                                        transaction.setMethod(menuItems[1]);
+                                        break;
+                                    case 2:
+                                        transaction.setMethod(menuItems[2]);
+                                        break;
+                                    case 3:
+                                        transaction.setMethod(menuItems[3]);
+                                        break;
+                                }
+                            }
+                        });
                 categoryMenu.show();
                 break;
             case R.id.rbTaxDeductable:
@@ -492,4 +505,50 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         }
         return null;
     }
+
+
+    // Category Event Listener
+    String TAG = "FIREBASE";
+    public ChildEventListener childEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
+            // A new category has been added, add it to the displayed list
+             categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+
+            // A Category has been removed. Delete from possible categories and remove all
+            // transactions associated.
+            categories.delItem(dataSnapshot.getKey());
+
+            // ~ delete transactions to be added
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+
+            // A comment has changed position, use the key to determine if we are
+            // displaying this comment and if so move it.
+            Comment movedComment = dataSnapshot.getValue(Comment.class);
+            String commentKey = dataSnapshot.getKey();
+
+            // ...
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w(TAG, "category:onCancelled", databaseError.toException());
+        }
+    };
 }
