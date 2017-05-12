@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Comment;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -101,9 +102,12 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
+    public AlertDialog.Builder createCategoryDialog;
     public CheckBox taxable;
     public String uID;
     public CategoryList categories;
+
+    public DatabaseReference categoryRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,15 +115,17 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_create_transaction);
 
         categories = new CategoryList();
-        layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Establish connection to Firebase User account
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         uID = user.getUid();
 
-        DatabaseReference userRef = database.getReference("users/").child(uID);
+        final DatabaseReference userRef = database.getReference("users/").child(uID);
+        categoryRef = database.getReference("users/" + uID + "/categories");
+        categoryRef.addChildEventListener(childEventListener);
 
+        layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Transaction details
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
@@ -203,30 +209,37 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                             transaction.setMethod("credit");
                             break;
                     }
+                    setMethodImage();
                 }
         });
+
+        // Alert Dialogs
+
+
 
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
 
-        final DatabaseReference categoryRef = database.getReference("users/" + uID + "/categories");
-        categoryRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot categorySnapshot: dataSnapshot.getChildren()) {
-                    categories.addItem(categorySnapshot.getKey(), categorySnapshot.getValue().toString());
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadCategory:onCancelled", databaseError.toException());
-                // ...
+
+    }
+    public AlertDialog.Builder reinstanceCreateCategory() {
+        AlertDialog.Builder createCategory = new AlertDialog.Builder(this);
+        createCategory.setTitle("Please enter name of category");
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        createCategory.setView(input);
+        createCategory.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String key = categoryRef.push().getKey();
+                categoryRef.child(key).setValue(input.getText().toString());
             }
         });
-        
-
-        categoryRef.addChildEventListener(childEventListener);
+        createCategory.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+        return createCategory;
     }
 
   public void onClick(View v) {
@@ -240,43 +253,31 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 startActivity(home);
                 break;
             case R.id.btnCategory:
+                createCategoryDialog = reinstanceCreateCategory();
                 final String[] menuItems= categories.getAll();
                 categoryMenu.setItems(menuItems,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // The 'which' argument contains the index position
                                 // of the selected item
-                                switch (which) {
-                                    case 0:
-                                        transaction.setMethod(menuItems[0]);
-                                        break;
-                                    case 1:
-                                        transaction.setMethod(menuItems[1]);
-                                        break;
-                                    case 2:
-                                        transaction.setMethod(menuItems[2]);
-                                        break;
-                                    case 3:
-                                        transaction.setMethod(menuItems[3]);
-                                        break;
+                                if (which == menuItems.length - 1) {
+                                    createCategoryDialog.show();
+                                } else {
+                                    transaction.setCategory(menuItems[which]);
                                 }
                             }
                         });
                 categoryMenu.show();
+
                 break;
             case R.id.rbTaxDeductable:
                 transaction.switchTaxable();
                 break;
             case R.id.btnMethod:
                 methodMenu.show();
-                setMethodImage();
                 break;
             case R.id.btnDate:
                 showDialog(R.id.datePicker);
-                // btnDateFinish.setVisibility(View.VISIBLE);
-                // datePicker.setVisibility(View.VISIBLE);
-                // layoutDate.setTranslationY(datePicker.getY() + 8);
-                // close on date select
                 break;
 
             // Calculator buttons
@@ -375,29 +376,18 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     Log.d("EVALUATION_OUTPUT", result);
                     reset = true;
                 } else {
-                Log.d("INPUT ERROR", "PARENTHESIS");
+                    Toast parenthesisError = new Toast(this);
+                    parenthesisError.setText("Parenthesis Mismatch");
+                    parenthesisError.show();
+                    Log.d("INPUT ERROR", "PARENTHESIS");
                 }
                 break;
         }
         txtResult.setText("$" + result);
     }
-
-    public void setMethodImage() {
-        switch (transaction.getMethod()) {
-            case "cash":
-                btnMethod.setImageResource(R.drawable.cash);
-                break;
-            case "credit":
-                btnMethod.setImageResource(R.drawable.visa);
-                break;
-            case "debit":
-                btnMethod.setImageResource(R.drawable.card);
-                break;
-            case "paypal":
-                btnMethod.setImageResource(R.drawable.paypal);
-        }
+    public void createNewCategory() {
+        // Create a popup menu for
     }
-
 
 
     public String evaluate(String infix) {
@@ -409,7 +399,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
             result = "";
             txtResult.setText(result);
             Log.d("INPUT ERROR", "EVALUATION ERROR");
-            return "error"; // insert error reporting
+            return "error"; // ~ insert error reporting
         } else {
             return value;
         }
@@ -482,9 +472,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     //date functions
     private void setDate() {
-        StringBuilder currDate = new StringBuilder().append(date.get(Calendar.DAY_OF_WEEK)).append(", ")
-                .append(date.get(Calendar.DAY_OF_MONTH)).append(" ").append(date.get(Calendar.MONTH)).append(" ").append(date.get(Calendar.YEAR));
-        btnDate.setText(currDate);
+        String format = new SimpleDateFormat("EEEE d, MMMM yyyy").format(date.getTime());
+        btnDate.setText(format);
     }
 
     private DatePickerDialog.OnDateSetListener myDateListener = new
@@ -512,10 +501,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-            Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-
-            // A new category has been added, add it to the displayed list
-             categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+            Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey() + " value:" + dataSnapshot.getValue());
+            categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
         }
 
         @Override
@@ -526,24 +513,17 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-
-            // A Category has been removed. Delete from possible categories and remove all
-            // transactions associated.
             categories.delItem(dataSnapshot.getKey());
-
             // ~ delete transactions to be added
         }
 
         @Override
         public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
             Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-
             // A comment has changed position, use the key to determine if we are
             // displaying this comment and if so move it.
             Comment movedComment = dataSnapshot.getValue(Comment.class);
             String commentKey = dataSnapshot.getKey();
-
-            // ...
         }
 
         @Override
@@ -551,4 +531,19 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
             Log.w(TAG, "category:onCancelled", databaseError.toException());
         }
     };
+    public void setMethodImage() {
+        switch (transaction.getMethod()) {
+            case "cash":
+                btnMethod.setImageResource(R.drawable.cash);
+                break;
+            case "credit":
+                btnMethod.setImageResource(R.drawable.visa);
+                break;
+            case "debit":
+                btnMethod.setImageResource(R.drawable.card);
+                break;
+            case "paypal":
+                btnMethod.setImageResource(R.drawable.paypal);
+        }
+    }
 }

@@ -5,16 +5,16 @@ package mjsma5.budgey;
  */
 
 public class Category {
-    private static String key;
-    private static String value;
+    private String key;
+    private String value;
 
-    public Category(String key, String value) {
-        Category.key = key;
-        Category.value = value;
+    public Category(String k, String v) {
+        key = k;
+        value = v;
     }
 
-    public void setValue(String value) {
-        Category.value = value;
+    public void setValue(String v) {
+        value = v;
     }
 
     public String getValue() {
