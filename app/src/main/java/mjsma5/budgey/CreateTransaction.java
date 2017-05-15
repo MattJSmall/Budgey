@@ -44,44 +44,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Button btnDate;
     private TextView txtResult;
 
-    /*
-    private EditText txtNote;
-    private RadioButton rbExpense;
-    private RadioButton rbIncome;
-    private RadioButton rbTaxable;
-    private Button btnCategory;
-
-    // Calculator
-    private Button btnClose;
-    private Button btnClear;
-    private Button btnPercentage;
-    private Button btnOpen;
-
-    private Button btn7;
-    private Button btn8;
-    private Button btn9;
-    private Button btnDiv;
-
-    private Button btn4;
-    private Button btn5;
-    private Button btn6;
-    private Button btnMult;
-
-    private Button btn1;
-    private Button btn2;
-    private Button btn3;
-    private Button btnMin;
-
-    private Button btnEquals;
-    private Button btnDecimal;
-    private Button btnSum;
-    private Button btn0;
-
-    private String prev;
-    private String func;
-    private String tmp;
-    */
-
     private Boolean decimal;
     // private String preview;
     private ImageButton btnMethod;
@@ -121,7 +83,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         uID = user.getUid();
 
-        final DatabaseReference userRef = database.getReference("users/").child(uID);
+        //final DatabaseReference userRef = database.getReference("users/").child(uID);
         categoryRef = database.getReference("users/" + uID + "/categories");
         categoryRef.addChildEventListener(childEventListener);
 
@@ -184,8 +146,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
         // Transaction initialisation
-        transaction = new Transaction("ID", "0.00", "NULL",  "0 0 0", "Note", "cash", false, false);
-        // (String nID, Double nAmount, String nCategory, String nDate, String nNote,
+        transaction = new Transaction("0.00", "NULL",  "0 0 0", "Note", "cash", false, false);
+        // (Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
@@ -245,12 +207,20 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
   public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnFinish:
-                transaction.setNote(txtNote.getText().toString());
-                transaction.setAmount(txtResult.getText().toString());
-                transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
-                transaction.updateDatabase();
-                Intent home = new Intent(this, Landing.class);
-                startActivity(home);
+                if (result.equals("")) {
+                    Toast valueError = Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT);
+                    valueError.show();
+                } else if (transaction.getCategory().equals("NULL")) {
+                    Toast categoryError = Toast.makeText(this, "Please enter a Category", Toast.LENGTH_SHORT);
+                    categoryError.show();
+                } else {
+                    transaction.setNote(txtNote.getText().toString());
+                    transaction.setAmount(result);
+                    transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
+                    transaction.updateDatabase();
+                    Intent home = new Intent(this, Landing.class);
+                    startActivity(home);
+                }
                 break;
             case R.id.btnCategory:
                 createCategoryDialog = reinstanceCreateCategory();
@@ -376,8 +346,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     Log.d("EVALUATION_OUTPUT", result);
                     reset = true;
                 } else {
-                    Toast parenthesisError = new Toast(this);
-                    parenthesisError.setText("Parenthesis Mismatch");
+                    Toast parenthesisError = Toast.makeText(this, "Parenthesis Mismatch", Toast.LENGTH_SHORT);
                     parenthesisError.show();
                     Log.d("INPUT ERROR", "PARENTHESIS");
                 }

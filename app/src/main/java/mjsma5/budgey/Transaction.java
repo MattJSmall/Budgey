@@ -26,7 +26,9 @@ public class Transaction {
     private boolean taxable;    // Boolean if transaction flagged for taxable
     private boolean type;       // true: positive, false: negative
 
-    public Transaction(String nID, String nAmount, String nCategory, String nDate, String nNote,
+    public Transaction(){}
+
+    public Transaction(String nAmount, String nCategory, String nDate, String nNote,
                        String nMethod, Boolean nTaxable, Boolean nType) {
         amount = nAmount;
         category = nCategory;
@@ -38,6 +40,8 @@ public class Transaction {
     }
     // methods to get
     public String getID() { return id; }
+    public String getCategory() {return category;}
+    public String getAmount() {return amount;}
 
     // Methods to set
     public void setId(String item) { id = item; };
@@ -59,8 +63,8 @@ public class Transaction {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference userRef = database.getReference("users/").child(user.getUid());
-        String key = userRef.child("transactions").push().getKey();
+        DatabaseReference userRef = database.getReference("users/" + user.getUid() + "/transactions");
+        String key = userRef.push().getKey();
         HashMap<String, Object> result = new HashMap<>();
         result.put("amount", amount);
         result.put("category", category);
