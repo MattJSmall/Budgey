@@ -50,6 +50,9 @@ public class Transaction {
     public void setDate(String item) { date = item; }
     public void setNote(String item) { note = item; }
     public void setMethod(String item) { method = item; }
+    public void setTaxable(String item)  { taxable = item.equals("true"); }
+    public void setType(String item)  { type = item.equals("true"); }
+
     void switchType(boolean t) {
         type = t;
     }
@@ -82,8 +85,3 @@ public class Transaction {
     }
 }
 
-/* access
-    String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-    Transaction transaction = new Transaction("a", 12.12, "b", currentDateTimeString, "c", "d", true, true);
-    transaction.updateDatabase();
- */

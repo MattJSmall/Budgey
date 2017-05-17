@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class Login extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class preLoad extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -37,8 +37,8 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
     private TextView txtPersonName;
     private TextView txtEmail;
     private ImageView imgPhoto;
-    
-    
+
+
     private SignInButton btnSignIn;
     private Button btnSignOut;
     private Button btn_go;      //// edit out
@@ -46,21 +46,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-        mAuth = FirebaseAuth.getInstance();
-        signIn();
+        setContentView(R.layout.activity_pre_load);
 
         // Button init
         btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
@@ -84,7 +70,35 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         // Google Sign-In
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
 
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        signIn();
+        Intent intent = new Intent(this, Landing.class);
+        startActivity(intent);
+        Log.d("REACHED", "intent reached");
+
+        setVisibility(true);
+
+        // Firebase currently signed in account
+        mAuth = FirebaseAuth.getInstance();
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override
@@ -126,8 +140,8 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
                 Log.d(TAG, "FirebaseAuthentication:Success");
-                Intent intent = new Intent(this, Landing.class);
-                startActivity(intent);
+                updateUI(account);
+                setVisibility(true);
 
             } else {
                 // Google Sign in failed update accordingly
@@ -151,7 +165,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(Login.this, "Authentication failed.",
+                            Toast.makeText(preLoad.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -162,7 +176,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         txtPersonName.setText(account.getDisplayName());
         txtEmail.setText(account.getEmail());
         new ImageLoadTask(account.getPhotoUrl().toString(), imgPhoto).execute();
-        
+
     }
 
     // [required] error reporting
@@ -196,3 +210,4 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
 
 
 }
+
