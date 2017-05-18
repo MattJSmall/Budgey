@@ -65,27 +65,22 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
     public AlertDialog.Builder createCategoryDialog;
-    public CheckBox taxable;
-    public String uID;
     public CategoryList categories;
 
-    public DatabaseReference categoryRef;
+    DatabaseReference catRef;
+
+    private static FirebaseDatabase database;
+    private static String uID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        database = GoogleSignInActivity.database;
         categories = new CategoryList();
 
-        // Establish connection to Firebase User account
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        uID = user.getUid();
-
-        //final DatabaseReference userRef = database.getReference("users/").child(uID);
-        categoryRef = database.getReference("users/" + uID + "/categories");
-        categoryRef.addChildEventListener(childEventListener);
+        // final DatabaseReference userRef = database.getReference("users/").child(uID);
 
         layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
@@ -179,11 +174,29 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
 
+
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
 
 
     }
+
+    public void setMethodImage() {
+        switch (transaction.getMethod()) {
+            case "cash":
+                btnMethod.setImageResource(R.drawable.cash);
+                break;
+            case "credit":
+                btnMethod.setImageResource(R.drawable.visa);
+                break;
+            case "debit":
+                btnMethod.setImageResource(R.drawable.card);
+                break;
+            case "paypal":
+                btnMethod.setImageResource(R.drawable.paypal);
+        }
+    }
+
     public AlertDialog.Builder reinstanceCreateCategory() {
         AlertDialog.Builder createCategory = new AlertDialog.Builder(this);
         createCategory.setTitle("Please enter name of category");
@@ -192,8 +205,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         createCategory.setView(input);
         createCategory.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String key = categoryRef.push().getKey();
-                categoryRef.child(key).setValue(input.getText().toString());
+                String key = catRef.push().getKey();
+                catRef.child(key).setValue(input.getText().toString());
             }
         });
         createCategory.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -465,54 +478,5 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     }
 
 
-    // Category Event Listener
-    String TAG = "FIREBASE";
-    public ChildEventListener childEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-            Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey() + " value:" + dataSnapshot.getValue());
-            categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
-        }
 
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-            Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-            categories.delItem(dataSnapshot.getKey());
-            // ~ delete transactions to be added
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-            Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-            // A comment has changed position, use the key to determine if we are
-            // displaying this comment and if so move it.
-            Comment movedComment = dataSnapshot.getValue(Comment.class);
-            String commentKey = dataSnapshot.getKey();
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            Log.w(TAG, "category:onCancelled", databaseError.toException());
-        }
-    };
-    public void setMethodImage() {
-        switch (transaction.getMethod()) {
-            case "cash":
-                btnMethod.setImageResource(R.drawable.cash);
-                break;
-            case "credit":
-                btnMethod.setImageResource(R.drawable.visa);
-                break;
-            case "debit":
-                btnMethod.setImageResource(R.drawable.card);
-                break;
-            case "paypal":
-                btnMethod.setImageResource(R.drawable.paypal);
-        }
-    }
 }

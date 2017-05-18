@@ -25,6 +25,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Login extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
@@ -32,21 +34,27 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
     private static final int RC_SIGN_IN = 9001;
 
     private GoogleApiClient mGoogleApiClient;
-    private FirebaseAuth mAuth;
+    public FirebaseAuth mAuth;
 
     private TextView txtPersonName;
     private TextView txtEmail;
     private ImageView imgPhoto;
-    
-    
+
+
     private SignInButton btnSignIn;
     private Button btnSignOut;
     private Button btn_go;      //// edit out
+
+    private static String uID;
+    private static DatabaseReference userRef;
+    private static FirebaseDatabase database;
+    private boolean startup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        startup = true;
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -92,6 +100,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
         switch (v.getId()) {
             case R.id.btn_sign_in:
                 signIn();
+
                 break;
             case R.id.btn_sign_out:
                 signOut();
@@ -126,6 +135,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
                 Log.d(TAG, "FirebaseAuthentication:Success");
+                database = FirebaseDatabase.getInstance();
                 Intent intent = new Intent(this, Landing.class);
                 startActivity(intent);
 

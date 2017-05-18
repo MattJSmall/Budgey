@@ -16,19 +16,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Landing" />
-        <activity android:name=".Login">
+        <activity android:name=".Login" />
+        <activity android:name=".CreateTransaction" />
+        <activity android:name=".testActivity" />
+        <activity
+            android:name=".tab_navigation"
+            android:label="@string/title_activity_tab_navigation" />
+        <activity android:name=".preLoad" />
+        <activity android:name=".GoogleSignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CreateTransaction" />
-        <activity android:name=".testActivity" />
-        <activity
-            android:name=".tab_navigation"
-            android:label="@string/title_activity_tab_navigation" />
-        <activity android:name=".preLoad"></activity>
+
+        <service
+            android:name=".FirebaseServices"
+            android:exported="false"></service>
     </application>
 
 </manifest>

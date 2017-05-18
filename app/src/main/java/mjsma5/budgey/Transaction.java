@@ -28,6 +28,9 @@ public class Transaction {
 
     public Transaction(){}
 
+    DatabaseReference transRef = GoogleSignInActivity.transRef;
+
+
     public Transaction(String nAmount, String nCategory, String nDate, String nNote,
                        String nMethod, Boolean nTaxable, Boolean nType) {
         amount = nAmount;
@@ -63,11 +66,14 @@ public class Transaction {
 
     // Method to update database
     public void updateDatabase() {
+        /*
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         DatabaseReference userRef = database.getReference("users/" + user.getUid() + "/transactions");
-        String key = userRef.push().getKey();
+        */
+        DatabaseReference currTrans;
+        String key = transRef.push().getKey();
         HashMap<String, Object> result = new HashMap<>();
         result.put("amount", amount);
         result.put("category", category);
@@ -76,8 +82,8 @@ public class Transaction {
         result.put("method", method);
         result.put("taxable", taxable);
         result.put("type", type);
-        userRef = userRef.getRef().child("/" + key);
-        userRef.updateChildren(result);
+        currTrans = transRef.getRef().child("/" + key);
+        currTrans.updateChildren(result);
     }
 
     public String getMethod() {

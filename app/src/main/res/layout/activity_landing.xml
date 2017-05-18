@@ -26,7 +26,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="47dp"
         android:layout_marginStart="47dp"
-        android:text="Sign In"
+        android:text="@string/sign_in"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
