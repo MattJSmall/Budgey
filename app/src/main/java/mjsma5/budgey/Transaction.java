@@ -1,16 +1,8 @@
 package mjsma5.budgey;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.UUID;
-
-import mjsma5.budgey.Login;
 
 /**
  * Created by Matts on 27/04/2017.

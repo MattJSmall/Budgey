@@ -16,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Landing" />
-        <activity android:name=".Login" />
         <activity android:name=".CreateTransaction" />
         <activity android:name=".testActivity" />
         <activity

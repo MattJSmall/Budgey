@@ -96,28 +96,46 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
 
     public static void updateChart() {
+        /*
+        // option 2
+        PieDataSet set = new PieDataSet(entries, "Spending");
+
+        set.setSliceSpace(3f);
+        set.setSelectionShift(5f);
+
+        set.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        set.setValueLinePart1OffsetPercentage(80.f);
+        set.setValueLinePart1Length(0.2f);
+        set.setValueLinePart2Length(0.4f);
+
+        set.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        */
+
+
+        /* Option 1*/
         PieDataSet set = new PieDataSet(entries, "Spending");
         //set.setColors(colours);
 
         set.setSliceSpace(3f);
         set.setSelectionShift(8f);
+
         set.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
         set.setValueLinePart1OffsetPercentage(80.f);
         set.setValueLinePart1Length(0.4f);
         set.setValueLinePart2Length(0.2f);
-        set.setColors(ColorTemplate.VORDIPLOM_COLORS);
+
+        // set.setColors(ColorTemplate.VORDIPLOM_COLORS);
         set.setValueTextSize(14);
         set.setColors(colours);
 
 
         set.setValueTextColor(Color.BLACK);
         set.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        
+        /**/
         PieData data = new PieData(set);
         data.setValueTextColor(Color.BLACK);
-        
-        pChart.setData(data);
 
+        pChart.setData(data);
         pChart.setEntryLabelColor(Color.BLACK);
         pChart.setEntryLabelTextSize(18f);
 
@@ -125,6 +143,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         pChart.highlightValues(null);
 
         pChart.invalidate();
+
     }
 
 

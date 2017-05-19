@@ -111,6 +111,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 Intent intent = new Intent(this, Landing.class);
                 startActivity(intent);
                 startFirebaseServices();
+                startup = false;
             }
         } else {
             updateUI(null);
