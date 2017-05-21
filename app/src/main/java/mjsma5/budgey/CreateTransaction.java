@@ -67,7 +67,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder categoryMenu;
     public AlertDialog.Builder createCategoryDialog;
     public ArrayList<String> cat;
-
+    public static CategoryList categories;
     private String[] menuItems;
 
     DatabaseReference catRef;
@@ -80,6 +80,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        categories = FirebaseServices.categories;
         database = GoogleSignInActivity.database;
         catRef = database.getReference().child("categories");
 
@@ -259,13 +260,13 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btnCategory:
                 createCategoryDialog = reinstanceCreateCategory();
-                final String[] menuItems = cat.toArray(new String[ca]);
+                final String[] menuItems = categories.getAll();
                 categoryMenu.setItems(menuItems,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // The 'which' argument contains the index position
                                 // of the selected item
-                                if (which == menuItems.length - 1) {
+                                if (which == categories.size() - 1) {
                                     createCategoryDialog.show();
                                 } else {
                                     transaction.setCategory(menuItems[which]);

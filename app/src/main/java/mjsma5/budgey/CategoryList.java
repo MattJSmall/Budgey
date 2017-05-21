@@ -38,6 +38,9 @@ public class CategoryList {
             }
         }
     }
+    public int size() {
+        return categories.size() + 1;
+    }
     
     public String[] getAll() {
         String[] items = new String[categories.size() + 1];

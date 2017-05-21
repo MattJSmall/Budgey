@@ -62,7 +62,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         pChart.setNoDataText("Loading...");
         hue = (float) 0;
         colours = new ArrayList<>();
-        transactions = new ArrayList<>();
 
         findViewById(R.id.btnSignIn).setOnClickListener(this);
         findViewById(R.id.btnCreate).setOnClickListener(this);
