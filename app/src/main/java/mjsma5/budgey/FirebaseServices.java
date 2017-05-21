@@ -31,7 +31,7 @@ public class FirebaseServices extends IntentService {
 
     public static CategoryList categories = new CategoryList();
     public static ArrayList<Transaction> transactions = new ArrayList<>();
-    private ArrayList<String> curr_categories = new ArrayList<>();
+    public static ArrayList<String> curr_categories = new ArrayList<>();
 
     public static List<PieEntry> entries = new ArrayList<>();
 
@@ -97,12 +97,14 @@ public class FirebaseServices extends IntentService {
 
             // Chart update
             String cat = t.getCategory();
-            if (curr_categories.contains(cat)) {
-                Integer index = curr_categories.indexOf(cat);
-                entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
-            } else {
-                curr_categories.add(t.getCategory());
-                entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
+            if (!(t.gType())) {
+                if (curr_categories.contains(cat)) {
+                    Integer index = curr_categories.indexOf(cat);
+                    entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
+                } else {
+                    curr_categories.add(t.getCategory());
+                    entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
+                }
             }
             Landing.updateChart();
             /*

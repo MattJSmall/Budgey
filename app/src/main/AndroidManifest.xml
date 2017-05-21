@@ -21,7 +21,6 @@
         <activity
             android:name=".tab_navigation"
             android:label="@string/title_activity_tab_navigation" />
-        <activity android:name=".preLoad" />
         <activity android:name=".GoogleSignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

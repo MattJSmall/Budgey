@@ -37,6 +37,7 @@ public class Transaction {
     public String getID() { return id; }
     public String getCategory() {return category;}
     public String getAmount() {return amount;}
+    public Boolean gType() {return type; }
 
     // Methods to set
     public void setId(String item) { id = item; };

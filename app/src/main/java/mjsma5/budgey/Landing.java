@@ -59,13 +59,15 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         entries = FirebaseServices.entries;
 
         pChart = (PieChart) findViewById(R.id.pChart);
-
+        pChart.setNoDataText("Loading...");
         hue = (float) 0;
         colours = new ArrayList<>();
         transactions = new ArrayList<>();
 
         findViewById(R.id.btnSignIn).setOnClickListener(this);
         findViewById(R.id.btnCreate).setOnClickListener(this);
+        findViewById(R.id.btnPos).setOnClickListener(this);
+        findViewById(R.id.btnNeg).setOnClickListener(this);
 
         colours.add(Color.BLUE);
         colours.add(Color.RED);
@@ -82,13 +84,20 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnSignIn:
-                Intent sIntent = new Intent(this, Login.class);
+                Intent sIntent = new Intent(this, GoogleSignInActivity.class);
                 startActivity(sIntent);
                 Log.d("REACHED", "intent reached");
                 break;
-            case R.id.btnCreate:
-                Intent cIntent = new Intent(this, CreateTransaction.class);
-                startActivity(cIntent);
+            case R.id.btnPos:
+                Intent posIntent = new Intent(this, CreateTransaction.class);
+                posIntent.putExtra("type", true);
+                startActivity(posIntent);
+                Log.d("REACHED", "intent reached");
+                break;
+            case R.id.btnNeg:
+                Intent negIntent = new Intent(this, CreateTransaction.class);
+                negIntent.putExtra("type", false);
+                startActivity(negIntent);
                 Log.d("REACHED", "intent reached");
                 break;
         }
@@ -113,34 +122,32 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
 
         /* Option 1*/
+
         PieDataSet set = new PieDataSet(entries, "Spending");
-        //set.setColors(colours);
 
         set.setSliceSpace(3f);
         set.setSelectionShift(8f);
 
         set.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        set.setValueLinePart1OffsetPercentage(80.f);
+        set.setValueLinePart1OffsetPercentage(60.f);
         set.setValueLinePart1Length(0.4f);
         set.setValueLinePart2Length(0.2f);
 
-        // set.setColors(ColorTemplate.VORDIPLOM_COLORS);
         set.setValueTextSize(14);
         set.setColors(colours);
 
-
         set.setValueTextColor(Color.BLACK);
-        set.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        /**/
+
         PieData data = new PieData(set);
         data.setValueTextColor(Color.BLACK);
 
         pChart.setData(data);
         pChart.setEntryLabelColor(Color.BLACK);
         pChart.setEntryLabelTextSize(18f);
-
         // undo all highlights
-        pChart.highlightValues(null);
+
+        //pChart.highlightValues(null);
+        //pChart.setDrawSliceText(false);
 
         pChart.invalidate();
 

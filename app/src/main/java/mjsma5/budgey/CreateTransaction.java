@@ -65,7 +65,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
     public AlertDialog.Builder createCategoryDialog;
-    public CategoryList categories;
+    public String[] cat;
 
     DatabaseReference catRef;
 
@@ -78,7 +78,25 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_create_transaction);
 
         database = GoogleSignInActivity.database;
-        categories = new CategoryList();
+        catRef = database.getReference().child("categories");
+        cat = new String[0];
+
+        ValueEventListener categoryListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Categories object and use the values to update the UI
+                cat = dataSnapshot.getValue().toString().split(" ");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("Firebase", "loadCategories:onCancelled", databaseError.toException());
+            }
+        };
+        catRef.addValueEventListener(categoryListener);
+
+
 
         // final DatabaseReference userRef = database.getReference("users/").child(uID);
 
@@ -141,7 +159,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
         // Transaction initialisation
-        transaction = new Transaction("0.00", "NULL",  "0 0 0", "Note", "cash", false, false);
+        Intent intent = getIntent();
+        transaction = new Transaction("0.00", "NULL",  "0 0 0", "Note", "cash", false, intent.getBooleanExtra("type", false));
         // (Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
         setMethodImage();
@@ -171,14 +190,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         });
 
         // Alert Dialogs
-
-
-
-
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
-
-
     }
 
     public void setMethodImage() {
@@ -237,7 +250,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btnCategory:
                 createCategoryDialog = reinstanceCreateCategory();
-                final String[] menuItems= categories.getAll();
+                final String [] menuItems = new String[cat.length + 1];
+                for (int i = 0; i < cat.length; i++) {
+                    menuItems[i] = cat[i];
+                }
+                cat[menuItems.length - 1] = "New Category";
                 categoryMenu.setItems(menuItems,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -251,7 +268,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                             }
                         });
                 categoryMenu.show();
-
                 break;
             case R.id.rbTaxDeductable:
                 transaction.switchTaxable();
