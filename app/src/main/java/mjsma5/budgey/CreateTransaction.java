@@ -34,6 +34,7 @@ import org.w3c.dom.Comment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Stack;
@@ -65,7 +66,9 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
     public AlertDialog.Builder createCategoryDialog;
-    public String[] cat;
+    public ArrayList<String> cat;
+
+    private String[] menuItems;
 
     DatabaseReference catRef;
 
@@ -79,13 +82,18 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         database = GoogleSignInActivity.database;
         catRef = database.getReference().child("categories");
-        cat = new String[0];
+
+        /*
+        cat = new ArrayList<>();
+        cat.add("New Category");
 
         ValueEventListener categoryListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Categories object and use the values to update the UI
-                cat = dataSnapshot.getValue().toString().split(" ");
+                String catString = dataSnapshot.getValue().toString();
+                List<String> cat = new ArrayList<>(Arrays.asList(catString.split(",")));
+                cat.add("New Category");
             }
 
             @Override
@@ -95,6 +103,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
             }
         };
         catRef.addValueEventListener(categoryListener);
+        */
 
 
 
@@ -250,11 +259,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btnCategory:
                 createCategoryDialog = reinstanceCreateCategory();
-                final String [] menuItems = new String[cat.length + 1];
-                for (int i = 0; i < cat.length; i++) {
-                    menuItems[i] = cat[i];
-                }
-                cat[menuItems.length - 1] = "New Category";
+                final String[] menuItems = cat.toArray(new String[ca]);
                 categoryMenu.setItems(menuItems,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
