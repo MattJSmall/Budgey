@@ -48,6 +48,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private Boolean decimal;
     // private String preview;
     private ImageButton btnMethod;
+    private Button btnCategory;
 
     private String input;
     private String result;
@@ -80,40 +81,15 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        uID = GoogleSignInActivity.uID;
         categories = FirebaseServices.categories;
         database = GoogleSignInActivity.database;
         catRef = database.getReference().child("categories");
-
-        /*
-        cat = new ArrayList<>();
-        cat.add("New Category");
-
-        ValueEventListener categoryListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Categories object and use the values to update the UI
-                String catString = dataSnapshot.getValue().toString();
-                List<String> cat = new ArrayList<>(Arrays.asList(catString.split(",")));
-                cat.add("New Category");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w("Firebase", "loadCategories:onCancelled", databaseError.toException());
-            }
-        };
-        catRef.addValueEventListener(categoryListener);
-        */
-
-
-
-        // final DatabaseReference userRef = database.getReference("users/").child(uID);
-
         layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Transaction details
         findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
+        btnCategory = (Button) findViewById(R.id.btnCategory);
         findViewById(R.id.btnCategory).setOnClickListener(this);
         btnMethod = (ImageButton) findViewById(R.id.btnMethod);
         findViewById(R.id.btnMethod).setOnClickListener(this);
@@ -122,6 +98,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
         findViewById(R.id.btnFinish).setOnClickListener(this);
+
+        btnCategory.setVisibility(View.VISIBLE);
 
         // Calculator UI components
         ImageButton btnBackSpace = (ImageButton) findViewById(R.id.btnBack);
@@ -170,7 +148,10 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         // Transaction initialisation
         Intent intent = getIntent();
-        transaction = new Transaction("0.00", "NULL",  "0 0 0", "Note", "cash", false, intent.getBooleanExtra("type", false));
+        transaction = new Transaction("0 0 0", false, "0.00", "cash", intent.getStringExtra("category"), "Note", intent.getBooleanExtra("type", false));
+        if (transaction.getCategory().equals("Salary")) {
+            btnCategory.setVisibility(View.GONE);
+        }
         // (Double nAmount, String nCategory, String nDate, String nNote,
         // String nMethod, Boolean nTaxable, Boolean nType) {
         setMethodImage();
@@ -228,8 +209,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         createCategory.setView(input);
         createCategory.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String key = catRef.push().getKey();
-                catRef.child(key).setValue(input.getText().toString());
+                DatabaseReference curr_category = database.getReference("users/" + uID + "/categories");
+                String key = curr_category.push().getKey();
+                curr_category.child(key).setValue(input.getText().toString());
+                transaction.setCategory(input.getText().toString());
+                Log.d("Category_Added ", input.getText().toString());
             }
         });
         createCategory.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

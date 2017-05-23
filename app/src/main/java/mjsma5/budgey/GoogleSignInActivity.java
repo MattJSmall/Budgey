@@ -26,8 +26,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -102,16 +104,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         updateUI(currentUser);
 
         if (currentUser != null) {
-            uID = currentUser.getUid();
-            database = FirebaseDatabase.getInstance();
-            userRef = database.getReference("users/").child(uID);
-            transRef = database.getReference("users/" + uID ).child("transactions");
-
             if (startup) {
-                Intent intent = new Intent(this, Landing.class);
-                startActivity(intent);
-                startFirebaseServices();
-                startup = false;
+                pass();
             }
         } else {
             updateUI(null);
@@ -165,6 +159,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            pass();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -254,12 +249,24 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 signOut();
                 break;
             case R.id.btn_go:
-                Intent intent = new Intent(this, Landing.class);
-                startActivity(intent);
+                pass();
                 break;
             case R.id.btn_revoke_access:
                 revokeAccess();
                 break;
         }
+    }
+
+    public void pass() {
+        uID = mAuth.getCurrentUser().getUid();
+        database = FirebaseDatabase.getInstance();
+        userRef = database.getReference("users/").child(uID);
+        Log.d("Firebase Login", "User reference success" + uID);
+        transRef = database.getReference("users/" + uID ).child("transactions");
+
+        Intent intent = new Intent(this, Landing.class);
+        startActivity(intent);
+        startFirebaseServices();
+        startup = false;
     }
 }

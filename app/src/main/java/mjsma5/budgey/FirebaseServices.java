@@ -3,7 +3,10 @@ package mjsma5.budgey;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Button;
 
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.firebase.database.ChildEventListener;
@@ -29,6 +32,7 @@ public class FirebaseServices extends IntentService {
     private static FirebaseDatabase  database = GoogleSignInActivity.database;
     private static DatabaseReference catRef = database.getReference("users/" + uID + "/categories");
 
+    public static Double balance = 0d;
     public static CategoryList categories = new CategoryList();
     public static ArrayList<Transaction> transactions = new ArrayList<>();
     public static ArrayList<String> curr_categories = new ArrayList<>();
@@ -40,6 +44,7 @@ public class FirebaseServices extends IntentService {
     public FirebaseServices() {
         super("FirebaseServices");
     }
+    Button btnBalance = Landing.btnBalance;
 
 
 
@@ -56,7 +61,9 @@ public class FirebaseServices extends IntentService {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
             Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey() + " value:" + dataSnapshot.getValue());
-            categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+            if (!dataSnapshot.getValue().equals("Salary")) {
+                categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+            }
         }
 
         @Override
@@ -68,16 +75,12 @@ public class FirebaseServices extends IntentService {
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
             categories.delItem(dataSnapshot.getKey());
-            // ~ delete transactions to be added
+            // ~ delete transaction
         }
 
         @Override
         public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
             Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
-            // A comment has changed position, use the key to determine if we are
-            // displaying this comment and if so move it.
-            Comment movedComment = dataSnapshot.getValue(Comment.class);
-            String commentKey = dataSnapshot.getKey();
         }
 
         @Override
@@ -86,18 +89,21 @@ public class FirebaseServices extends IntentService {
         }
     };
 
+    // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
+    // Transaction event listener
     public ChildEventListener transactionsChildEventListener = new ChildEventListener() {
         String TAG = "FIREBASE";
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-            Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+            Log.d(TAG, "onTransactionChildAdded:" + dataSnapshot.getValue());
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
             transactions.add(t); // add to Transaction List
 
             // Chart update
             String cat = t.getCategory();
-            if (!(t.gType())) {
+            if (!t.getCategory().equals("Salary")) {
+                balance -= Double.valueOf(t.getAmount());
                 if (curr_categories.contains(cat)) {
                     Integer index = curr_categories.indexOf(cat);
                     entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
@@ -105,16 +111,13 @@ public class FirebaseServices extends IntentService {
                     curr_categories.add(t.getCategory());
                     entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
                 }
+                Log.d(TAG, "onEntryChildAdded:" + dataSnapshot.getValue());
+            } else {
+                balance += Double.valueOf(t.getAmount());
             }
-            Landing.updateChart();
-            /*
-            float[] f = new float[3];
-            f[0] = hue;
-            f[1] = (float) 1;
-            f[2] = (float) 1;
-            colours.add(Color.HSVToColor(f));
-            hue += (float) 0.09;
-            */
+            Log.d("UPDATE", "balance: " + balance);
+            Landing.update();
+
         }
 
 
@@ -180,5 +183,14 @@ public class FirebaseServices extends IntentService {
             Log.w(TAG, "category:onCancelled", databaseError.toException());
         }
     };
+
+    public void update() {
+        Intent updateIntent = new Intent();
+        updateIntent.putExtra("balance", balance);
+        // Broadcasts the Intent to receivers in this app.
+        LocalBroadcastManager.getInstance(this).sendBroadcast(updateIntent);
+    }
+
+
 
 }

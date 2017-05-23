@@ -1,5 +1,7 @@
 package mjsma5.budgey;
 
+import android.util.Log;
+
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
@@ -23,8 +25,8 @@ public class Transaction {
     DatabaseReference transRef = GoogleSignInActivity.transRef;
 
 
-    public Transaction(String nAmount, String nCategory, String nDate, String nNote,
-                       String nMethod, Boolean nTaxable, Boolean nType) {
+    public Transaction(String nDate, Boolean nTaxable,String nAmount, String nMethod,
+                       String nCategory, String nNote, Boolean nType) {
         amount = nAmount;
         category = nCategory;
         date = nDate;
@@ -66,7 +68,7 @@ public class Transaction {
         DatabaseReference userRef = database.getReference("users/" + user.getUid() + "/transactions");
         */
         DatabaseReference currTrans;
-        String key = transRef.push().getKey();
+
         HashMap<String, Object> result = new HashMap<>();
         result.put("amount", amount);
         result.put("category", category);
@@ -75,8 +77,10 @@ public class Transaction {
         result.put("method", method);
         result.put("taxable", taxable);
         result.put("type", type);
+        String key = transRef.push().getKey();
         currTrans = transRef.getRef().child("/" + key);
         currTrans.updateChildren(result);
+        Log.d("FIREBASE_UPLOAD", "Transaction Uploaded");
     }
 
     public String getMethod() {

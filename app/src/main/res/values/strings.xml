@@ -77,5 +77,6 @@
     <string name="pos">+</string>
     <string name="create_transaction">Create Transaction</string>
     <string name="neg">-</string>
+    <string name="budget">Budget:</string>
 
 </resources>
