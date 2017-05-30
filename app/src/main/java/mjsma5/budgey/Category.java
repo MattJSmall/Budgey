@@ -48,11 +48,10 @@ public class Category {
     public ArrayList<String> getTransactions() {
         ArrayList<String> tempList = new ArrayList<>();
         for (Transaction t : ownedTransactions) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(t.getNote());
-            sb.append("     ");
-            sb.append(t.getAmount());
-            tempList.add(sb.toString());
+            String sb = t.getNote() +
+                    "     " +
+                    t.getAmount();
+            tempList.add(sb);
         }
         return tempList;
     }

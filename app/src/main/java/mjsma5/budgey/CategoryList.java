@@ -38,12 +38,9 @@ public class CategoryList implements Parcelable {
 
     public void addItem(String key, String value, Double valueSum) {
         categories.add(new Category(key, value, valueSum));
-        if (!indCategories.contains(value)) {
-            indCategories.add(value);
-        }
+        indCategories.add(value);
     }
-    public void addTransaction(String category, Transaction t) {
-        Integer index = indCategories.indexOf(category);
+    public void addTransaction(Integer index, Transaction t) {
         categories.get(index).addTransaction(t);
     }
 
@@ -68,7 +65,8 @@ public class CategoryList implements Parcelable {
         }
     }
 
-    public void addValueSum(Integer i, Double val) { categories.get(i).addValueSum(val); }
+    public void addValueSum(Integer i, Double val) {
+        categories.get(i).addValueSum(val); }
 
     public void transRemoved(Integer i, Double val) { categories.get(i).delValueSum(val);}
 

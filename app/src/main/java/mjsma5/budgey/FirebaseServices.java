@@ -55,14 +55,39 @@ public class FirebaseServices extends IntentService {
     protected void onHandleIntent(Intent intent) {
         //catRef.addChildEventListener(categoryChildEventListener);
         transRef.addChildEventListener(transactionsChildEventListener);
+        catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");
     }
-
 
     @Override
     public void onStart(@Nullable Intent intent, int startId) {
         super.onStart(intent, startId);
     }
+
+    public ChildEventListener categoryListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            entries.add(new PieEntry(0f, dataSnapshot.getValue().toString()));
+            if (!categories.contains(dataSnapshot.getValue().toString())) {
+                categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString(), 0d);
+            }
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        }
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+        }
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
 
     // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
     // Transaction event listener
@@ -77,27 +102,30 @@ public class FirebaseServices extends IntentService {
 
             // Chart update
             String cat = t.getCategory();
+            Integer index = categories.indexOf(cat);
             if (!cat.equals("Salary")) {
                 balance -= Double.valueOf(t.getAmount());
                 if (categories.contains(cat)) {
-                    Integer index = categories.indexOf(cat);
                     entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
                     categories.addValueSum(index, Double.valueOf(t.getAmount()));
                 } else {
                     entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
-                    if (!cat.equals("Salary")) {
-                        categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
-                    }
+                    categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
                 }
                 Log.d(TAG, "onEntryChildAdded:" + dataSnapshot.getValue());
             } else {
+                if (categories.contains(cat)) {
+                    categories.addValueSum(index, Double.valueOf(t.getAmount()));
+                } else {
+                    categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
+                }
                 balance += Double.valueOf(t.getAmount());
+
             }
+            categories.addTransaction(categories.indexOf(cat), t);
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
-
         }
-
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
@@ -146,7 +174,7 @@ public class FirebaseServices extends IntentService {
             Float newValue = entries.get(index).getValue()
                     - Float.valueOf(transactions.get(pastIndex).getAmount());
             entries.set(index, new PieEntry(newValue, cat));
-
+            categories.transRemoved(index, Double.valueOf(transactions.get(pastIndex).getAmount()));
             transactions.remove(pastIndex);
             Landing.update();
         }

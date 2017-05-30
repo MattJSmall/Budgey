@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -260,6 +261,29 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public void pass() {
         uID = mAuth.getCurrentUser().getUid();
         database = FirebaseDatabase.getInstance();
+
+        database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.hasChild(uID)) {
+                    DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
+                    categoryInit("Home", catListRef);
+                    categoryInit("Food", catListRef);
+                    categoryInit("Entertainment", catListRef);
+                    categoryInit("Gifts", catListRef);
+                    categoryInit("Car", catListRef);
+                    categoryInit("Clothes", catListRef);
+                    categoryInit("Health", catListRef);
+                    categoryInit("Transport", catListRef);
+                    categoryInit("Salary", catListRef);
+                    }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         userRef = database.getReference("users/").child(uID);
         Log.d("Firebase Login", "User reference success" + uID);
         transRef = database.getReference("users/" + uID ).child("transactions");
@@ -270,4 +294,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, Landing.class);
         startActivity(intent);
     }
+
+    private void categoryInit(String value, DatabaseReference ref) {
+        String key = ref.push().getKey();
+        ref.child(key).setValue(value);
+    };
 }
