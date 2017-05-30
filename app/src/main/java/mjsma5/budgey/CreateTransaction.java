@@ -81,6 +81,9 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
+        Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_LONG);
+        welcome.show();
+
         uID = GoogleSignInActivity.uID;
         categories = FirebaseServices.categories;
         database = GoogleSignInActivity.database;

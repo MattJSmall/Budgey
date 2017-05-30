@@ -53,7 +53,6 @@ public class FirebaseServices extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        //catRef.addChildEventListener(categoryChildEventListener);
         transRef.addChildEventListener(transactionsChildEventListener);
         catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");

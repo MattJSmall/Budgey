@@ -1,5 +1,7 @@
 package mjsma5.budgey;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -48,9 +50,15 @@ public class Category {
     public ArrayList<String> getTransactions() {
         ArrayList<String> tempList = new ArrayList<>();
         for (Transaction t : ownedTransactions) {
-            String sb = t.getNote() +
-                    "     " +
+            Log.d("LIST_CHILD_DETAILS", t.getNote());
+            String sb =
+                    "Transaction " +
+                    t.getNote() +
+                    " Date: " +
+                    t.getDate() +
+                    " Price: $" +
                     t.getAmount();
+
             tempList.add(sb);
         }
         return tempList;

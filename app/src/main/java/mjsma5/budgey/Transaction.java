@@ -40,6 +40,9 @@ public class Transaction {
     public String getCategory() {return category;}
     public String getAmount() {return amount;}
     public Boolean gType() {return type; }
+    public String getDate() {
+        return date;
+    }
 
     // Methods to set
     public void setId(String item) { id = item; };

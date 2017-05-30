@@ -6,19 +6,27 @@ import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -32,12 +40,14 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private static ExpandableListAdapter listAdapter;
     private static List<String> listDataHeader;
     private static HashMap<String, List<String>> listHash;
+    public boolean down;
 
+    private ImageView arrowLeft;
+    private ImageView arrowRight;
 
     public static Double balance;
     public static Button btnBalance;
     ArrayList<Transaction> transactions;
-    DatabaseReference userRef;
     private static PieChart pChart;
     private static ArrayList<Integer> colours;
 
@@ -51,11 +61,27 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     private static CategoryList categories;
 
+    private LinearLayout balanceBar;
+    private static DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
+
+        userRef = GoogleSignInActivity.userRef;
+        userRef.child("transactions").addListenerForSingleValueEvent(new ValueEventListener() {
+            // Create default categories for new user
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    createNegativeTransaction();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
 
         categories = FirebaseServices.categories;
         entries = FirebaseServices.entries;
@@ -64,10 +90,17 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         hue = (float) 0;
         colours = new ArrayList<>();
         btnBalance = (Button) findViewById(R.id.btnBalance);
+        down = true;
 
         findViewById(R.id.btnBalance).setOnClickListener(this);
         findViewById(R.id.btnPos).setOnClickListener(this);
         findViewById(R.id.btnNeg).setOnClickListener(this);
+
+        arrowLeft = (ImageView) findViewById(R.id.imgLeftArrow);
+        arrowRight = (ImageView) findViewById(R.id.imgRightArrow);
+
+        balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
+        findViewById(R.id.linBalanceBar).setOnClickListener(this);
 
         colours.add(Color.BLUE);
         colours.add(Color.RED);
@@ -118,23 +151,33 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btnBalance:
+            case R.id.linBalanceBar:
+                translateList();
                 break;
             case R.id.btnPos:
-                Intent posIntent = new Intent(this, CreateTransaction.class);
-                posIntent.putExtra("type", true);
-                posIntent.putExtra("category", "Salary");
-                startActivity(posIntent);
-                Log.d("REACHED", "intent reached");
+                createTransaction();
                 break;
             case R.id.btnNeg:
-                Intent negIntent = new Intent(this, CreateTransaction.class);
-                negIntent.putExtra("type", false);
-                negIntent.putExtra("category", "NULL");
-                startActivity(negIntent);
-                Log.d("REACHED", "intent reached");
+                createNegativeTransaction();
                 break;
         }
+    }
+
+    private void translateList() { // dir either 1 or -1 for direction of rotation
+        RotateAnimation rotateClock = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF,
+                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateClock.setDuration(700);
+        RotateAnimation rotateAntiClock = new RotateAnimation(0, -180, Animation.RELATIVE_TO_SELF,
+                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAntiClock.setDuration(700);
+        if (down) {
+            arrowRight.setAnimation(rotateAntiClock);
+            arrowLeft.setAnimation(rotateClock);
+        } else {
+            arrowRight.setAnimation(rotateClock);
+            arrowLeft.setAnimation(rotateAntiClock);
+        }
+        down = !down;
     }
 
     public void initiateChart() {
@@ -215,51 +258,27 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                 return super.onTouchEvent(event);
         }
     }
+
+    private void createTransaction() {
+        Intent posIntent = new Intent(this, CreateTransaction.class);
+        posIntent.putExtra("type", true);
+        posIntent.putExtra("category", "Salary");
+        startActivity(posIntent);
+        Log.d("REACHED", "intent reached");
+    };
+
+    private void createNegativeTransaction() {
+        Intent negIntent = new Intent(this, CreateTransaction.class);
+        negIntent.putExtra("type", false);
+        negIntent.putExtra("category", "NULL");
+        startActivity(negIntent);
+        Log.d("REACHED", "intent reached");
+    }
     /*
 
      Animation animation = AnimationUtils.loadAnimation(getContext(), (position > lastPosition) ? R.anim.up_from_bottom);
      ////item/////.startAnimation(animation);
      lastPosition = position;
      */
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listHash = new HashMap<String, List<String>>();
-
-        // Adding child data
-        listDataHeader.add("Top 250");
-        listDataHeader.add("Now Showing");
-        listDataHeader.add("Coming Soon..");
-
-        // Adding child data
-        List<String> top250 = new ArrayList<String>();
-        top250.add("The Shawshank Redemption");
-        top250.add("The Godfather");
-        top250.add("The Godfather: Part II");
-        top250.add("Pulp Fiction");
-        top250.add("The Good, the Bad and the Ugly");
-        top250.add("The Dark Knight");
-        top250.add("12 Angry Men");
-
-        List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("The Conjuring");
-        nowShowing.add("Despicable Me 2");
-        nowShowing.add("Turbo");
-        nowShowing.add("Grown Ups 2");
-        nowShowing.add("Red 2");
-        nowShowing.add("The Wolverine");
-
-        List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("2 Guns");
-        comingSoon.add("The Smurfs 2");
-        comingSoon.add("The Spectacular Now");
-        comingSoon.add("The Canyons");
-        comingSoon.add("Europa Report");
-
-        listHash.put(listDataHeader.get(0), top250); // Header, Child data
-        listHash.put(listDataHeader.get(1), nowShowing);
-        listHash.put(listDataHeader.get(2), comingSoon);
-    }
-
-    
 
 }

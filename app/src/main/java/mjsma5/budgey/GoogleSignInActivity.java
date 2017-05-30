@@ -32,6 +32,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
  */
@@ -58,10 +60,13 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public static FirebaseDatabase database;
     public static DatabaseReference transRef;
 
+    private Intent firebaseServiceIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_sign_in);
+
+        firebaseServiceIntent = new Intent(this, FirebaseServices.class);
 
         startup = true;
 
@@ -113,13 +118,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         }
     }
     // [END on_start_check_user]
-
-    private void startFirebaseServices(){
-        Intent firebaseServiceIntent = new Intent(this, FirebaseServices.class);
-        this.startService(firebaseServiceIntent);
-    }
-
-
 
     // [START onactivityresult]
     @Override
@@ -196,7 +194,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                         updateUI(null);
                     }
                 });
-        this.stopService(new Intent(this, FirebaseServices.class));
+        this.stopService(firebaseServiceIntent);
     }
 
     private void revokeAccess() {
@@ -261,11 +259,12 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public void pass() {
         uID = mAuth.getCurrentUser().getUid();
         database = FirebaseDatabase.getInstance();
-
-        database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference categoryRef = database.getReference("users/" + uID);
+        categoryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            // Create default categories for new user
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.hasChild(uID)) {
+                if (!dataSnapshot.exists()) {
                     DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
                     categoryInit("Home", catListRef);
                     categoryInit("Food", catListRef);
@@ -276,19 +275,20 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                     categoryInit("Health", catListRef);
                     categoryInit("Transport", catListRef);
                     categoryInit("Salary", catListRef);
+                    Log.d("SETUP", "NEW USER");
                     }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
+
+
         userRef = database.getReference("users/").child(uID);
         Log.d("Firebase Login", "User reference success" + uID);
         transRef = database.getReference("users/" + uID ).child("transactions");
 
-        startFirebaseServices();
+        this.startService(firebaseServiceIntent);
         startup = false;
 
         Intent intent = new Intent(this, Landing.class);
