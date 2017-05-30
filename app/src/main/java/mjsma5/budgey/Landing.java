@@ -7,6 +7,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,7 +37,7 @@ import java.util.List;
 public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     // ListView Items
-    private ExpandableListView listView;
+    public ExpandableListView listView;
     private static ExpandableListAdapter listAdapter;
     private static List<String> listDataHeader;
     private static HashMap<String, List<String>> listHash;
@@ -68,7 +69,11 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
+        // Toolbar
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
+        // Checking if this is a new user (no transactions created) and will force user to create a transaction.
         userRef = GoogleSignInActivity.userRef;
         userRef.child("transactions").addListenerForSingleValueEvent(new ValueEventListener() {
             // Create default categories for new user
@@ -78,7 +83,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                     createNegativeTransaction();
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
@@ -121,13 +125,17 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     }
 
     private static void updateListView() {
+        listDataHeader.clear();
+        listHash.clear();
         Log.d("EXP_LIST_VIEW_headers: ", categories.getList().toString());
         ArrayList<Category> tmpList = categories.getList();
         for (int i = 0; i < tmpList.size()-1 ; i++) {
             Category c = tmpList.get(i);
             if (!listDataHeader.contains(c.getValue())) {
                 listDataHeader.add(c.getValue());
+                Log.d("HEADER", c.getValue());
             }
+            listHash.remove(c.getValue());
             listHash.put(c.getValue(), c.getTransactions());
         }
         listAdapter.notifyDataSetChanged();

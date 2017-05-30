@@ -2,6 +2,7 @@ package mjsma5.budgey;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.view.LayoutInflater;
