@@ -217,7 +217,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
             mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
             new ImageLoadTask(user.getPhotoUrl().toString(), imgPhoto).execute();
-
+            Log.d("SIGN_IN", "SUCCESSFUL");
             imgPhoto.setVisibility(View.VISIBLE);
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
@@ -264,9 +264,10 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         Log.d("Firebase Login", "User reference success" + uID);
         transRef = database.getReference("users/" + uID ).child("transactions");
 
-        Intent intent = new Intent(this, Landing.class);
-        startActivity(intent);
         startFirebaseServices();
         startup = false;
+
+        Intent intent = new Intent(this, Landing.class);
+        startActivity(intent);
     }
 }

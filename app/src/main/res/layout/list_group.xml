@@ -8,7 +8,7 @@
         android:id="@+id/lblListHeader"
         android:paddingLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
         android:textSize="16dp"
-        android:textColor="@android:color/white"
+        android:textColor="#636363"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView" />

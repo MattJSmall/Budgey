@@ -86,5 +86,9 @@ public class Transaction {
     public String getMethod() {
         return method;
     }
+
+    public String getNote() {
+        return note;
+    }
 }
 
