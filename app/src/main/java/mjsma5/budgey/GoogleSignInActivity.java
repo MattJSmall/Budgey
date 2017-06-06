@@ -1,12 +1,15 @@
 package mjsma5.budgey;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,9 +53,10 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     private ImageView imgPhoto;
 
+    private Button btnDelete;
+
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private boolean startup;
 
     public static String uID;
@@ -61,6 +65,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public static DatabaseReference transRef;
 
     private Intent firebaseServiceIntent;
+
+    private DialogInterface.OnClickListener dialogClickListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +78,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
         // Views
         mStatusTextView = (TextView) findViewById(R.id.status);
-        mDetailTextView = (TextView) findViewById(R.id.detail);
 
         imgPhoto = (ImageView) findViewById(R.id.imgProfile);
 
@@ -80,8 +85,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.btnDisconnect).setOnClickListener(this);
+        findViewById(R.id.btnDelete).setOnClickListener(this);
 
-        findViewById(R.id.btn_go).setOnClickListener(this);
+        btnDelete = (Button) findViewById(R.id.btnDelete);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -99,6 +105,22 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+
+        // Create Alert Dialog for delete account
+        dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        delete();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
     }
 
     // [START on_start_check_user]
@@ -214,16 +236,15 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private void updateUI(FirebaseUser user) {
         if (user != null) {
             mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
             new ImageLoadTask(user.getPhotoUrl().toString(), imgPhoto).execute();
             Log.d("SIGN_IN", "SUCCESSFUL");
             imgPhoto.setVisibility(View.VISIBLE);
+            btnDelete.setVisibility(View.VISIBLE);
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
         } else {
             mStatusTextView.setText(R.string.signed_out);
-            mDetailTextView.setText(null);
-
+            btnDelete.setVisibility(View.GONE);
             imgPhoto.setVisibility(View.GONE);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
@@ -247,8 +268,11 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             case R.id.sign_out_button:
                 signOut();
                 break;
-            case R.id.btn_go:
-                pass();
+            case R.id.btnDelete:
+                AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
+                deleteAlert.setTitle("WARNING!");
+                deleteAlert.setMessage("Are you sure you want to delete your account? This will REMOVE all account data. ").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
                 break;
             case R.id.btnDisconnect:
                 revokeAccess();
@@ -299,4 +323,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         String key = ref.push().getKey();
         ref.child(key).setValue(value);
     };
+
+    private void delete() {
+        userRef.removeValue();
+    }
 }

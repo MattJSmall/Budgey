@@ -172,7 +172,7 @@ public class FirebaseServices extends IntentService {
             String cat = transactions.get(pastIndex).getCategory();
             Integer index = categories.indexOf(cat);
             // mew value must first remove past t value
-            Float newValue = entries.get(index).getValue()
+            Float newValue = entries.get(index-1).getValue()
                     - Float.valueOf(transactions.get(pastIndex).getAmount());
             entries.set(index, new PieEntry(newValue, cat));
             categories.transRemoved(index, Double.valueOf(transactions.get(pastIndex).getAmount()));

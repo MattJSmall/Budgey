@@ -376,10 +376,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         }
         txtResult.setText("$" + result);
     }
-    public void createNewCategory() {
-        // Create a popup menu for
-    }
-
 
     public String evaluate(String infix) {
         // Converts infix string to postfix using Dijkstra's ShuntingYard

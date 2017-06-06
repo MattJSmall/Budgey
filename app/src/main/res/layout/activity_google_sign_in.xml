@@ -65,11 +65,6 @@
                 style="@style/ThemeOverlay.MyTextDetail"
                 android:text="@string/signed_out" />
 
-            <TextView
-                android:id="@+id/detail"
-                style="@style/ThemeOverlay.MyTextDetail"
-                tools:text="Firebase User ID: 123456789abc" />
-
         </LinearLayout>
 
 
@@ -116,14 +111,13 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btn_go"
+                android:id="@+id/btnDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
+                android:text="Delete Account"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
