@@ -79,7 +79,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.disconnect_button).setOnClickListener(this);
+        findViewById(R.id.btnDisconnect).setOnClickListener(this);
 
         findViewById(R.id.btn_go).setOnClickListener(this);
 
@@ -250,7 +250,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             case R.id.btn_go:
                 pass();
                 break;
-            case R.id.btn_revoke_access:
+            case R.id.btnDisconnect:
                 revokeAccess();
                 break;
         }

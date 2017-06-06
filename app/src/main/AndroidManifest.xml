@@ -17,7 +17,6 @@
         android:supportsRtl="true">
         <activity android:name=".Landing" />
         <activity android:name=".CreateTransaction" />
-        <activity android:name=".testActivity" />
         <activity
             android:name=".tab_navigation"
             android:label="@string/title_activity_tab_navigation" />

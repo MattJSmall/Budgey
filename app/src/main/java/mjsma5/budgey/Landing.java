@@ -1,22 +1,31 @@
 package mjsma5.budgey;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -65,6 +74,14 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private LinearLayout balanceBar;
     private static DatabaseReference userRef;
 
+    private Animation slideUp;
+    private Animation slideDown;
+
+    private ViewGroup.LayoutParams downListParams;
+    private ViewGroup.LayoutParams upListParams;
+
+    private int height;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +89,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         // Toolbar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+
 
         // Checking if this is a new user (no transactions created) and will force user to create a transaction.
         userRef = GoogleSignInActivity.userRef;
@@ -87,6 +105,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             public void onCancelled(DatabaseError databaseError) {}
         });
 
+
         categories = FirebaseServices.categories;
         entries = FirebaseServices.entries;
         pChart = (PieChart) findViewById(R.id.pChart);
@@ -96,6 +115,11 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         btnBalance = (Button) findViewById(R.id.btnBalance);
         down = true;
 
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        height = size.y;
+
         findViewById(R.id.btnBalance).setOnClickListener(this);
         findViewById(R.id.btnPos).setOnClickListener(this);
         findViewById(R.id.btnNeg).setOnClickListener(this);
@@ -103,7 +127,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         arrowLeft = (ImageView) findViewById(R.id.imgLeftArrow);
         arrowRight = (ImageView) findViewById(R.id.imgRightArrow);
 
-        // balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
+        balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
+
         findViewById(R.id.imgRightArrow).setOnClickListener(this);
         findViewById(R.id.imgLeftArrow).setOnClickListener(this);
 
@@ -123,6 +148,10 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         listView = (ExpandableListView) findViewById(R.id.lvTransactions);
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listHash);
         listView.setAdapter(listAdapter);
+
+        // Animations
+
+        //listLayout = (ConstraintLayout) findViewById(R.id.conListLayout);
     }
 
     private static void updateListView() {
@@ -178,24 +207,34 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
-    private void translateList() { // dir either 1 or -1 for direction of rotation
-        RotateAnimation rotateClock = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateClock.setDuration(700);
-        rotateClock.setFillAfter(true);
-        RotateAnimation rotateAntiClock = new RotateAnimation(360, 540, Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateAntiClock.setDuration(700);
-        rotateAntiClock.setFillAfter(true);
+    private void translateList() {
         if (down) {
-            arrowRight.startAnimation(rotateAntiClock);
-            arrowLeft.startAnimation(rotateClock);
+            arrowLeft.animate().rotation(-180).start();
+            arrowRight.animate().rotation(180).start();
+
+            downListParams = listView.getLayoutParams();
+            downListParams.height = (int) (height * 0.9);
+            listView.setLayoutParams(downListParams);
+
+            balanceBar.animate().translationY((int) (height * -.4));
+            listView.animate().translationY((int) (height * -.4));
+
+
         } else {
-            arrowRight.setAnimation(rotateClock);
-            arrowLeft.setAnimation(rotateAntiClock);
+            arrowLeft.animate().rotation(0).start();
+            arrowRight.animate().rotation(-0).start();
+
+            listView.animate().translationY(0f);
+            balanceBar.animate().translationY(0f);
+
+            downListParams = listView.getLayoutParams();
+            downListParams.height = ((int) (height * .4));
+            listView.setLayoutParams(downListParams);
         }
         down = !down;
     }
+
+
 
     public void initiateChart() {
         pChart.clear();
@@ -297,5 +336,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
      ////item/////.startAnimation(animation);
      lastPosition = position;
      */
+
+
+    /***************************************************************/
 
 }

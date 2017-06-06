@@ -66,9 +66,11 @@ public class FirebaseServices extends IntentService {
     public ChildEventListener categoryListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            entries.add(new PieEntry(0f, dataSnapshot.getValue().toString()));
-            if (!categories.contains(dataSnapshot.getValue().toString())) {
-                categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString(), 0d);
+            if (!dataSnapshot.getValue().equals("Salary")) {
+                if (!categories.contains(dataSnapshot.getValue().toString())) {
+                    categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString(), 0d);
+                    entries.add(new PieEntry(0f, dataSnapshot.getValue().toString()));
+                }
             }
         }
 
