@@ -183,6 +183,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         super.onStart();
         pChart.notifyDataSetChanged();
         pChart.invalidate();
+        updateListView();
         btnBalance.setText("Balance: " + String.valueOf(balance));
     }
 
@@ -216,8 +217,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             downListParams.height = (int) (height * 0.9);
             listView.setLayoutParams(downListParams);
 
-            balanceBar.animate().translationY((int) (height * -.4));
-            listView.animate().translationY((int) (height * -.4));
+            balanceBar.animate().translationY((int) (height * -.45));
+            listView.animate().translationY((int) (height * -.45));
 
 
         } else {
@@ -228,7 +229,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             balanceBar.animate().translationY(0f);
 
             downListParams = listView.getLayoutParams();
-            downListParams.height = ((int) (height * .4));
+            downListParams.height = ((int) (height * .55));
             listView.setLayoutParams(downListParams);
         }
         down = !down;
@@ -330,6 +331,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         startActivity(negIntent);
         Log.d("REACHED", "intent reached");
     }
+
+
     /*
 
      Animation animation = AnimationUtils.loadAnimation(getContext(), (position > lastPosition) ? R.anim.up_from_bottom);
