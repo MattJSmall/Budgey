@@ -103,8 +103,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         arrowLeft = (ImageView) findViewById(R.id.imgLeftArrow);
         arrowRight = (ImageView) findViewById(R.id.imgRightArrow);
 
-        balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
-        findViewById(R.id.linBalanceBar).setOnClickListener(this);
+        // balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
+        findViewById(R.id.imgRightArrow).setOnClickListener(this);
+        findViewById(R.id.imgLeftArrow).setOnClickListener(this);
 
         colours.add(Color.BLUE);
         colours.add(Color.RED);
@@ -159,7 +160,13 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.linBalanceBar:
+            case R.id.imgLeftArrow:
+                translateList();
+                break;
+            case R.id.imgRightArrow:
+                translateList();
+                break;
+            case R.id.btnBalance:
                 translateList();
                 break;
             case R.id.btnPos:
@@ -175,12 +182,14 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         RotateAnimation rotateClock = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF,
                 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotateClock.setDuration(700);
-        RotateAnimation rotateAntiClock = new RotateAnimation(0, -180, Animation.RELATIVE_TO_SELF,
+        rotateClock.setFillAfter(true);
+        RotateAnimation rotateAntiClock = new RotateAnimation(360, 540, Animation.RELATIVE_TO_SELF,
                 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotateAntiClock.setDuration(700);
+        rotateAntiClock.setFillAfter(true);
         if (down) {
-            arrowRight.setAnimation(rotateAntiClock);
-            arrowLeft.setAnimation(rotateClock);
+            arrowRight.startAnimation(rotateAntiClock);
+            arrowLeft.startAnimation(rotateClock);
         } else {
             arrowRight.setAnimation(rotateClock);
             arrowLeft.setAnimation(rotateAntiClock);
