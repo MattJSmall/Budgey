@@ -74,7 +74,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private SignInButton btnSignIn;
     private ImageView logo;
 
-    public static List<mjsma5.budgey.Transaction> transactions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
