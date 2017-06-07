@@ -228,7 +228,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         pChart.notifyDataSetChanged();
         pChart.invalidate();
         updateListView();
-        btnBalance.setText("Balance: " + String.valueOf(balance));
+        updateBalance();
     }
 
     @Override
@@ -298,7 +298,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
         data = new PieData(set);
         data.setValueTextColor(Color.BLACK);
-        data.setValueFormatter(new MyValueFormatter());
+        // data.setValueFormatter(new MyValueFormatter());
         pChart.setData(data);
     }
 

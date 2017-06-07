@@ -71,8 +71,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public static CategoryList categories;
     private String[] menuItems;
 
-    DatabaseReference catRef;
-
     private static FirebaseDatabase database;
     private static String uID;
 
@@ -87,7 +85,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         uID = GoogleSignInActivity.uID;
         categories = FirebaseServices.categories;
         database = GoogleSignInActivity.database;
-        catRef = database.getReference().child("categories");
+
         layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Transaction details

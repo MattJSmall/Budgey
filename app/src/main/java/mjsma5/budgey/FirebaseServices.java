@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Button;
 
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +43,7 @@ public class FirebaseServices extends IntentService {
     public static Double balance = 0d;
     public static CategoryList categories = new CategoryList();
     public static ArrayList<Transaction> transactions = new ArrayList<>();
+    public static CategoryList salary = new CategoryList();
 
     public static List<PieEntry> entries = new ArrayList<>();
 
@@ -54,8 +56,9 @@ public class FirebaseServices extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         transRef.addChildEventListener(transactionsChildEventListener);
-        catRef.addChildEventListener(categoryListener);
+        // catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");
+        salary.addItem("0", "Salary", 0d);
     }
 
     @Override
@@ -63,13 +66,13 @@ public class FirebaseServices extends IntentService {
         super.onStart(intent, startId);
     }
 
+    /*
     public ChildEventListener categoryListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
             if (!dataSnapshot.getValue().equals("Salary")) {
                 if (!categories.contains(dataSnapshot.getValue().toString())) {
                     categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString(), 0d);
-                    entries.add(new PieEntry(0f, dataSnapshot.getValue().toString()));
                 }
             }
         }
@@ -88,6 +91,7 @@ public class FirebaseServices extends IntentService {
         public void onCancelled(DatabaseError databaseError) {
         }
     };
+    */
 
 
     // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
@@ -103,27 +107,30 @@ public class FirebaseServices extends IntentService {
 
             // Chart update
             String cat = t.getCategory();
-            Integer index = categories.indexOf(cat);
+
+            // Update Balance
             if (!cat.equals("Salary")) {
                 balance -= Double.valueOf(t.getAmount());
+                // Add new transaction details to category list and data to chart entries
                 if (categories.contains(cat)) {
+                    Integer index = categories.indexOf(cat);
                     entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
                     categories.addValueSum(index, Double.valueOf(t.getAmount()));
                 } else {
                     entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
                     categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
                 }
+                categories.addTransaction(categories.indexOf(cat), t);
                 Log.d(TAG, "onEntryChildAdded:" + dataSnapshot.getValue());
-            } else {
-                if (categories.contains(cat)) {
-                    categories.addValueSum(index, Double.valueOf(t.getAmount()));
-                } else {
-                    categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
-                }
-                balance += Double.valueOf(t.getAmount());
 
+            } else {
+                balance += Double.valueOf(t.getAmount());
+                salary.addValueSum(0, Double.valueOf(t.getAmount()));
             }
-            categories.addTransaction(categories.indexOf(cat), t);
+
+
+
+
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
         }
