@@ -73,7 +73,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_google_sign_in);
 
         firebaseServiceIntent = new Intent(this, FirebaseServices.class);
-
         startup = true;
 
         // Views
@@ -121,6 +120,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 }
             }
         };
+        signIn();
     }
 
     // [START on_start_check_user]
@@ -129,19 +129,15 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-
-        if (currentUser != null) {
-            if (startup) {
-                pass();
-            }
-        } else {
+        if (currentUser == null) {
             updateUI(null);
+        } else {
+            updateUI(currentUser);
         }
     }
     // [END on_start_check_user]
 
-    // [START onactivityresult]
+    // [START onActivityResult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -289,17 +285,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
-                    DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
-                    categoryInit("Home", catListRef);
-                    categoryInit("Food", catListRef);
-                    categoryInit("Entertainment", catListRef);
-                    categoryInit("Gifts", catListRef);
-                    categoryInit("Car", catListRef);
-                    categoryInit("Clothes", catListRef);
-                    categoryInit("Health", catListRef);
-                    categoryInit("Transport", catListRef);
-                    categoryInit("Salary", catListRef);
-                    Log.d("SETUP", "NEW USER");
+                    newUser();
                     }
             }
 
@@ -319,6 +305,20 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
+    private void newUser() {
+        DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
+        categoryInit("Home", catListRef);
+        categoryInit("Food", catListRef);
+        categoryInit("Entertainment", catListRef);
+        categoryInit("Gifts", catListRef);
+        categoryInit("Car", catListRef);
+        categoryInit("Clothes", catListRef);
+        categoryInit("Health", catListRef);
+        categoryInit("Transport", catListRef);
+        categoryInit("Salary", catListRef);
+        Log.d("SETUP", "NEW USER");
+    }
+
     private void categoryInit(String value, DatabaseReference ref) {
         String key = ref.push().getKey();
         ref.child(key).setValue(value);
@@ -326,5 +326,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     private void delete() {
         userRef.removeValue();
+        newUser();
     }
 }

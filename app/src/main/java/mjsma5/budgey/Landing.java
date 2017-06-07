@@ -14,6 +14,9 @@ import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +29,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -153,6 +157,40 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
         //listLayout = (ConstraintLayout) findViewById(R.id.conListLayout);
     }
+
+    // Appbar Menu Start
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.appbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_refresh was selected
+            case R.id.action_categories:
+                Toast.makeText(this, "Refresh selected", Toast.LENGTH_SHORT)
+                        .show();
+                break;
+            // action with ID action_settings was selected
+            case R.id.action_account:
+                Intent intent = new Intent(this, GoogleSignInActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_about:
+                Intent aboutIntent = new Intent(this, About.class);
+                startActivity(aboutIntent);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    /* App bar menu END */
+
 
     private static void updateListView() {
         listDataHeader.clear();

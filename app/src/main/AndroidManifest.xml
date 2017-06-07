@@ -12,14 +12,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".Landing" />
         <activity android:name=".CreateTransaction" />
-        <activity
-            android:name=".tab_navigation"
-            android:label="@string/title_activity_tab_navigation" />
         <activity android:name=".GoogleSignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +27,10 @@
 
         <service
             android:name=".FirebaseServices"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".About" />
+        <activity android:name=".UserAccount"></activity>
     </application>
 
 </manifest>
