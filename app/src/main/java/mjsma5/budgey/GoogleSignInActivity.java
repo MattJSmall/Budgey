@@ -51,13 +51,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public FirebaseAuth mAuth;
     // [END declare_auth]
 
-    private ImageView imgPhoto;
-
-    private Button btnDelete;
 
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
-    private boolean startup;
 
     public static String uID;
     public static DatabaseReference userRef;
@@ -73,20 +69,13 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_google_sign_in);
 
         firebaseServiceIntent = new Intent(this, FirebaseServices.class);
-        startup = true;
 
         // Views
         mStatusTextView = (TextView) findViewById(R.id.status);
 
-        imgPhoto = (ImageView) findViewById(R.id.imgProfile);
 
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.btnDisconnect).setOnClickListener(this);
-        findViewById(R.id.btnDelete).setOnClickListener(this);
-
-        btnDelete = (Button) findViewById(R.id.btnDelete);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -130,9 +119,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            updateUI(null);
+            signIn();
         } else {
-            updateUI(currentUser);
+            pass();
         }
     }
     // [END on_start_check_user]
@@ -152,7 +141,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             } else {
                 // Google Sign In failed, update UI appropriately
                 // [START_EXCLUDE]
-                updateUI(null);
                 // [END_EXCLUDE]
             }
         }
@@ -174,15 +162,12 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
                             pass();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(null);
                         }
 
                         // [START_EXCLUDE]
@@ -209,7 +194,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        updateUI(null);
                     }
                 });
         this.stopService(firebaseServiceIntent);
@@ -224,27 +208,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        updateUI(null);
                     }
                 });
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-            new ImageLoadTask(user.getPhotoUrl().toString(), imgPhoto).execute();
-            Log.d("SIGN_IN", "SUCCESSFUL");
-            imgPhoto.setVisibility(View.VISIBLE);
-            btnDelete.setVisibility(View.VISIBLE);
-            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
-        } else {
-            mStatusTextView.setText(R.string.signed_out);
-            btnDelete.setVisibility(View.GONE);
-            imgPhoto.setVisibility(View.GONE);
-            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -260,18 +225,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         switch (v.getId()) {
             case R.id.sign_in_button:
                 signIn();
-                break;
-            case R.id.sign_out_button:
-                signOut();
-                break;
-            case R.id.btnDelete:
-                AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
-                deleteAlert.setTitle("WARNING!");
-                deleteAlert.setMessage("Are you sure you want to delete your account? This will REMOVE all account data. ").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-                break;
-            case R.id.btnDisconnect:
-                revokeAccess();
                 break;
         }
     }
@@ -292,17 +245,16 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+        setupReferences();
+        Intent intent = new Intent(this, Landing.class);
+        startActivity(intent);
+    }
 
-
+    private void setupReferences() {
         userRef = database.getReference("users/").child(uID);
         Log.d("Firebase Login", "User reference success" + uID);
         transRef = database.getReference("users/" + uID ).child("transactions");
-
         this.startService(firebaseServiceIntent);
-        startup = false;
-
-        Intent intent = new Intent(this, Landing.class);
-        startActivity(intent);
     }
 
     private void newUser() {

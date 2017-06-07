@@ -1,5 +1,6 @@
 package mjsma5.budgey;
 
+import android.accounts.Account;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,9 +34,12 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,6 +47,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.security.PublicKey;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,8 +110,10 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                     createNegativeTransaction();
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+            }
         });
 
 
@@ -176,7 +183,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                 break;
             // action with ID action_settings was selected
             case R.id.action_account:
-                Intent intent = new Intent(this, GoogleSignInActivity.class);
+                Intent intent = new Intent(this, UserAccount.class);
                 startActivity(intent);
                 break;
             case R.id.action_about:
@@ -191,13 +198,12 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     /* App bar menu END */
 
-
     private static void updateListView() {
         listDataHeader.clear();
         listHash.clear();
         Log.d("EXP_LIST_VIEW_headers: ", categories.getList().toString());
         ArrayList<Category> tmpList = categories.getList();
-        for (int i = 0; i < tmpList.size()-1 ; i++) {
+        for (int i = 0; i < tmpList.size() - 1; i++) {
             Category c = tmpList.get(i);
             if (!listDataHeader.contains(c.getValue())) {
                 listDataHeader.add(c.getValue());
@@ -227,7 +233,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.imgLeftArrow:
                 translateList();
                 break;
@@ -274,7 +280,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     }
 
 
-
     public void initiateChart() {
         pChart.clear();
         PieDataSet set = new PieDataSet(entries, "Spending");
@@ -293,6 +298,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
         data = new PieData(set);
         data.setValueTextColor(Color.BLACK);
+        data.setValueFormatter(new MyValueFormatter());
         pChart.setData(data);
     }
 
@@ -328,28 +334,28 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     // Swipe Gestures
 
     @Override
-    public boolean onTouchEvent(MotionEvent event){
+    public boolean onTouchEvent(MotionEvent event) {
 
         int action = MotionEventCompat.getActionMasked(event);
         TAG = "GESTURE";
-        switch(action) {
-            case (MotionEvent.ACTION_DOWN) :
-                Log.d(TAG,"Action was DOWN");
+        switch (action) {
+            case (MotionEvent.ACTION_DOWN):
+                Log.d(TAG, "Action was DOWN");
                 return true;
-            case (MotionEvent.ACTION_MOVE) :
-                Log.d(TAG,"Action was MOVE");
+            case (MotionEvent.ACTION_MOVE):
+                Log.d(TAG, "Action was MOVE");
                 return true;
-            case (MotionEvent.ACTION_UP) :
-                Log.d(TAG,"Action was UP");
+            case (MotionEvent.ACTION_UP):
+                Log.d(TAG, "Action was UP");
                 return true;
-            case (MotionEvent.ACTION_CANCEL) :
-                Log.d(TAG,"Action was CANCEL");
+            case (MotionEvent.ACTION_CANCEL):
+                Log.d(TAG, "Action was CANCEL");
                 return true;
-            case (MotionEvent.ACTION_OUTSIDE) :
-                Log.d(TAG,"Movement occurred outside bounds " +
+            case (MotionEvent.ACTION_OUTSIDE):
+                Log.d(TAG, "Movement occurred outside bounds " +
                         "of current screen element");
                 return true;
-            default :
+            default:
                 return super.onTouchEvent(event);
         }
     }
@@ -360,7 +366,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         posIntent.putExtra("category", "Salary");
         startActivity(posIntent);
         Log.d("REACHED", "intent reached");
-    };
+    }
+
+    ;
 
     private void createNegativeTransaction() {
         Intent negIntent = new Intent(this, CreateTransaction.class);
@@ -381,4 +389,24 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     /***************************************************************/
 
+}
+
+
+class MyValueFormatter implements IValueFormatter {
+
+    private DecimalFormat mFormat;
+
+    public MyValueFormatter() {
+        mFormat = new DecimalFormat("###,###,##0.00");
+    }
+
+    @Override
+    public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+
+        if(value > 0) {
+            return mFormat.format(value);
+        } else {
+            return "";
+        }
+    }
 }
