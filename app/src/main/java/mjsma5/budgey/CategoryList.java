@@ -36,10 +36,25 @@ public class CategoryList implements Parcelable {
     public CategoryList() {
     }
 
+    public void removeCategory(String category) {
+        indCategories.remove(indCategories.indexOf(category));
+        Category c = getItem(category);
+        for (String t: c.getTransactions()) {
+            FirebaseServices.deleteTransaction(t);
+        }
+    }
+
     public void addItem(String key, String value, Double valueSum) {
         categories.add(new Category(key, value, valueSum));
         indCategories.add(value);
     }
+
+    public void addIndCategory(String category) {
+        if (!indCategories.contains(category)) {
+            indCategories.add(category);
+        }
+    }
+
     public void addTransaction(Integer index, Transaction t) {
         categories.get(index).addTransaction(t);
     }

@@ -48,18 +48,13 @@ public class Category {
     }
 
     public ArrayList<String> getTransactions() {
+
+        ArrayList<Transaction> transactions = FirebaseServices.transactions;
         ArrayList<String> tempList = new ArrayList<>();
         for (Transaction t : ownedTransactions) {
             Log.d("LIST_CHILD_DETAILS", t.getNote());
-            String sb =
-                    "Transaction " +
-                    t.getNote() +
-                    " Date: " +
-                    t.getDate() +
-                    " Price: $" +
-                    t.getAmount();
-
-            tempList.add(sb);
+            Integer index = transactions.indexOf(t);
+            tempList.add(index.toString());
         }
         return tempList;
     }

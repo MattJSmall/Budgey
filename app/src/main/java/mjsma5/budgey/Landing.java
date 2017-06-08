@@ -30,6 +30,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
@@ -66,7 +67,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     public static Double balance;
     public static Button btnBalance;
-    ArrayList<Transaction> transactions;
     private static PieChart pChart;
     private static ArrayList<Integer> colours;
 
@@ -83,13 +83,11 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private LinearLayout balanceBar;
     private static DatabaseReference userRef;
 
-    private Animation slideUp;
-    private Animation slideDown;
-
-    private ViewGroup.LayoutParams downListParams;
-    private ViewGroup.LayoutParams upListParams;
+    private ViewGroup.LayoutParams listParams;
 
     private int height;
+
+    private MyValueFormatter formatter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,9 +158,12 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listHash);
         listView.setAdapter(listAdapter);
 
-        // Animations
+        // List instance sizing
+        listParams = listView.getLayoutParams();
+        listParams.height = ((int) (height * .30));
+        listView.setLayoutParams(listParams);
 
-        //listLayout = (ConstraintLayout) findViewById(R.id.conListLayout);
+        formatter = new MyValueFormatter();
     }
 
     // Appbar Menu Start
@@ -235,13 +236,13 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.imgLeftArrow:
-                translateList();
+                translateList(2);
                 break;
             case R.id.imgRightArrow:
-                translateList();
+                translateList(2);
                 break;
             case R.id.btnBalance:
-                translateList();
+                translateList(2);
                 break;
             case R.id.btnPos:
                 createTransaction();
@@ -252,30 +253,54 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
-    private void translateList() {
-        if (down) {
-            arrowLeft.animate().rotation(-180).start();
-            arrowRight.animate().rotation(180).start();
-
-            downListParams = listView.getLayoutParams();
-            downListParams.height = (int) (height * 0.9);
-            listView.setLayoutParams(downListParams);
-
-            balanceBar.animate().translationY((int) (height * -.45));
-            listView.animate().translationY((int) (height * -.45));
-
-
-        } else {
-            arrowLeft.animate().rotation(0).start();
-            arrowRight.animate().rotation(-0).start();
-
-            listView.animate().translationY(0f);
-            balanceBar.animate().translationY(0f);
-
-            downListParams = listView.getLayoutParams();
-            downListParams.height = ((int) (height * .55));
-            listView.setLayoutParams(downListParams);
+    private void translateList(Integer direction) {
+        /*
+         * @Param: direction values; 0:up, 1:down, 2:toggle
+         */
+        switch (direction) {
+            case 0:
+                if (down) {
+                    translateUp();
+                }
+                break;
+            case 1:
+                if (!down) {
+                    translateDown();
+                }
+                break;
+            case 2:
+                if (down) {
+                    translateUp();
+                } else {
+                    translateDown();
+                }
+                break;
         }
+    }
+
+    private void translateDown() {
+        arrowLeft.animate().rotation(0).start();
+        arrowRight.animate().rotation(-0).start();
+
+        listView.animate().translationY(0f);
+        balanceBar.animate().translationY(0f);
+
+        listParams = listView.getLayoutParams();
+        listParams.height = ((int) (height * .30));
+        listView.setLayoutParams(listParams);
+        down = !down;
+    }
+
+    private void translateUp() {
+        arrowLeft.animate().rotation(-180).start();
+        arrowRight.animate().rotation(180).start();
+
+        listParams = listView.getLayoutParams();
+        listParams.height = (int) (height * 0.75);
+        listView.setLayoutParams(listParams);
+
+        balanceBar.animate().translationY((int) (height * -.45));
+        listView.animate().translationY((int) (height * -.45));
         down = !down;
     }
 
@@ -297,6 +322,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         set.setValueTextColor(Color.BLACK);
 
         data = new PieData(set);
+        data.setValueFormatter(formatter);
         data.setValueTextColor(Color.BLACK);
         // data.setValueFormatter(new MyValueFormatter());
         pChart.setData(data);
@@ -335,18 +361,19 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         int action = MotionEventCompat.getActionMasked(event);
         TAG = "GESTURE";
         switch (action) {
             case (MotionEvent.ACTION_DOWN):
                 Log.d(TAG, "Action was DOWN");
+                translateList(1);
                 return true;
             case (MotionEvent.ACTION_MOVE):
                 Log.d(TAG, "Action was MOVE");
                 return true;
             case (MotionEvent.ACTION_UP):
                 Log.d(TAG, "Action was UP");
+                translateList(0);
                 return true;
             case (MotionEvent.ACTION_CANCEL):
                 Log.d(TAG, "Action was CANCEL");
@@ -391,7 +418,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
 }
 
-
 class MyValueFormatter implements IValueFormatter {
 
     private DecimalFormat mFormat;
@@ -410,3 +436,6 @@ class MyValueFormatter implements IValueFormatter {
         }
     }
 }
+
+// set creator
+

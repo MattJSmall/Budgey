@@ -79,7 +79,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
-        Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_LONG);
+        Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_SHORT);
         welcome.show();
 
         uID = GoogleSignInActivity.uID;

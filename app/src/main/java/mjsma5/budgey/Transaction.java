@@ -64,12 +64,6 @@ public class Transaction {
 
     // Method to update database
     public void updateDatabase() {
-        /*
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        DatabaseReference userRef = database.getReference("users/" + user.getUid() + "/transactions");
-        */
         DatabaseReference currTrans;
 
         HashMap<String, Object> result = new HashMap<>();

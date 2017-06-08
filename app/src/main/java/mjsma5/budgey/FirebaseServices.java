@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieEntry;
@@ -38,6 +39,7 @@ import java.util.Random;
 public class FirebaseServices extends IntentService {
     private static String uID = GoogleSignInActivity.uID;
     private static FirebaseDatabase  database = GoogleSignInActivity.database;
+
     private static DatabaseReference catRef = database.getReference("users/" + uID + "/categories");
 
     public static Double balance = 0d;
@@ -56,7 +58,7 @@ public class FirebaseServices extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         transRef.addChildEventListener(transactionsChildEventListener);
-        // catRef.addChildEventListener(categoryListener);
+        catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");
         salary.addItem("0", "Salary", 0d);
     }
@@ -66,9 +68,45 @@ public class FirebaseServices extends IntentService {
         super.onStart(intent, startId);
     }
 
+    private ChildEventListener categoryListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            if (!categories.contains(dataSnapshot.getValue().toString())) {
+                categories.addItem(dataSnapshot.getKey()
+                        ,dataSnapshot.getValue().toString()
+                        , 0d);
+                if (!dataSnapshot.getValue().toString().equals("Salary")) {
+                    entries.add(new PieEntry(0f));
+                }
+            }
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            categories.removeCategory(dataSnapshot.getValue().toString());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+
+
     // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
     // Transaction event listener
-    public ChildEventListener transactionsChildEventListener = new ChildEventListener() {
+    private ChildEventListener transactionsChildEventListener = new ChildEventListener() {
         String TAG = "FIREBASE";
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -142,20 +180,23 @@ public class FirebaseServices extends IntentService {
             Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
             String transactionKey = dataSnapshot.getKey();
             Integer pastIndex = -1;
-            for (int i = 0; i < transactions.size(); i++) {
+            for (int i = 0; i < transactions.size()-1; i++) {
                 if (transactionKey.equals(transactions.get(i).getID())) {
                     pastIndex = i;
                     break;
                 }
             }
-            String cat = transactions.get(pastIndex).getCategory();
-            Integer index = categories.indexOf(cat);
-            // mew value must first remove past t value
-            Float newValue = entries.get(index-1).getValue()
-                    - Float.valueOf(transactions.get(pastIndex).getAmount());
-            entries.set(index, new PieEntry(newValue, cat));
-            categories.transRemoved(index, Double.valueOf(transactions.get(pastIndex).getAmount()));
-            transactions.remove(pastIndex);
+            if (pastIndex != -1) {
+                String cat = transactions.get(pastIndex).getCategory();
+                Integer index = categories.indexOf(cat);
+                // mew value must first remove past t value
+                Float newValue = entries.get(index).getValue()
+                        - Float.valueOf(transactions.get(pastIndex).getAmount());
+                entries.set(index, new PieEntry(newValue, cat));
+                categories.transRemoved(index, Double.valueOf(transactions.get(pastIndex).getAmount()));
+                transactions.remove(pastIndex);
+            }
+            Log.d("LOCAL-TRANSACTIONS", "deletion failed");
             Landing.update();
         }
 
@@ -169,6 +210,11 @@ public class FirebaseServices extends IntentService {
             Log.w(TAG, "category:onCancelled", databaseError.toException());
         }
     };
+
+    public static void deleteTransaction(String id) {
+        database.getReference("users/" + uID + "/transactions").child(id).removeValue();
+        Log.d("FIREBASE", "transaction removed " + id);
+    }
 
     private final IBinder mBinder = new LocalBinder();
     // Random number generator

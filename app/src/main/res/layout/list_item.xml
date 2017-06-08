@@ -3,14 +3,57 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/lblListItem"
-        android:textSize="16dp"
-        android:paddingLeft="?android:expandableListPreferredChildIndicatorLeft"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:textColor="#636363"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".1" />
+
+        <TextView
+            android:id="@+id/lblPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".25"
+            android:gravity="left"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:textColor="#636363"
+            android:textSize="16dp" />
+
+        <TextView
+            android:id="@+id/lblNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".25"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:textColor="#636363"
+            android:textSize="16dp" />
+
+        <TextView
+            android:id="@+id/lblDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".25"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:textColor="#636363"
+            android:textSize="16dp" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="20dp"
+            android:layout_height="30dp"
+            android:layout_weight=".1"
+            android:background="@android:drawable/ic_menu_delete"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
 </LinearLayout>
