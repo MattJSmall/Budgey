@@ -66,34 +66,6 @@ public class FirebaseServices extends IntentService {
         super.onStart(intent, startId);
     }
 
-    /*
-    public ChildEventListener categoryListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            if (!dataSnapshot.getValue().equals("Salary")) {
-                if (!categories.contains(dataSnapshot.getValue().toString())) {
-                    categories.addItem(dataSnapshot.getKey(), dataSnapshot.getValue().toString(), 0d);
-                }
-            }
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        }
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-        }
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-        }
-    };
-    */
-
-
     // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
     // Transaction event listener
     public ChildEventListener transactionsChildEventListener = new ChildEventListener() {

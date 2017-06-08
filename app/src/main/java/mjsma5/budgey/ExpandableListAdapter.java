@@ -33,6 +33,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         this._listHashMap = listHashMap;
     }
 
+    /* [Swipe action to delete START} */
+
+
     @Override
     public int getGroupCount() {
         return _listDataHeader.size();
