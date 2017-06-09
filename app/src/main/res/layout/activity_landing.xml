@@ -11,7 +11,7 @@
         android:id="@+id/my_toolbar"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         android:titleTextColor="#ffffff"
@@ -134,19 +134,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/btnPos"
-                    style="@style/Widget.Design.FloatingActionButton"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:elevation="0dp"
-                    android:text="+"
-                    android:textSize="40sp"
-                    tools:layout_editor_absoluteX="0dp"
-                    tools:layout_editor_absoluteY="0dp" />
-
                 <com.github.mikephil.charting.charts.PieChart
                     android:id="@+id/pChart"
                     android:layout_width="match_parent"
@@ -158,6 +145,17 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/btnPos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    app:backgroundTint="@color/colorAccent"
+                    app:fabSize="normal"
+                    app:srcCompat="@drawable/plus" />
 
             </RelativeLayout>
 
