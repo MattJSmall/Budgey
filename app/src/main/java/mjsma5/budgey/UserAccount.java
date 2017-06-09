@@ -132,7 +132,7 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
                 AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
                 deleteAlert.setTitle("WARNING!");
                 deleteAlert.setMessage("Are you sure you want to delete your account data? This will" +
-                        " remove ALL transaction! ").setPositiveButton("Yes", dialogClickListener)
+                        " remove ALL transactions! ").setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener).show();
                 break;
         }

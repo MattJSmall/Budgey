@@ -2,9 +2,12 @@ package mjsma5.budgey;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +41,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private HashMap<String,List<String>> _listHashMap;
     // private static CategoryList categories;
     private static ArrayList<Transaction> transactions;
+    //private static CategoryList categories;
 
 
     public ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<String>> listHashMap) {
@@ -46,6 +50,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         this._listDataHeader = listDataHeader;
         this._listHashMap = listHashMap;
         transactions = FirebaseServices.transactions;
+        //categories = FirebaseServices.categories;
+
     }
 
     /* [Swipe action to delete START} */
@@ -88,7 +94,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        String headerTitle = (String) getGroup(groupPosition);
+        final String headerTitle = (String) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) this._context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.list_group, null);
@@ -98,17 +104,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         lblListHeader.setTypeface(null, Typeface.BOLD);
         lblListHeader.setText(headerTitle);
 
-        // TODO
-        /*
-        Double catBalance = categories.getItem(headerTitle).getValueSum();
-        if (catBalance >= 0) {
-            lblCatCost.setTextColor(Color.GREEN);
+        // Update Category balance text
+        Double catBalance;
+        if (headerTitle.equals("Salary")) {
+            catBalance = FirebaseServices.salary.get(0).getValueSum();
+            lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.colorPrimaryDark));
         } else {
-            lblCatCost.setTextColor(Color.RED);
+            catBalance = FirebaseServices.categories.getCategory(headerTitle).getValueSum();
+            lblCatCost.setTextColor(Color.parseColor("#f44336"));
         }
         lblCatCost.setText(String.valueOf(catBalance));
         Log.d("LISTVIEW", "Balance for " + headerTitle + " = " + catBalance);
-        */
+
         return convertView;
     }
 

@@ -16,6 +16,7 @@ public class CategoryList implements Parcelable {
 
     private ArrayList<Category> categories = new ArrayList<>();
     private ArrayList<String> indCategories = new ArrayList<>();
+    //private static ArrayList<Transaction> transactions = FirebaseServices.transactions;
 
     protected CategoryList(Parcel in) {
         indCategories = in.createStringArrayList();
@@ -36,13 +37,18 @@ public class CategoryList implements Parcelable {
     public CategoryList() {
     }
 
+    public Category get(int index) {
+         return categories.get(index);
+    }
+
     public void removeCategory(String category) {
         indCategories.remove(indCategories.indexOf(category));
         Category c = getItem(category);
         for (String t: c.getTransactions()) {
-            FirebaseServices.deleteTransaction(t);
+            FirebaseServices.deleteTransaction(FirebaseServices.transactions.get(Integer.valueOf(t)).getID());
         }
     }
+
 
     public void addItem(String key, String value, Double valueSum) {
         categories.add(new Category(key, value, valueSum));
@@ -64,6 +70,7 @@ public class CategoryList implements Parcelable {
     }
 
     public Category getItem(String key) {
+        // Retrun category based on key ID
         for (int i = 0; i < categories.size() - 1; i++) {
             if (categories.get(i).getKey().equals(key)) {
                 return categories.get(i);
@@ -71,6 +78,27 @@ public class CategoryList implements Parcelable {
         }
         return new Category("error", "error", 0d);
     }
+
+    public Category getCategory(String category) {
+        // Retrun category based on key ID
+        for (int i = 0; i < categories.size() - 1; i++) {
+            if (categories.get(i).getValue().equals(category)) {
+                return categories.get(i);
+            }
+        }
+        return new Category("error", "error", 0d);
+    }
+
+
+    private Integer getIndex(String key) {
+        for (int i = 0; i < categories.size() - 1; i++) {
+            if (categories.get(i).getKey().equals(key)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void delItem(String key) {
         for (int i = 0; i < categories.size(); i++) {
             if (categories.get(i).getKey().equals(key)) {
@@ -83,7 +111,16 @@ public class CategoryList implements Parcelable {
     public void addValueSum(Integer i, Double val) {
         categories.get(i).addValueSum(val); }
 
-    public void transRemoved(Integer i, Double val) { categories.get(i).delValueSum(val);}
+    public void transRemoved(Integer catIndex, String transKey) {
+        ArrayList<String> transList = categories.get(catIndex).getTransactions();
+        Transaction t = new Transaction();
+        for (int i = 0; i < transList.size(); i++) {
+            if (transKey.equals(transList.get(i))) {
+                t = categories.get(catIndex).getTransaction(i);
+            }
+        }
+        categories.get(catIndex).delTransaction(t);
+    }
 
     public int size() {
         return categories.size() + 1;

@@ -11,9 +11,9 @@
 
         <TextView
             android:id="@+id/lblListHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".8"
             android:paddingLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
             android:text="TextView"
             android:textColor="#636363"
@@ -21,8 +21,11 @@
 
         <TextView
             android:id="@+id/txtCatBalance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".2"
+            android:gravity="right" />
+
     </LinearLayout>
 
 </LinearLayout>

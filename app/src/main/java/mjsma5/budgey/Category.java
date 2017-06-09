@@ -25,11 +25,18 @@ public class Category {
         ownedTransactions.add(t);
     }
 
+    public Transaction getTransaction(Integer index) {
+        return ownedTransactions.get(index);
+    }
+
     public void addValueSum(Double input) {
         valueSum += input;
     }
 
-    public void delValueSum(Double val) { valueSum -= val; }
+    public void delTransaction(Transaction t) {
+        ownedTransactions.remove(t);
+        valueSum -= Double.valueOf(t.getAmount());
+    }
 
     public Double getValueSum() {
         return valueSum;

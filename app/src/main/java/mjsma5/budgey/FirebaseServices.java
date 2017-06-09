@@ -47,6 +47,10 @@ public class FirebaseServices extends IntentService {
     public static ArrayList<Transaction> transactions = new ArrayList<>();
     public static CategoryList salary = new CategoryList();
 
+    // Colour variables
+    public static ArrayList<Color> colours = new ArrayList<>();
+    private Integer numColours = 0;
+
     public static List<PieEntry> entries = new ArrayList<>();
 
     public static DatabaseReference transRef = GoogleSignInActivity.transRef;
@@ -75,9 +79,6 @@ public class FirebaseServices extends IntentService {
                 categories.addItem(dataSnapshot.getKey()
                         ,dataSnapshot.getValue().toString()
                         , 0d);
-                if (!dataSnapshot.getValue().toString().equals("Salary")) {
-                    entries.add(new PieEntry(0f));
-                }
             }
         }
 
@@ -89,6 +90,7 @@ public class FirebaseServices extends IntentService {
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             categories.removeCategory(dataSnapshot.getValue().toString());
+            Log.d("FIREBASE", "category child removed: " + dataSnapshot.getValue());
         }
 
         @Override
@@ -114,7 +116,6 @@ public class FirebaseServices extends IntentService {
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
             transactions.add(t); // add to Transaction List
-
             // Chart update
             String cat = t.getCategory();
 
@@ -122,12 +123,22 @@ public class FirebaseServices extends IntentService {
             if (!cat.equals("Salary")) {
                 balance -= Double.valueOf(t.getAmount());
                 // Add new transaction details to category list and data to chart entries
-                if (categories.contains(cat)) {
-                    Integer index = categories.indexOf(cat);
+                Integer index = -1;
+                for (int i = 0; i < entries.size()-1; i++) {
+                    if (entries.get(i).getLabel().equals(cat)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index == -1) {
+                    entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
+                } else {
                     entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
+                }
+                if (categories.contains(cat)) {
+                    index = categories.indexOf(cat);
                     categories.addValueSum(index, Double.valueOf(t.getAmount()));
                 } else {
-                    entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
                     categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
                 }
                 categories.addTransaction(categories.indexOf(cat), t);
@@ -136,11 +147,8 @@ public class FirebaseServices extends IntentService {
             } else {
                 balance += Double.valueOf(t.getAmount());
                 salary.addValueSum(0, Double.valueOf(t.getAmount()));
+                salary.addTransaction(0, t);
             }
-
-
-
-
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
         }
@@ -186,17 +194,38 @@ public class FirebaseServices extends IntentService {
                     break;
                 }
             }
-            if (pastIndex != -1) {
-                String cat = transactions.get(pastIndex).getCategory();
-                Integer index = categories.indexOf(cat);
-                // mew value must first remove past t value
-                Float newValue = entries.get(index).getValue()
-                        - Float.valueOf(transactions.get(pastIndex).getAmount());
-                entries.set(index, new PieEntry(newValue, cat));
-                categories.transRemoved(index, Double.valueOf(transactions.get(pastIndex).getAmount()));
-                transactions.remove(pastIndex);
+            if (!dataSnapshot.getValue().toString().equals("Salary")) {
+                if (pastIndex != -1) {
+                    String cat = transactions.get(pastIndex).getCategory();
+                    Integer catIndex = categories.indexOf(cat);
+                    Integer entriesIndex = -1;
+                    for (int i = 0; i < entries.size()-1; i++) {
+                        if (entries.get(i).getLabel().equals(cat)) {
+                            entriesIndex = i;
+                            break;
+                        }
+                    }
+                    if (entriesIndex != -1) {
+                        // Removing transaction from entries list
+                        Float newValue = entries.get(entriesIndex).getValue()
+                                - Float.valueOf(transactions.get(pastIndex).getAmount());
+                        entries.set(entriesIndex, new PieEntry(newValue, cat));
+
+                        // Remove transaction from category list
+                        categories.transRemoved(catIndex, transactionKey);
+                        // categories.transRemoved(catIndex, Double.valueOf(transactions.get(pastIndex).getAmount()));
+                        if (categories.get(catIndex).getTransactions().size() == 0) {
+                            entries.remove(entriesIndex);
+                        }
+
+                    }
+                } else {
+                    Log.d("LOCAL-TRANSACTIONS", "deletion failed");
+                }
+            } else {
+                salary.transRemoved(0, transactionKey);
             }
-            Log.d("LOCAL-TRANSACTIONS", "deletion failed");
+            transactions.remove(pastIndex);
             Landing.update();
         }
 
@@ -214,6 +243,11 @@ public class FirebaseServices extends IntentService {
     public static void deleteTransaction(String id) {
         database.getReference("users/" + uID + "/transactions").child(id).removeValue();
         Log.d("FIREBASE", "transaction removed " + id);
+    }
+
+    public static void deleteCategory(String id) {
+        database.getReference("users/" + uID + "/categories").child(id).removeValue();
+        Log.d("FIREBASE", "category removed " + id);
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -240,4 +274,5 @@ public class FirebaseServices extends IntentService {
     public int getRandomNumber() {
         return mGenerator.nextInt(100);
     }
+
 }

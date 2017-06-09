@@ -2,6 +2,8 @@ package mjsma5.budgey;
 
 import android.accounts.Account;
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -26,6 +28,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -62,6 +65,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private static HashMap<String, List<String>> listHash;
     public boolean down;
 
+    private Context context;
+
     private ImageView arrowLeft;
     private ImageView arrowRight;
 
@@ -89,6 +94,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     private MyValueFormatter formatter;
 
+    public AlertDialog.Builder deleteMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +104,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        context = this;
 
         // Checking if this is a new user (no transactions created) and will force user to create a transaction.
         userRef = GoogleSignInActivity.userRef;
@@ -149,14 +157,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         colours.add(Color.MAGENTA);
         colours.add(Color.WHITE);
         colours.add(Color.GRAY);
-        initiateChart();
 
-        // List Instance
-        listDataHeader = new ArrayList<>();
-        listHash = new HashMap<>();
-        listView = (ExpandableListView) findViewById(R.id.lvTransactions);
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listHash);
-        listView.setAdapter(listAdapter);
+        initiateChart();
+        instanceList();
 
         // List instance sizing
         listParams = listView.getLayoutParams();
@@ -164,6 +167,19 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         listView.setLayoutParams(listParams);
 
         formatter = new MyValueFormatter();
+
+        deleteMenu = new AlertDialog.Builder(this);
+        deleteMenu.setTitle("Select a Category to Delete");
+    }
+
+    private void instanceList() {
+        // List Instance
+        listDataHeader = new ArrayList<>();
+        listHash = new HashMap<>();
+        listView = (ExpandableListView) findViewById(R.id.lvTransactions);
+        listAdapter = new ExpandableListAdapter(this, listDataHeader, listHash);
+        listView.setAdapter(listAdapter);
+
     }
 
     // Appbar Menu Start
@@ -179,8 +195,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_categories:
-                Toast.makeText(this, "Refresh selected", Toast.LENGTH_SHORT)
-                        .show();
+                manageCategories();
                 break;
             // action with ID action_settings was selected
             case R.id.action_account:
@@ -198,7 +213,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     }
 
     /* App bar menu END */
-
     private static void updateListView() {
         listDataHeader.clear();
         listHash.clear();
@@ -207,12 +221,16 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         for (int i = 0; i < tmpList.size() - 1; i++) {
             Category c = tmpList.get(i);
             if (!listDataHeader.contains(c.getValue())) {
-                listDataHeader.add(c.getValue());
-                Log.d("HEADER", c.getValue());
+                if (c.getTransactions().size() != 0) {
+                    listDataHeader.add(c.getValue());
+                    Log.d("HEADER", c.getValue());
+                    listHash.remove(c.getValue());
+                    listHash.put(c.getValue(), c.getTransactions());
+                }
             }
-            listHash.remove(c.getValue());
-            listHash.put(c.getValue(), c.getTransactions());
         }
+        listDataHeader.add("Salary");
+        listHash.put("Salary", FirebaseServices.salary.get(0).getTransactions());
         listAdapter.notifyDataSetChanged();
     }
 
@@ -415,6 +433,43 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
 
     /***************************************************************/
+
+
+    private void manageCategories () {
+        final String[] menuItems = categories.getAll();
+        deleteMenu.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+
+        deleteMenu.setItems(menuItems,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, final int index) {
+                        AlertDialog.Builder deleteAlert = new AlertDialog.Builder(context);
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        FirebaseServices.deleteCategory(categories.get(index).getKey());
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        //No button clicked
+                                        break;
+                                }
+                            }
+                        };
+
+                        deleteAlert.setTitle("WARNING!");
+                        deleteAlert.setMessage("Are you sure you want to delete this category? " +
+                                "This will remove all related transactions! ")
+                                .setPositiveButton("Yes", dialogClickListener)
+                                .setNegativeButton("No", dialogClickListener).show();
+                    }
+                });
+        deleteMenu.show();
+    }
 
 }
 
