@@ -4,40 +4,30 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Comment;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Stack;
+
+
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -58,11 +48,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     private Transaction transaction;
 
-    private DatePicker datePicker;
     private Calendar date;
     private TextView txtNote;
-
-    private RelativeLayout layoutDate;
 
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
@@ -79,14 +66,15 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_transaction);
 
-        Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_SHORT);
-        welcome.show();
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
+        Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_SHORT);
+
+        welcome.show();
         uID = GoogleSignInActivity.uID;
         categories = FirebaseServices.categories;
         database = GoogleSignInActivity.database;
-
-        layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Transaction details
         btnCategory = (Button) findViewById(R.id.btnCategory);
@@ -95,9 +83,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnMethod).setOnClickListener(this);
         findViewById(R.id.btnDate).setOnClickListener(this);
         txtNote = (TextView) findViewById(R.id.txtNote);
-
-
-        findViewById(R.id.btnFinish).setOnClickListener(this);
 
         btnCategory.setVisibility(View.VISIBLE);
 
@@ -128,8 +113,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
 
-        datePicker = (DatePicker) findViewById(R.id.datePicker);
-
         // Calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
         result = "";
@@ -137,6 +120,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         reset = false;
         decimal = false;
         operatorLast = false;
+
+        result = "";
 
         // Date Picker
         btnDate = (Button) findViewById(R.id.btnDate);
@@ -146,12 +131,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         // Transaction initialisation
         Intent intent = getIntent();
-        transaction = new Transaction("0 0 0", false, "0.00", "cash", intent.getStringExtra("category"), "Note", intent.getBooleanExtra("type", false));
-        if (transaction.getCategory().equals("Salary")) {
-            btnCategory.setVisibility(View.GONE);
+        transaction = new Transaction("0 0 0", false, "0.00", "cash", intent.getStringExtra("category"), "Note", false);
+        // String nDate, Boolean nTaxable,String nAmount, String nMethod, String nCategory, String nNote, Boolean nType
+        if (!transaction.getCategory().equals("null")) {
+            btnCategory.setText(transaction.getCategory());
         }
-        // (Double nAmount, String nCategory, String nDate, String nNote,
-        // String nMethod, Boolean nTaxable, Boolean nType) {
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
         methodMenu.setTitle("Select a Transaction Method");
@@ -181,6 +165,13 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Alert Dialogs
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
+    }
+
+    private void instanceCalculator() {
+        parenthesis = 0;
+        reset = false;
+        decimal = false;
+        operatorLast = false;
     }
 
     public void setMethodImage() {
@@ -222,40 +213,31 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         return createCategory;
     }
 
-  public void onClick(View v) {
+    public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnFinish:
-                if (result.equals("")) {
-                    Toast valueError = Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT);
-                    valueError.show();
-                } else if (transaction.getCategory().equals("NULL")) {
-                    Toast categoryError = Toast.makeText(this, "Please enter a Category", Toast.LENGTH_SHORT);
-                    categoryError.show();
-                } else {
-                    transaction.setNote(txtNote.getText().toString());
-                    transaction.setAmount(result);
-                    transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
-                    transaction.updateDatabase();
-                    Intent home = new Intent(this, Landing.class);
-                    startActivity(home);
-                }
-                break;
             case R.id.btnCategory:
-                createCategoryDialog = reinstanceCreateCategory();
-                final String[] menuItems = categories.getAll();
-                categoryMenu.setItems(menuItems,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                                if (which == categories.size() - 1) {
-                                    createCategoryDialog.show();
-                                } else {
-                                    transaction.setCategory(menuItems[which]);
+                if (transaction.getCategory().equals("null")) {
+                    createCategoryDialog = reinstanceCreateCategory();
+                    final String[] menuItems = categories.getAll();
+                    categoryMenu.setItems(menuItems,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // The 'which' argument contains the index position
+                                    // of the selected item
+                                    if (which == categories.size() - 1) {
+                                        createCategoryDialog.show();
+                                    } else {
+                                        transaction.setCategory(menuItems[which]);
+                                    }
+                                    btnCategory.setText(transaction.getCategory());
+                                    pass();
                                 }
-                            }
-                        });
-                categoryMenu.show();
+                            });
+                    categoryMenu.show();
+                } else {
+                    pass();
+                }
+
                 break;
             case R.id.btnMethod:
                 methodMenu.show();
@@ -339,19 +321,21 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 numUpdate("0");
                 break;
             case R.id.btnDecimal:
-                if (!decimal && !operatorLast) {
+                if (!decimal) {
                     decimal = true;
                     result += ".";
                     Log.d("INFO", "DECIMAL INPUT");
                 } else {
                     Log.d("INPUT ERROR", "DECIMAL ERROR");
                 }
+                operatorLast = false;
                 break;
 
             case R.id.btnEquals:
                 if (operatorLast) {
                     result = result.substring(0, result.length() - 1);
                     // if the last token entered was an operator, remove it, then evaluate.
+                    operatorLast = !operatorLast;
                 }
                 if (parenthesis == 0) {
                     Log.d("EVALUATION_INPUT", result);
@@ -368,11 +352,45 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         txtResult.setText("$" + result);
     }
 
+    private void pass() {
+        /*  Exit activity and return to landing class
+         *  @Params: form must be complete
+         */
+        if (result.equals("")) {
+            Toast valueError = Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT);
+            valueError.show();
+        } else if (transaction.getCategory().equals("NULL")) {
+            Toast categoryError = Toast.makeText(this, "Please enter a Category", Toast.LENGTH_SHORT);
+            categoryError.show();
+        } else {
+            if (transaction.getCategory().equals("Salary")) {
+                transaction.setType(true);
+            } else {
+                transaction.setType(false);
+            }
+            transaction.setNote(txtNote.getText().toString());
+            transaction.setAmount(result);
+            transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
+            transaction.updateDatabase();
+            Intent home = new Intent(this, Landing.class);
+            startActivity(home);
+        }
+    }
+
+
+    public String evaluate(String s) {
+        Expression e = new ExpressionBuilder(s).build();
+        Double r = e.evaluate();
+        return String.valueOf(r);
+    }
+    /*
     public String evaluate(String infix) {
         // Converts infix string to postfix using Dijkstra's ShuntingYard
         String postfix = ShuntingYard.postfix(infix);
+        Log.d("EVALUATION_POSTFIX", postfix);
         // Evaluates postfix using the stack method.
         String value = postfixEvaluation(postfix);
+        Log.d("EVALUATION_DONE", value);
         if (value.equals("ERROR")) {
             result = "";
             txtResult.setText(result);
@@ -382,13 +400,14 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
             return value;
         }
     }
+    */
 
     public void numUpdate(String input) {
         // Update module for all numbers
         if (reset) {
             result = input;
             txtResult.setText(result);
-            reset = false;
+            reset = !reset;
         } else {
             result += input;
         }
@@ -396,57 +415,18 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     }
 
     public void opUpdate(String input) {
-        reset = false;
+        if (reset) {
+            instanceCalculator();
+        }
         if (operatorLast) {
             result = result.substring(0, result.length() -3);
         }
         result += " " + input + " ";
         operatorLast = true;
+        decimal = false;
     }
 
-    public String postfixEvaluation(String postfix) {
-        // Use a stack to track all the numbers and temporary results
-        Stack<Double> s = new Stack<Double>();
 
-        // Convert expression to char array
-        char[] chars = postfix.toCharArray();
-
-        // Cache the length of expression
-        int N = chars.length;
-
-        for (int i = 0; i < N; i++) {
-            char ch = chars[i];
-
-            if (isOperator(ch)) {
-                // Operator,pop out two numbers from stack and perform operation
-                switch (ch) {
-                    case '+': s.push(s.pop() + s.pop());     break;
-                    case '*': s.push(s.pop() * s.pop());     break;
-                    case '-': s.push(-s.pop() + s.pop());    break;
-                    case '/': s.push(1 / s.pop() * s.pop()); break;
-                }
-            } else if(Character.isDigit(ch)) {
-                // if Number, push to the stack
-                s.push(0.0);
-                while (Character.isDigit(chars[i]))
-                    s.push(10.0 * s.pop() + (chars[i++] - '0'));
-            }
-        }
-
-        // The final result should be located in the bottom of stack
-        // Otherwise return 0.0
-        if (!s.isEmpty())
-            return String.valueOf(s.pop());
-        else
-            return String.valueOf("ERROR");
-    }
-
-    /**
-     * Check if the character is an operator
-     */
-    private boolean isOperator(char ch) {
-        return ch == '*' || ch == '/' || ch == '+' || ch == '-';
-    }
 
     //date functions
     private void setDate() {
@@ -475,4 +455,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
 
 
-}
+
+
+    }

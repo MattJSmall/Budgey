@@ -102,8 +102,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
         // Toolbar
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
+
 
         context = this;
 
@@ -114,7 +113,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
-                    createNegativeTransaction();
+                    createTransaction();
                 }
             }
 
@@ -149,15 +148,28 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         findViewById(R.id.imgRightArrow).setOnClickListener(this);
         findViewById(R.id.imgLeftArrow).setOnClickListener(this);
 
-        colours.add(Color.BLUE);
-        colours.add(Color.RED);
-        colours.add(Color.GREEN);
-        colours.add(Color.YELLOW);
-        colours.add(Color.CYAN);
-        colours.add(Color.MAGENTA);
-        colours.add(Color.WHITE);
-        colours.add(Color.GRAY);
+        colours.add(Color.parseColor("#ffcdd2"));
+        colours.add(Color.parseColor("#f8bbd0"));
+        colours.add(Color.parseColor("#e1bee7"));
+        colours.add(Color.parseColor("#d1c4e9"));
+        colours.add(Color.parseColor("#c5cae9"));
+        colours.add(Color.parseColor("#bbdefb"));
+        colours.add(Color.parseColor("#b3e5fc"));
+        colours.add(Color.parseColor("#b2ebf2"));
+        colours.add(Color.parseColor("#b2dfdb"));
+        colours.add(Color.parseColor("#c8e6c9"));
+        colours.add(Color.parseColor("#dcedc8"));
 
+        /* TODO
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        colours.add(Color.parseColor("#"));
+        */
+        listView = (ExpandableListView) findViewById(R.id.lvTransactions);
         initiateChart();
         instanceList();
 
@@ -172,14 +184,12 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         deleteMenu.setTitle("Select a Category to Delete");
     }
 
-    private void instanceList() {
+    public void instanceList() {
         // List Instance
         listDataHeader = new ArrayList<>();
         listHash = new HashMap<>();
-        listView = (ExpandableListView) findViewById(R.id.lvTransactions);
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listHash);
         listView.setAdapter(listAdapter);
-
     }
 
     // Appbar Menu Start
@@ -222,10 +232,12 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             Category c = tmpList.get(i);
             if (!listDataHeader.contains(c.getValue())) {
                 if (c.getTransactions().size() != 0) {
-                    listDataHeader.add(c.getValue());
-                    Log.d("HEADER", c.getValue());
-                    listHash.remove(c.getValue());
-                    listHash.put(c.getValue(), c.getTransactions());
+                    if (c.getValueSum() != 0) {
+                        listDataHeader.add(c.getValue());
+                        Log.d("HEADER", c.getValue());
+                        listHash.remove(c.getValue());
+                        listHash.put(c.getValue(), c.getTransactions());
+                    }
                 }
             }
         }
@@ -404,33 +416,12 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     private void createTransaction() {
         Intent posIntent = new Intent(this, CreateTransaction.class);
-        posIntent.putExtra("type", true);
-        posIntent.putExtra("category", "Salary");
+        posIntent.putExtra("category", "null");
         startActivity(posIntent);
         Log.d("REACHED", "intent reached");
     }
 
-    ;
-
-    private void createNegativeTransaction() {
-        Intent negIntent = new Intent(this, CreateTransaction.class);
-        negIntent.putExtra("type", false);
-        negIntent.putExtra("category", "NULL");
-        startActivity(negIntent);
-        Log.d("REACHED", "intent reached");
-    }
-
-
-    /*
-
-     Animation animation = AnimationUtils.loadAnimation(getContext(), (position > lastPosition) ? R.anim.up_from_bottom);
-     ////item/////.startAnimation(animation);
-     lastPosition = position;
-     */
-
-
     /***************************************************************/
-
 
     private void manageCategories () {
         final String[] menuItems = categories.getAll();

@@ -111,15 +111,10 @@ public class CategoryList implements Parcelable {
     public void addValueSum(Integer i, Double val) {
         categories.get(i).addValueSum(val); }
 
-    public void transRemoved(Integer catIndex, String transKey) {
-        ArrayList<String> transList = categories.get(catIndex).getTransactions();
-        Transaction t = new Transaction();
-        for (int i = 0; i < transList.size(); i++) {
-            if (transKey.equals(transList.get(i))) {
-                t = categories.get(catIndex).getTransaction(i);
-            }
-        }
+    public void transRemoved(Integer catIndex, Integer transIndex) {
+        Transaction t = FirebaseServices.transactions.get(transIndex);
         categories.get(catIndex).delTransaction(t);
+        Landing.update();
     }
 
     public int size() {

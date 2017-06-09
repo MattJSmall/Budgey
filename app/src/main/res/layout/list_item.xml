@@ -16,7 +16,7 @@
         <TextView
             android:id="@+id/lblPrice"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight=".25"
             android:gravity="left"
             android:paddingBottom="5dp"
@@ -27,7 +27,7 @@
         <TextView
             android:id="@+id/lblNote"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight=".25"
             android:gravity="center"
             android:paddingBottom="5dp"
@@ -38,7 +38,7 @@
         <TextView
             android:id="@+id/lblDate"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight=".25"
             android:gravity="center"
             android:paddingBottom="5dp"
@@ -55,8 +55,8 @@
 
             <Button
                 android:id="@+id/btnDelete"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="@android:drawable/ic_menu_delete"
                 android:gravity="right"
                 android:textAlignment="center" />

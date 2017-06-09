@@ -212,7 +212,7 @@ public class FirebaseServices extends IntentService {
                         entries.set(entriesIndex, new PieEntry(newValue, cat));
 
                         // Remove transaction from category list
-                        categories.transRemoved(catIndex, transactionKey);
+                        categories.transRemoved(catIndex, pastIndex);
                         // categories.transRemoved(catIndex, Double.valueOf(transactions.get(pastIndex).getAmount()));
                         if (categories.get(catIndex).getTransactions().size() == 0) {
                             entries.remove(entriesIndex);
@@ -223,7 +223,7 @@ public class FirebaseServices extends IntentService {
                     Log.d("LOCAL-TRANSACTIONS", "deletion failed");
                 }
             } else {
-                salary.transRemoved(0, transactionKey);
+                salary.transRemoved(0, pastIndex);
             }
             transactions.remove(pastIndex);
             Landing.update();
