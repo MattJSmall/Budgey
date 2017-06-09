@@ -108,10 +108,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         Double catBalance;
         if (headerTitle.equals("Salary")) {
             catBalance = FirebaseServices.salary.get(0).getValueSum();
-            lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.colorPrimaryDark));
+            lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.positive));
         } else {
             catBalance = FirebaseServices.categories.getCategory(headerTitle).getValueSum();
-            lblCatCost.setTextColor(Color.parseColor("#f44336"));
+            lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.negative));
         }
         lblCatCost.setText(String.valueOf(catBalance));
         Log.d("LISTVIEW", "Balance for " + headerTitle + " = " + catBalance);

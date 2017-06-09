@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -370,9 +371,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         balance = FirebaseServices.balance;
         btnBalance.setText("Balance: " + String.valueOf(balance));
         if (balance >= 0) {
-            btnBalance.setBackgroundColor(Color.GREEN);
+            btnBalance.setBackgroundColor(Color.parseColor("#64dd17"));
         } else {
-            btnBalance.setBackgroundColor(Color.RED);
+            btnBalance.setBackgroundColor(Color.parseColor("#d50000"));
         }
     }
     // Swipe Gestures

@@ -89,7 +89,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         layoutDate = (RelativeLayout) findViewById(R.id.layoutDate);
 
         // Transaction details
-        findViewById(R.id.rbTaxDeductable).setOnClickListener(this);
         btnCategory = (Button) findViewById(R.id.btnCategory);
         findViewById(R.id.btnCategory).setOnClickListener(this);
         btnMethod = (ImageButton) findViewById(R.id.btnMethod);
@@ -103,9 +102,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         btnCategory.setVisibility(View.VISIBLE);
 
         // Calculator UI components
-        ImageButton btnBackSpace = (ImageButton) findViewById(R.id.btnBack);
         findViewById(R.id.btnBack).setOnClickListener(this);
-        btnBackSpace.setImageResource(R.drawable.backspace_main); // backspace visualisation
 
         findViewById(R.id.btnOpen).setOnClickListener(this);
         findViewById(R.id.btnClose).setOnClickListener(this);
@@ -260,9 +257,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                         });
                 categoryMenu.show();
                 break;
-            case R.id.rbTaxDeductable:
-                transaction.switchTaxable();
-                break;
             case R.id.btnMethod:
                 methodMenu.show();
                 break;
@@ -276,15 +270,14 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     switch (result.substring(result.length() - 1)) {
                         case ")":
                             parenthesis += 1;
-
                         case "(":
                             parenthesis -= 1;
-
                         case ".":
                             decimal = false;
                     }
                     result = result.substring(0, result.length() - 1);
                 }
+                break;
             case R.id.btnClear:
                 result = "";
                 reset = false;
