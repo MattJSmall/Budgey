@@ -131,11 +131,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         // Transaction initialisation
         Intent intent = getIntent();
-        transaction = new Transaction("0 0 0", false, "0.00", "cash", intent.getStringExtra("category"), "Note", false);
+        transaction = new Transaction("0 0 0", false, "0.00", "cash", "null", "Note", false);
         // String nDate, Boolean nTaxable,String nAmount, String nMethod, String nCategory, String nNote, Boolean nType
-        if (!transaction.getCategory().equals("null")) {
-            btnCategory.setText(transaction.getCategory());
-        }
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
         methodMenu.setTitle("Select a Transaction Method");

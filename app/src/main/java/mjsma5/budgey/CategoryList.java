@@ -52,7 +52,9 @@ public class CategoryList implements Parcelable {
 
     public void addItem(String key, String value, Double valueSum) {
         categories.add(new Category(key, value, valueSum));
-        indCategories.add(value);
+        if (!indCategories.contains(value)) {
+            indCategories.add(value);
+        }
     }
 
     public void addIndCategory(String category) {
@@ -115,6 +117,10 @@ public class CategoryList implements Parcelable {
         Transaction t = FirebaseServices.transactions.get(transIndex);
         categories.get(catIndex).delTransaction(t);
         Landing.update();
+        if (categories.get(catIndex).getTransactions().isEmpty()) {
+            categories.remove(catIndex);
+            Landing.updateChart();
+        }
     }
 
     public int size() {

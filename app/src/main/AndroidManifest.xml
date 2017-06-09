@@ -31,7 +31,6 @@
 
         <activity android:name=".About" />
         <activity android:name=".UserAccount" />
-        <activity android:name=".TransctionDetails"></activity>
     </application>
 
 </manifest>

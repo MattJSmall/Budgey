@@ -35,6 +35,7 @@ public class Transaction {
         taxable = nTaxable;
         type = nType;
     }
+
     // methods to get
     public String getID() { return id; }
     public String getCategory() {return category;}

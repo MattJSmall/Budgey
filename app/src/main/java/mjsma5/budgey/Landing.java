@@ -54,6 +54,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.security.PublicKey;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -102,7 +103,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
         // Toolbar
-
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
         context = this;
 
@@ -232,12 +234,10 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             Category c = tmpList.get(i);
             if (!listDataHeader.contains(c.getValue())) {
                 if (c.getTransactions().size() != 0) {
-                    if (c.getValueSum() != 0) {
-                        listDataHeader.add(c.getValue());
-                        Log.d("HEADER", c.getValue());
-                        listHash.remove(c.getValue());
-                        listHash.put(c.getValue(), c.getTransactions());
-                    }
+                    listDataHeader.add(c.getValue());
+                    Log.d("HEADER", c.getValue());
+                    listHash.remove(c.getValue());
+                    listHash.put(c.getValue(), c.getTransactions());
                 }
             }
         }
@@ -424,7 +424,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     /***************************************************************/
 
     private void manageCategories () {
-        final String[] menuItems = categories.getAll();
+        String[] menuItems = categories.getAll();
+        menuItems = Arrays.copyOf(menuItems, menuItems.length-1);
+
         deleteMenu.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
             }

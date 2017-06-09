@@ -144,7 +144,7 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
     }
 
     private void newUser() {
-        DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
+        DatabaseReference catListRef = FirebaseDatabase.getInstance().getReference("users/" + uID + "/categories");
         categoryInit("Home", catListRef);
         categoryInit("Food", catListRef);
         categoryInit("Entertainment", catListRef);
@@ -165,5 +165,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
     private void delete() {
         userRef.removeValue();
         newUser();
+        signOut();
     }
 }

@@ -125,9 +125,17 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
-        FirebaseUser currentUser = mAuth.getCurrentUser();
 
+
+
+    }
+    // [END onStart check user]
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         Intent intent = getIntent();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         if (intent.getBooleanExtra("stopFirebase", false)) {
             stopFirebaseService();
             signOut();
@@ -138,12 +146,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 pass();
             }
         }
-    }
-    // [END onStart check user]
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         /*
         logo.animate().rotation(20f).setDuration(400).start();
         logo.animate().rotation(-40f).setDuration(400).start();
@@ -220,9 +223,16 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private void signOut() {
         // Firebase sign out
         // [START initialize_auth]
-
         stopFirebaseService();
         FirebaseAuth.getInstance().signOut();
+
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // ...
+                    }
+                });
     }
 
 
@@ -285,8 +295,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         categoryInit("Salary", catListRef);
         Log.d("SETUP", "NEW USER");
         setupReferences();
-        Intent intent = new Intent(this, CreateTransaction.class);
-        startActivity(intent);
     }
 
     private void categoryInit(String value, DatabaseReference ref) {
