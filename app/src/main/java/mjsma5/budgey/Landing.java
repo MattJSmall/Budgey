@@ -140,7 +140,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
         findViewById(R.id.btnBalance).setOnClickListener(this);
         findViewById(R.id.btnPos).setOnClickListener(this);
-        findViewById(R.id.btnNeg).setOnClickListener(this);
 
         arrowLeft = (ImageView) findViewById(R.id.imgLeftArrow);
         arrowRight = (ImageView) findViewById(R.id.imgRightArrow);
@@ -266,9 +265,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             case R.id.btnPos:
                 createTransaction();
                 break;
-            case R.id.btnNeg:
-                createNegativeTransaction();
-                break;
         }
     }
 
@@ -371,9 +367,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         balance = FirebaseServices.balance;
         btnBalance.setText("Balance: " + String.valueOf(balance));
         if (balance >= 0) {
-            btnBalance.setBackgroundColor(Color.parseColor("#64dd17"));
+            btnBalance.setTextColor(Color.parseColor("#64dd17"));
         } else {
-            btnBalance.setBackgroundColor(Color.parseColor("#d50000"));
+            btnBalance.setTextColor(Color.parseColor("#d50000"));
         }
     }
     // Swipe Gestures
