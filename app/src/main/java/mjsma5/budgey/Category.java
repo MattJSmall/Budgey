@@ -35,6 +35,9 @@ public class Category {
         ownedTransactions.remove(ownedTransactions.indexOf(t));
         valueSum -= Double.valueOf(t.getAmount());
     }
+    public boolean isEmpty() {
+        return ownedTransactions.isEmpty();
+    }
 
     public Double getValueSum() {
         return valueSum;

@@ -85,8 +85,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     public static PieData data;
 
-    private static CategoryList categories;
-
     private LinearLayout balanceBar;
     private static DatabaseReference userRef;
 
@@ -124,8 +122,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             }
         });
 
-
-        categories = FirebaseServices.categories;
         entries = FirebaseServices.entries;
         pChart = (PieChart) findViewById(R.id.pChart);
         setChartStyling();
@@ -228,8 +224,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private static void updateListView() {
         listDataHeader.clear();
         listHash.clear();
-        Log.d("EXP_LIST_VIEW_headers: ", categories.getList().toString());
-        for (Category c: categories.getList()) {
+        for (Category c: FirebaseServices.categories.getList()) {
             listDataHeader.add(c.getValue());
             listHash.put(c.getValue(), c.getTransactions());
             Log.d("LIST_ITEM_ADDED", c.getValue());
@@ -417,7 +412,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     /***************************************************************/
 
     private void manageCategories () {
-        String[] menuItems = categories.getAll();
+        String[] menuItems = FirebaseServices.categories.getAll();
         menuItems = Arrays.copyOf(menuItems, menuItems.length-1);
 
         deleteMenu.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
@@ -434,7 +429,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which){
                                     case DialogInterface.BUTTON_POSITIVE:
-                                        FirebaseServices.deleteCategory(categories.get(index).getValue());
+                                        FirebaseServices.deleteCategory(FirebaseServices.categories.get(index).getValue());
                                         break;
 
                                     case DialogInterface.BUTTON_NEGATIVE:

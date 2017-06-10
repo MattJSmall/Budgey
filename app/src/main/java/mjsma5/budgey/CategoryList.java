@@ -51,6 +51,7 @@ public class CategoryList implements Parcelable {
          *
          */
         indCategories.remove(indCategories.indexOf(category)); // remove from individual cat list
+        categories.remove(usedCategories.indexOf(category));
         if (usedCategories.contains(category)) { // removed from used cat list if it has been used
             usedCategories.remove(usedCategories.indexOf(category));
         }
@@ -106,14 +107,12 @@ public class CategoryList implements Parcelable {
     public void addValueSum(Integer catIndex, Double val) {
         categories.get(catIndex).addValueSum(val); }
 
-    public void transRemoved(Integer catIndex, Integer transIndex) {
+    public void transRemoved(int catIndex, Integer transIndex) {
         Transaction t = FirebaseServices.transactions.get(transIndex);
         categories.get(catIndex).delTransaction(t);
-        Landing.update();
-        if (categories.get(catIndex).getTransactions().isEmpty()) {
+        if (categories.get(catIndex).isEmpty()) {
             categories.remove(catIndex);
-            usedCategories.remove(usedCategories.indexOf(t.getCategory()));
-            Landing.updateChart();
+            usedCategories.remove(catIndex);
         }
     }
 
@@ -163,7 +162,17 @@ public class CategoryList implements Parcelable {
         return indCategories.contains(cat);
     }
 
+    private String getAllUsedCategories() {
+        String out = "";
+        for (String s: usedCategories) {
+            out += " " + s;
+        }
+        return out;
+    }
+
     public Double getCategoryValueSum(String headerTitle) {
+        Log.d("CATEGORIES", getAllUsedCategories());
+        Log.d("CAT_RETRIEVAL", headerTitle);
         return categories.get(usedCategories.indexOf(headerTitle)).getValueSum();
     }
 }

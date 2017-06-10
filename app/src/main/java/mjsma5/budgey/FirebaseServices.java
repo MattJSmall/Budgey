@@ -162,7 +162,7 @@ public class FirebaseServices extends IntentService {
 
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
-            Integer transIndex = -1;
+            int transIndex = -1;
             for (int i = 0; i < transactions.size(); i++) {
                 if (transactions.get(i).getID().equals(t.getID())) {
                     transIndex = i;
@@ -175,7 +175,7 @@ public class FirebaseServices extends IntentService {
             if (cat.equals("Salary")) {
                 salary.transRemoved(0, transIndex);
             } else {
-                Integer index = categories.indexOf(cat);
+                int index = categories.indexOf(cat);
                 categories.transRemoved(index, transIndex);
                 for (int i = 0; i < entries.size(); i++) {
                     if (entries.get(i).getLabel().equals(cat)) {
