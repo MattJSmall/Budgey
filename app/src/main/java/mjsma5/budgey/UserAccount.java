@@ -2,32 +2,18 @@ package mjsma5.budgey;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.auth.api.Auth;
-
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class UserAccount extends AppCompatActivity implements View.OnClickListener {
 
@@ -44,9 +30,7 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
 
     private TextView mStatusTextView;
 
-    public static String uID;
     public static DatabaseReference userRef;
-    public static FirebaseDatabase database;
 
     private DialogInterface.OnClickListener dialogClickListener;
 
@@ -138,24 +122,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-    public void pass() {
-        Intent intent = new Intent(this, Landing.class);
-        startActivity(intent);
-    }
-
-    private void newUser() {
-        DatabaseReference catListRef = FirebaseDatabase.getInstance().getReference("users/" + uID + "/categories");
-        categoryInit("Home", catListRef);
-        categoryInit("Food", catListRef);
-        categoryInit("Entertainment", catListRef);
-        categoryInit("Gifts", catListRef);
-        categoryInit("Car", catListRef);
-        categoryInit("Clothes", catListRef);
-        categoryInit("Health", catListRef);
-        categoryInit("Transport", catListRef);
-        categoryInit("Salary", catListRef);
-        Log.d("SETUP", "NEW USER");
-    }
 
     private void categoryInit(String value, DatabaseReference ref) {
         String key = ref.push().getKey();
@@ -164,7 +130,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
 
     private void delete() {
         userRef.removeValue();
-        newUser();
         signOut();
     }
 }

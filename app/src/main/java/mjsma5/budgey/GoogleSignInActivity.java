@@ -1,23 +1,18 @@
 package mjsma5.budgey;
 
 import android.app.ActivityManager;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
-import android.support.constraint.solver.widgets.WidgetContainer;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.data.Entry;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -32,18 +27,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.*;
-import com.google.firebase.database.Transaction;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -74,12 +66,15 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private SignInButton btnSignIn;
     private ImageView logo;
 
+    private Context context;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_sign_in);
 
+        context = this;
 
         btnSignIn = (SignInButton) findViewById(R.id.sign_in_button);
         btnSignIn.setVisibility(View.GONE);
@@ -101,12 +96,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-    }
-
-    // [START onStart check user]
-    @Override
-    public void onStart() {
-        super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         // [START config_signIn]
         // Configure Google Sign In
@@ -122,6 +111,13 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 .build();
         Log.d("Google", "Setup complete");
 
+    }
+
+    // [START onStart check user]
+    @Override
+    public void onStart() {
+        super.onStart();
+
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
@@ -135,27 +131,11 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
         if (intent.getBooleanExtra("stopFirebase", false)) {
             stopFirebaseService();
             signOut();
-        } else {
-            if (currentUser == null) {
-                signIn();
-            } else {
-                pass();
-            }
         }
-
-        /*
-        logo.animate().rotation(20f).setDuration(400).start();
-        logo.animate().rotation(-40f).setDuration(400).start();
-        logo.animate().rotation(40f).setDuration(400).start();
-        logo.animate().rotation(-40f).setDuration(400).start();
-        logo.animate().rotation(40f).setDuration(400).start();
-        logo.animate().rotation(-40f).setDuration(400).start();
-        logo.animate().rotation(0f).setDuration(400).start();
-        */
+        // TODO animate on load.
     }
 
 
@@ -175,8 +155,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
-                // [START_EXCLUDE]
-                // [END_EXCLUDE]
+                // ...
             }
         }
     }
@@ -204,10 +183,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                             Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // [START_EXCLUDE]
-                        // hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -224,13 +199,14 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // Firebase sign out
         // [START initialize_auth]
         stopFirebaseService();
-        FirebaseAuth.getInstance().signOut();
+        mAuth.signOut();
 
+        // Google sign out
         Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
                     @Override
-                    public void onResult(Status status) {
-                        // ...
+                    public void onResult(@NonNull Status status) {
+                        Toast.makeText(context, "Google Sign-in Successful.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -263,16 +239,16 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     newUser();
-                    }
+                }
+                setupReferences();
+                Intent intent = new Intent(context, Landing.class);
+                // Wait until firebase data is loaded.
+                startActivity(intent);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
-        setupReferences();
-        Intent intent = new Intent(this, Landing.class);
-        // Wait until firebase data is loaded.
-        startActivity(intent);
     }
 
     private void setupReferences() {
@@ -304,7 +280,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     private void delete() {
         userRef.removeValue();
-        newUser();
     }
 
     private void stopFirebaseService() {

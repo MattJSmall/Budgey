@@ -26,8 +26,7 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-
+import java.util.Objects;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -213,7 +212,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnCategory:
-                if (transaction.getCategory().equals("null")) {
+                if (transaction.getCategory().equals("null") || Objects.equals(transaction.getAmount(), "0.00")) {
                     createCategoryDialog = reinstanceCreateCategory();
                     final String[] menuItems = categories.getAll();
                     categoryMenu.setItems(menuItems,
