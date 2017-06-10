@@ -162,4 +162,8 @@ public class CategoryList implements Parcelable {
     public boolean isCreated(String cat) {
         return indCategories.contains(cat);
     }
+
+    public Double getCategoryValueSum(String headerTitle) {
+        return categories.get(usedCategories.indexOf(headerTitle)).getValueSum();
+    }
 }
