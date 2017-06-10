@@ -9,13 +9,11 @@ import java.util.ArrayList;
  */
 
 public class Category {
-    private String key;
     private String value;
     private ArrayList<Transaction> ownedTransactions;
     private Double valueSum;
 
-    public Category(String k, String v, Double s) {
-        key = k;
+    public Category(String v, Double s) {
         value = v;
         valueSum = s;
         ownedTransactions = new ArrayList<>();
@@ -34,7 +32,7 @@ public class Category {
     }
 
     public void delTransaction(Transaction t) {
-        ownedTransactions.remove(t);
+        ownedTransactions.remove(ownedTransactions.indexOf(t));
         valueSum -= Double.valueOf(t.getAmount());
     }
 
@@ -48,10 +46,6 @@ public class Category {
 
     public String getValue() {
         return value;
-    }
-
-    public String getKey() {
-        return key;
     }
 
     public ArrayList<String> getTransactions() {

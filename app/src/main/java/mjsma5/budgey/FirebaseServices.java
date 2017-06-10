@@ -64,7 +64,7 @@ public class FirebaseServices extends IntentService {
         transRef.addChildEventListener(transactionsChildEventListener);
         catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");
-        salary.addItem("0", "Salary", 0d);
+        salary.addItem("Salary", 0d);
     }
 
     @Override
@@ -75,11 +75,7 @@ public class FirebaseServices extends IntentService {
     private ChildEventListener categoryListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            if (!categories.contains(dataSnapshot.getValue().toString())) {
-                categories.addItem(dataSnapshot.getKey()
-                        ,dataSnapshot.getValue().toString()
-                        , 0d);
-            }
+            categories.addIndCategory(dataSnapshot.getValue().toString());
         }
 
         @Override
@@ -119,35 +115,37 @@ public class FirebaseServices extends IntentService {
             // Chart update
             String cat = t.getCategory();
 
-            // Update Balance
-            if (!cat.equals("Salary")) {
-                balance -= Double.valueOf(t.getAmount());
-                // Add new transaction details to category list and data to chart entries
-                Integer index = -1;
-                for (int i = 0; i < entries.size()-1; i++) {
-                    if (entries.get(i).getLabel().equals(cat)) {
-                        index = i;
-                        break;
-                    }
-                }
-                if (index == -1) {
-                    entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
-                } else {
-                    entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
-                }
-                if (categories.contains(cat)) {
-                    index = categories.indexOf(cat);
-                    categories.addValueSum(index, Double.valueOf(t.getAmount()));
-                } else {
-                    categories.addItem(dataSnapshot.getKey(), cat, Double.valueOf(t.getAmount()));
-                }
-                categories.addTransaction(categories.indexOf(cat), t);
-                Log.d(TAG, "onEntryChildAdded:" + dataSnapshot.getValue());
-
-            } else {
+            if (cat.equals("Salary")) {
                 balance += Double.valueOf(t.getAmount());
                 salary.addValueSum(0, Double.valueOf(t.getAmount()));
                 salary.addTransaction(0, t);
+            } else {
+                balance -= Double.valueOf(t.getAmount());
+                if (categories.isUsed(cat)) {
+                    Integer index = -1;
+                    Log.d("CATEGORY", cat);
+                    for (int i = 0; i < entries.size(); i++) {
+                        PieEntry entry = entries.get(i);
+                        Log.d("ENTRY", entry.getLabel());
+                        if (entries.get(i).getLabel().equals(cat)) {
+                            index = i;
+                            Log.d("ENTRY_INDEX", String.valueOf(i));
+                            break;
+                        }
+                        Log.d("ENTRY_INDEX", String.valueOf(index));
+                    }
+                    if (index != -1) {
+                        entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
+                        categories.addValueSum(index, Double.valueOf(t.getAmount()));
+                        Log.d("CHART", "entry_successful");
+                    } else {
+                        Log.d("CHART", "entry_failed");
+                    }
+                } else {
+                    categories.addItem(cat, Double.valueOf(t.getAmount()));
+                    entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
+                }
+                categories.addTransaction(categories.indexOf(cat), t);
             }
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
@@ -156,76 +154,44 @@ public class FirebaseServices extends IntentService {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
             Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-            Transaction newTransaction = dataSnapshot.getValue(Transaction.class);
-            String transactionKey = dataSnapshot.getKey();
-            Integer pastIndex = -1;
-
-            // Find index of past item;
-            for (int i = 0; i < transactions.size(); i++) {
-                if (transactionKey.equals(transactions.get(i).getID())) {
-                    pastIndex = i;
-                    break;
-                }
-            }
-
-            // Chart Update
-            String cat = newTransaction.getCategory();
-            Integer index = categories.indexOf(cat);
-            // mew value must first remove past t value
-            Float newValue = Float.valueOf(newTransaction.getAmount())
-                    - Float.valueOf(transactions.get(pastIndex).getAmount())
-                    + entries.get(index).getValue();
-            entries.set(index, new PieEntry(newValue, cat));
-
-            // Transaction List update
-            transactions.set(pastIndex, newTransaction);
-            Landing.update();
-
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-            String transactionKey = dataSnapshot.getKey();
-            Integer pastIndex = -1;
-            for (int i = 0; i < transactions.size()-1; i++) {
-                if (transactionKey.equals(transactions.get(i).getID())) {
-                    pastIndex = i;
+
+            Transaction t = dataSnapshot.getValue(Transaction.class);
+            t.setId(dataSnapshot.getKey());
+            Integer transIndex = -1;
+            for (int i = 0; i < transactions.size(); i++) {
+                if (transactions.get(i).getID().equals(t.getID())) {
+                    transIndex = i;
                     break;
                 }
             }
-            if (!dataSnapshot.getValue().toString().equals("Salary")) {
-                if (pastIndex != -1) {
-                    String cat = transactions.get(pastIndex).getCategory();
-                    Integer catIndex = categories.indexOf(cat);
-                    Integer entriesIndex = -1;
-                    for (int i = 0; i < entries.size()-1; i++) {
-                        if (entries.get(i).getLabel().equals(cat)) {
-                            entriesIndex = i;
-                            break;
-                        }
-                    }
-                    if (entriesIndex != -1) {
-                        // Removing transaction from entries list
-                        Float newValue = entries.get(entriesIndex).getValue()
-                                - Float.valueOf(transactions.get(pastIndex).getAmount());
-                        entries.set(entriesIndex, new PieEntry(newValue, cat));
 
-                        // Remove transaction from category list
-                        categories.transRemoved(catIndex, pastIndex);
-                        // categories.transRemoved(catIndex, Double.valueOf(transactions.get(pastIndex).getAmount()));
-                        if (categories.get(catIndex).getTransactions().size() == 0) {
-                            entries.remove(entriesIndex);
-                        }
-
-                    }
-                } else {
-                    Log.d("LOCAL-TRANSACTIONS", "deletion failed");
-                }
+            // Chart update
+            String cat = t.getCategory();
+            if (cat.equals("Salary")) {
+                salary.transRemoved(0, transIndex);
             } else {
-                salary.transRemoved(0, pastIndex);
+                Integer index = categories.indexOf(cat);
+                categories.transRemoved(index, transIndex);
+                for (int i = 0; i < entries.size(); i++) {
+                    if (entries.get(i).getLabel().equals(cat)) {
+                        index = i;
+                        break;
+                    }
+                }
+                Float entryValue = entries.get(index).getValue() - Float.valueOf(t.getAmount());
+                if (entryValue == 0) {
+                    entries.remove(index);
+                } else {
+                    entries.set(index, new PieEntry(entryValue, cat));
+                }
             }
-            transactions.remove(pastIndex);
+            transactions.remove(transIndex);
+            Log.d("UPDATE", "balance: " + balance);
             Landing.update();
         }
 

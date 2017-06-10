@@ -2,6 +2,7 @@ package mjsma5.budgey;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -56,6 +57,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public ArrayList<String> cat;
     public static CategoryList categories;
     private String[] menuItems;
+    private Context context;
 
     private static FirebaseDatabase database;
     private static String uID;
@@ -67,6 +69,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+
+        context = this;
 
         Toast welcome = Toast.makeText(this, "Enter your transaction details", Toast.LENGTH_SHORT);
 
@@ -194,11 +198,16 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         createCategory.setView(input);
         createCategory.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                DatabaseReference curr_category = database.getReference("users/" + uID + "/categories");
-                String key = curr_category.push().getKey();
-                curr_category.child(key).setValue(input.getText().toString());
-                transaction.setCategory(input.getText().toString());
-                Log.d("Category_Added ", input.getText().toString());
+                if (categories.isCreated(input.getText().toString())) {
+                    Toast.makeText(context, "Parenthesis Mismatch", Toast.LENGTH_SHORT).show();
+                } else {
+                    DatabaseReference curr_category = database.getReference("users/" + uID + "/categories");
+                    String key = curr_category.push().getKey();
+                    curr_category.child(key).setValue(input.getText().toString());
+                    transaction.setCategory(input.getText().toString());
+                    Log.d("Category_Added ", input.getText().toString());
+                    btnCategory.setText(input.getText());
+                }
             }
         });
         createCategory.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -212,7 +221,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnCategory:
-                if (transaction.getCategory().equals("null") || Objects.equals(transaction.getAmount(), "0.00")) {
+                if (transaction.getCategory().equals("null") || txtResult.getText().toString().equals("0.00")) {
                     createCategoryDialog = reinstanceCreateCategory();
                     final String[] menuItems = categories.getAll();
                     categoryMenu.setItems(menuItems,
@@ -220,7 +229,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                                 public void onClick(DialogInterface dialog, int which) {
                                     // The 'which' argument contains the index position
                                     // of the selected item
-                                    if (which == categories.size() - 1) {
+                                    if (which == categories.indSize() - 1) {
                                         createCategoryDialog.show();
                                     } else {
                                         transaction.setCategory(menuItems[which]);
@@ -339,8 +348,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     Log.d("EVALUATION_OUTPUT", result);
                     reset = true;
                 } else {
-                    Toast parenthesisError = Toast.makeText(this, "Parenthesis Mismatch", Toast.LENGTH_SHORT);
-                    parenthesisError.show();
+                    Toast.makeText(this, "Parenthesis Mismatch", Toast.LENGTH_SHORT).show();
                     Log.d("INPUT ERROR", "PARENTHESIS");
                 }
                 break;

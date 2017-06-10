@@ -229,17 +229,10 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         listDataHeader.clear();
         listHash.clear();
         Log.d("EXP_LIST_VIEW_headers: ", categories.getList().toString());
-        ArrayList<Category> tmpList = categories.getList();
-        for (int i = 0; i < tmpList.size() - 1; i++) {
-            Category c = tmpList.get(i);
-            if (!listDataHeader.contains(c.getValue())) {
-                if (c.getTransactions().size() != 0) {
-                    listDataHeader.add(c.getValue());
-                    Log.d("HEADER", c.getValue());
-                    listHash.remove(c.getValue());
-                    listHash.put(c.getValue(), c.getTransactions());
-                }
-            }
+        for (Category c: categories.getList()) {
+            listDataHeader.add(c.getValue());
+            listHash.put(c.getValue(), c.getTransactions());
+            Log.d("LIST_ITEM_ADDED", c.getValue());
         }
         listDataHeader.add("Salary");
         listHash.put("Salary", FirebaseServices.salary.get(0).getTransactions());
@@ -441,7 +434,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which){
                                     case DialogInterface.BUTTON_POSITIVE:
-                                        FirebaseServices.deleteCategory(categories.get(index).getKey());
+                                        FirebaseServices.deleteCategory(categories.get(index).getValue());
                                         break;
 
                                     case DialogInterface.BUTTON_NEGATIVE:

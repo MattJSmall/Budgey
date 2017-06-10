@@ -16,7 +16,7 @@ public class CategoryList implements Parcelable {
 
     private ArrayList<Category> categories = new ArrayList<>();
     private ArrayList<String> indCategories = new ArrayList<>();
-    //private static ArrayList<Transaction> transactions = FirebaseServices.transactions;
+    private ArrayList<String> usedCategories = new ArrayList<>();
 
     protected CategoryList(Parcel in) {
         indCategories = in.createStringArrayList();
@@ -34,6 +34,11 @@ public class CategoryList implements Parcelable {
         }
     };
 
+    public void addUsed(String categoryName) {
+        usedCategories.add(categoryName);
+    }
+
+
     public CategoryList() {
     }
 
@@ -42,19 +47,36 @@ public class CategoryList implements Parcelable {
     }
 
     public void removeCategory(String category) {
-        indCategories.remove(indCategories.indexOf(category));
+        /* Remove category data including all transactions related to category
+         *
+         */
+        indCategories.remove(indCategories.indexOf(category)); // remove from individual cat list
+        if (usedCategories.contains(category)) { // removed from used cat list if it has been used
+            usedCategories.remove(usedCategories.indexOf(category));
+        }
         Category c = getItem(category);
-        for (String t: c.getTransactions()) {
-            FirebaseServices.deleteTransaction(FirebaseServices.transactions.get(Integer.valueOf(t)).getID());
+        if (c.getValue().equals("error")) {
+            Log.d("CATEGORY_REMOVAL", "FAILED: " + category);
+        } else {
+            for (String t : c.getTransactions()) {
+                FirebaseServices.deleteTransaction(FirebaseServices.transactions.get(Integer.valueOf(t)).getID());
+            }
         }
     }
 
-
-    public void addItem(String key, String value, Double valueSum) {
-        categories.add(new Category(key, value, valueSum));
-        if (!indCategories.contains(value)) {
-            indCategories.add(value);
+    private Category getItem(String category) {
+        for (Category c: categories) {
+            if (c.getValue().equals(category)) {
+                return c;
+            }
         }
+        return new Category("error", 0d);
+    }
+
+
+    public void addItem(String category, Double valueSum) {
+        categories.add(new Category(category, valueSum));
+        addUsed(category);
     }
 
     public void addIndCategory(String category) {
@@ -71,16 +93,6 @@ public class CategoryList implements Parcelable {
         return categories;
     }
 
-    public Category getItem(String key) {
-        // Retrun category based on key ID
-        for (int i = 0; i < categories.size() - 1; i++) {
-            if (categories.get(i).getKey().equals(key)) {
-                return categories.get(i);
-            }
-        }
-        return new Category("error", "error", 0d);
-    }
-
     public Category getCategory(String category) {
         // Retrun category based on key ID
         for (int i = 0; i < categories.size() - 1; i++) {
@@ -88,30 +100,11 @@ public class CategoryList implements Parcelable {
                 return categories.get(i);
             }
         }
-        return new Category("error", "error", 0d);
+        return new Category("error", 0d);
     }
 
-
-    private Integer getIndex(String key) {
-        for (int i = 0; i < categories.size() - 1; i++) {
-            if (categories.get(i).getKey().equals(key)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public void delItem(String key) {
-        for (int i = 0; i < categories.size(); i++) {
-            if (categories.get(i).getKey().equals(key)) {
-                categories.remove(i);
-                Log.d("FIREBASE", "LOCAL CATEGORY DELETE SUCCESFUL");
-            }
-        }
-    }
-
-    public void addValueSum(Integer i, Double val) {
-        categories.get(i).addValueSum(val); }
+    public void addValueSum(Integer catIndex, Double val) {
+        categories.get(catIndex).addValueSum(val); }
 
     public void transRemoved(Integer catIndex, Integer transIndex) {
         Transaction t = FirebaseServices.transactions.get(transIndex);
@@ -119,6 +112,7 @@ public class CategoryList implements Parcelable {
         Landing.update();
         if (categories.get(catIndex).getTransactions().isEmpty()) {
             categories.remove(catIndex);
+            usedCategories.remove(usedCategories.indexOf(t.getCategory()));
             Landing.updateChart();
         }
     }
@@ -126,27 +120,28 @@ public class CategoryList implements Parcelable {
     public int size() {
         return categories.size() + 1;
     }
+    public int indSize() {
+        return indCategories.size() + 1;
+    }
 
     public boolean contains(String item) {
         return indCategories.contains(item);
     }
     
     public String[] getAll() {
-        String[] items = new String[categories.size() + 1];
-        for (int i = 0; i < categories.size(); i++) {
-            items[i] = categories.get(i).getValue();
-            Log.d("RETRIEVAL", categories.get(i).getValue());
-        }
-        items[categories.size()] = "Create New Category";
+        String[] items = indCategories.toArray(new String[indCategories.size() + 1]);
+        items[indCategories.size()] = "Create new Category";
         return items;
     }
+
+
 
     public boolean isEmpty() {
         return categories.isEmpty();
     }
 
     public Integer indexOf(String cat) {
-        return indCategories.indexOf(cat);
+        return usedCategories.indexOf(cat);
     }
 
     @Override
@@ -158,5 +153,13 @@ public class CategoryList implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(categories);
         dest.writeList(indCategories);
+    }
+
+    public boolean isUsed(String cat) {
+        return usedCategories.contains(cat);
+    }
+
+    public boolean isCreated(String cat) {
+        return indCategories.contains(cat);
     }
 }
