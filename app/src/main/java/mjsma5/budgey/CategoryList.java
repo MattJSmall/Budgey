@@ -17,6 +17,7 @@ public class CategoryList implements Parcelable {
     private ArrayList<Category> categories = new ArrayList<>();
     private ArrayList<String> indCategories = new ArrayList<>();
     private ArrayList<String> usedCategories = new ArrayList<>();
+    private ArrayList<String> indCategoryIDs = new ArrayList<>();
 
     protected CategoryList(Parcel in) {
         indCategories = in.createStringArrayList();
@@ -50,11 +51,6 @@ public class CategoryList implements Parcelable {
         /* Remove category data including all transactions related to category
          *
          */
-        indCategories.remove(indCategories.indexOf(category)); // remove from individual cat list
-        categories.remove(usedCategories.indexOf(category));
-        if (usedCategories.contains(category)) { // removed from used cat list if it has been used
-            usedCategories.remove(usedCategories.indexOf(category));
-        }
         Category c = getItem(category);
         if (c.getValue().equals("error")) {
             Log.d("CATEGORY_REMOVAL", "FAILED: " + category);
@@ -63,6 +59,10 @@ public class CategoryList implements Parcelable {
                 FirebaseServices.deleteTransaction(FirebaseServices.transactions.get(Integer.valueOf(t)).getID());
             }
         }
+        indCategoryIDs.remove(indCategories.indexOf(category));
+        indCategories.remove(indCategories.indexOf(category)); // remove from individual cat list
+
+        Landing.update();
     }
 
     private Category getItem(String category) {
@@ -80,9 +80,10 @@ public class CategoryList implements Parcelable {
         addUsed(category);
     }
 
-    public void addIndCategory(String category) {
+    public void addIndCategory(String id, String category) {
         if (!indCategories.contains(category)) {
             indCategories.add(category);
+            indCategoryIDs.add(id);
         }
     }
 
@@ -174,5 +175,9 @@ public class CategoryList implements Parcelable {
         Log.d("CATEGORIES", getAllUsedCategories());
         Log.d("CAT_RETRIEVAL", headerTitle);
         return categories.get(usedCategories.indexOf(headerTitle)).getValueSum();
+    }
+
+    public String getID(int index) {
+        return indCategoryIDs.get(index);
     }
 }

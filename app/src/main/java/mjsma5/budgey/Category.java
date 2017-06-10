@@ -12,10 +12,11 @@ public class Category {
     private String value;
     private ArrayList<Transaction> ownedTransactions;
     private Double valueSum;
+    private String id;
 
-    public Category(String v, Double s) {
-        value = v;
-        valueSum = s;
+    public Category(String _value, Double _valueSum) {
+        value = _value;
+        valueSum = _valueSum;
         ownedTransactions = new ArrayList<>();
     }
 

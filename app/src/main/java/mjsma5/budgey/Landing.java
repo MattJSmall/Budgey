@@ -429,7 +429,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which){
                                     case DialogInterface.BUTTON_POSITIVE:
-                                        FirebaseServices.deleteCategory(FirebaseServices.categories.get(index).getValue());
+                                        FirebaseServices.deleteCategory(FirebaseServices.categories.getID(index));
                                         break;
 
                                     case DialogInterface.BUTTON_NEGATIVE:
