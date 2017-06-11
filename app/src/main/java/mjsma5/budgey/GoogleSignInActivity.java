@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +63,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     public static FirebaseDatabase database;
     public static DatabaseReference transRef;
 
+    private ProgressBar progressBar;
+
     private Intent firebaseServiceIntent;
 
     private SignInButton btnSignIn;
@@ -78,6 +81,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
         btnSignIn = (SignInButton) findViewById(R.id.sign_in_button);
         btnSignIn.setVisibility(View.GONE);
+
+        progressBar = (ProgressBar) findViewById(R.id.pbLoading);
+        progressBar.setVisibility(View.GONE);
 
         ImageView logo = (ImageView) findViewById(R.id.imgLogo);
         logo.setOnClickListener(new View.OnClickListener() {
@@ -209,6 +215,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+        progressBar.setVisibility(View.VISIBLE);
     }
     // [END signin]
 
