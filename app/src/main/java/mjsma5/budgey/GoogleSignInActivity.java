@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,7 +56,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
 
     private GoogleApiClient mGoogleApiClient;
-    private TextView mStatusTextView;
 
     public static String uID;
     public static DatabaseReference userRef;
@@ -79,7 +80,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         btnSignIn = (SignInButton) findViewById(R.id.sign_in_button);
         btnSignIn.setVisibility(View.GONE);
 
-
         logo = (ImageView) findViewById(R.id.imgLogo);
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,58 +90,63 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
         firebaseServiceIntent = new Intent(this, FirebaseServices.class);
 
-        // Views
-        mStatusTextView = (TextView) findViewById(R.id.status);
-
-        // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-        // Check if user is signed in (non-null) and update UI accordingly.
-        // [START config_signIn]
+        // [START config_signin]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        // [END config_signIn]
+        // [END config_signin]
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-        Log.d("Google", "Setup complete");
 
+        // [START initialize_auth]
+        mAuth = FirebaseAuth.getInstance();
+        // [END initialize_auth]
     }
 
     // [START onStart check user]
     @Override
     public void onStart() {
         super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        Intent intent = getIntent();
+        String condition = intent.getStringExtra("stopFirebase");
+        if (condition.equals("1")) {
+            Log.d("FIREBASE", "STOP");
+            stopFirebaseService();
+            signOut();
+        } if (condition.equals("2")) {
+            revokeAccess();
+            signOut();
+        } else {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            updateUI(currentUser);
+        }
+    }
 
-        // [START initialize_auth]
-        mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
-
-
-
+    private void updateUI(FirebaseUser currentUser) {
+        if (currentUser != null) {
+            pass();
+        } else {
+            btnSignIn.setVisibility(View.VISIBLE);
+        }
     }
     // [END onStart check user]
 
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = getIntent();
-        if (intent.getBooleanExtra("stopFirebase", false)) {
-            stopFirebaseService();
-            signOut();
-        }
         // TODO animate on load.
     }
 
 
-
-
-    // [START onActivityResult]
+    // [START onactivityresult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -155,18 +160,18 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
-                // ...
+                // [START_EXCLUDE]
+                updateUI(null);
+                // [END_EXCLUDE]
             }
         }
     }
-    // [END onActivityResult]
+    // [END onactivityresult]
+
 
     // [START auth_with_google]
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-        // [START_EXCLUDE silent]
-        // showProgressDialog();
-        // [END_EXCLUDE]
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -176,12 +181,14 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            pass();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            updateUI(null);
                         }
                     }
                 });
@@ -197,16 +204,37 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     private void signOut() {
         // Firebase sign out
-        // [START initialize_auth]
-        stopFirebaseService();
         mAuth.signOut();
+        stopFirebaseService();
 
+        if (mGoogleApiClient.isConnected()) {
+            disconnect();
+        } else {
+            disconnect();
+        }
+        updateUI(null);
+
+    }
+
+
+    private void disconnect() {
+        Log.d("Google", "Signed Out");
         // Google sign out
         Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        Toast.makeText(context, "Google Sign-in Successful.", Toast.LENGTH_SHORT).show();
+                        updateUI(null);
+                    }
+                });
+    }
+
+    private void revokeAccess() {
+        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // ...
                     }
                 });
     }
@@ -249,7 +277,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+
     }
+
 
     private void setupReferences() {
         userRef = database.getReference("users/").child(uID);
@@ -278,22 +308,14 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         ref.child(key).setValue(value);
     };
 
-    private void delete() {
-        userRef.removeValue();
-    }
 
     private void stopFirebaseService() {
         ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
 
-        Iterator<ActivityManager.RunningAppProcessInfo> iter = runningAppProcesses.iterator();
-
-        while(iter.hasNext()){
-            ActivityManager.RunningAppProcessInfo next = iter.next();
-
+        for (ActivityManager.RunningAppProcessInfo next : runningAppProcesses) {
             String pricessName = getPackageName() + ":FirebaseServices";
-
-            if(next.processName.equals(pricessName)){
+            if (next.processName.equals(pricessName)) {
                 Process.killProcess(next.pid);
                 break;
             }

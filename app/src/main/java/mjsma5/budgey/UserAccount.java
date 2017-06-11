@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -82,11 +86,12 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
     }
     // [END on_start_check_user]
 
-    private void signOut() {
+    private void signOut(String condition) {
         Intent intent = new Intent(this, GoogleSignInActivity.class);
-        intent.putExtra("stopFirebase", true);
+        intent.putExtra("stopFirebase", condition);
         startActivity(intent);
     }
+
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
@@ -110,7 +115,7 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
             case R.id.sign_in_button:
                 break;
             case R.id.sign_out_button:
-                signOut();
+                signOut("1");
                 break;
             case R.id.btnDelete:
                 AlertDialog.Builder deleteAlert = new AlertDialog.Builder(this);
@@ -130,6 +135,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
 
     private void delete() {
         userRef.removeValue();
-        signOut();
+        signOut("2");
     }
 }

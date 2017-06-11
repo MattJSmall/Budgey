@@ -3,10 +3,8 @@ package mjsma5.budgey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Matts on 11/05/2017.
@@ -15,6 +13,7 @@ import java.util.List;
 public class CategoryList implements Parcelable {
 
     private ArrayList<Category> categories = new ArrayList<>();
+
     private ArrayList<String> indCategories = new ArrayList<>();
     private ArrayList<String> usedCategories = new ArrayList<>();
     private ArrayList<String> indCategoryIDs = new ArrayList<>();
