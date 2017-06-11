@@ -22,6 +22,8 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
@@ -80,6 +82,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
 
     public AlertDialog.Builder deleteMenu;
 
+    private RadioButton rbIncome;
+    private RadioButton rbExpense;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +131,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         arrowRight = (ImageView) findViewById(R.id.imgRightArrow);
 
         balanceBar = (LinearLayout) findViewById(R.id.linBalanceBar);
+
 
         findViewById(R.id.imgRightArrow).setOnClickListener(this);
         findViewById(R.id.imgLeftArrow).setOnClickListener(this);
@@ -181,6 +187,8 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         inflater.inflate(R.menu.appbar, menu);
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

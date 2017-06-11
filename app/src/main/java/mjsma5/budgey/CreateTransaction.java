@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -116,6 +117,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         findViewById(R.id.btnDecimal).setOnClickListener(this);
         findViewById(R.id.btnSum).setOnClickListener(this);
 
+
         // Calculator additional requirements
         txtResult = (TextView) findViewById(R.id.txtResult);
         result = "";
@@ -165,6 +167,33 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         // Alert Dialogs
         categoryMenu = new AlertDialog.Builder(this);
         categoryMenu.setTitle("Select a Category");
+
+        // Radio Buttons Expense and Income
+        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.rgTransactionType);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // checkedId is the RadioButton selected
+                Log.d("RADIO_BTN_CHECKED", "id = " + checkedId);
+                if (checkedId == R.id.rbIncome) {
+                    transaction.setType(true);
+                    btnCategory.setText("Salary");
+                    transaction.setCategory("Salary");
+                } else {
+                    transaction.setType(false);
+                    if (!transaction.getCategory().equals("null")) {
+                        if (transaction.getCategory().equals("Salary")) {
+                            btnCategory.setText("Choose Category");
+                            transaction.setCategory("null");
+                        } else {
+                            btnCategory.setText(transaction.getCategory());
+                        }
+                    } else {
+                        btnCategory.setText("Choose Category");
+                    }
+                }
+            }
+        });
     }
 
     private void instanceCalculator() {
