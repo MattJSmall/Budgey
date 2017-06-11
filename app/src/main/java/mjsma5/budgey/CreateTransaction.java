@@ -41,7 +41,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     private ImageButton btnMethod;
     private Button btnCategory;
 
-    private String input;
+    private Boolean equationResolved;
+
     private String result;
     private int parenthesis;
     private boolean reset;
@@ -55,9 +56,10 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public AlertDialog.Builder methodMenu;
     public AlertDialog.Builder categoryMenu;
     public AlertDialog.Builder createCategoryDialog;
-    public ArrayList<String> cat;
+
     public static CategoryList categories;
-    private String[] menuItems;
+
+
     private Context context;
 
     private static FirebaseDatabase database;
@@ -125,7 +127,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         reset = false;
         decimal = false;
         operatorLast = false;
-
+        equationResolved = true;
         result = "";
 
         // Date Picker
@@ -136,7 +138,11 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
         // Transaction initialisation
         Intent intent = getIntent();
-        transaction = new Transaction("0 0 0", false, "0.00", "cash", "null", "Note", false);
+        String inputCategory = intent.getStringExtra("category");
+        if (!inputCategory.equals("null")) {
+            btnCategory.setText("Add Transaction to " + inputCategory);
+        }
+        transaction = new Transaction("0 0 0", false, "0.00", "cash", inputCategory, "Note", false);
         // String nDate, Boolean nTaxable,String nAmount, String nMethod, String nCategory, String nNote, Boolean nType
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
@@ -177,7 +183,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                 Log.d("RADIO_BTN_CHECKED", "id = " + checkedId);
                 if (checkedId == R.id.rbIncome) {
                     transaction.setType(true);
-                    btnCategory.setText("Salary");
+                    btnCategory.setText("Add Transaciton to Salary");
                     transaction.setCategory("Salary");
                 } else {
                     transaction.setType(false);
@@ -186,7 +192,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                             btnCategory.setText("Choose Category");
                             transaction.setCategory("null");
                         } else {
-                            btnCategory.setText(transaction.getCategory());
+                            btnCategory.setText("Add Transaction to " + transaction.getCategory());
                         }
                     } else {
                         btnCategory.setText("Choose Category");
@@ -198,6 +204,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
 
     private void instanceCalculator() {
         parenthesis = 0;
+        equationResolved = true;
         reset = false;
         decimal = false;
         operatorLast = false;
@@ -235,7 +242,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     curr_category.child(key).setValue(input.getText().toString());
                     transaction.setCategory(input.getText().toString());
                     Log.d("Category_Added ", input.getText().toString());
-                    btnCategory.setText(input.getText());
+                    btnCategory.setText("Add Transaction to " + input.getText());
                 }
             }
         });
@@ -250,7 +257,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnCategory:
-                if (transaction.getCategory().equals("null") || txtResult.getText().toString().equals("0.00")) {
+                if (transaction.getCategory().equals("null")) {
                     createCategoryDialog = reinstanceCreateCategory();
                     final String[] menuItems = categories.getAll();
                     categoryMenu.setItems(menuItems,
@@ -310,7 +317,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     opUpdate(")");
                     parenthesis -= 1;
                 }
-                // error display "incorrect function"
                 break;
             case R.id.btnDiv:
                 opUpdate("/");
@@ -375,6 +381,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
                     Log.d("EVALUATION_INPUT", result);
                     result = evaluate(result);
                     Log.d("EVALUATION_OUTPUT", result);
+                    equationResolved = true;
                     reset = true;
                 } else {
                     Toast.makeText(this, "Parenthesis Mismatch", Toast.LENGTH_SHORT).show();
@@ -390,17 +397,12 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
          *  @Params: form must be complete
          */
         if (result.equals("")) {
-            Toast valueError = Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT);
-            valueError.show();
+            Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT).show();
         } else if (transaction.getCategory().equals("NULL")) {
-            Toast categoryError = Toast.makeText(this, "Please enter a Category", Toast.LENGTH_SHORT);
-            categoryError.show();
+             Toast.makeText(this, "Please enter a Category", Toast.LENGTH_SHORT).show();
+        } else if (equationResolved.equals(false)) {
+            Toast.makeText(this, "Equation is unresolved", Toast.LENGTH_SHORT).show();
         } else {
-            if (transaction.getCategory().equals("Salary")) {
-                transaction.setType(true);
-            } else {
-                transaction.setType(false);
-            }
             transaction.setNote(txtNote.getText().toString());
             transaction.setAmount(result);
             transaction.setDate(String.valueOf(date.get(Calendar.DAY_OF_MONTH)) + " " + date.get(Calendar.MONTH) + " " + date.get(Calendar.YEAR));
@@ -416,24 +418,6 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         Double r = e.evaluate();
         return String.valueOf(r);
     }
-    /*
-    public String evaluate(String infix) {
-        // Converts infix string to postfix using Dijkstra's ShuntingYard
-        String postfix = ShuntingYard.postfix(infix);
-        Log.d("EVALUATION_POSTFIX", postfix);
-        // Evaluates postfix using the stack method.
-        String value = postfixEvaluation(postfix);
-        Log.d("EVALUATION_DONE", value);
-        if (value.equals("ERROR")) {
-            result = "";
-            txtResult.setText(result);
-            Log.d("INPUT ERROR", "EVALUATION ERROR");
-            return "error"; // ~ insert error reporting
-        } else {
-            return value;
-        }
-    }
-    */
 
     public void numUpdate(String input) {
         // Update module for all numbers
@@ -457,6 +441,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         result += " " + input + " ";
         operatorLast = true;
         decimal = false;
+        equationResolved = false;
     }
 
 

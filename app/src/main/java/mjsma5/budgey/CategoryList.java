@@ -110,7 +110,9 @@ public class CategoryList implements Parcelable {
     public void transRemoved(int catIndex, Integer transIndex) {
         Transaction t = FirebaseServices.transactions.get(transIndex);
         categories.get(catIndex).delTransaction(t);
-        if (categories.get(catIndex).isEmpty()) {
+        // If no more expense transactions are contained within this category, remove category object
+        if (categories.get(catIndex).isEmpty() ||
+                (!categories.get(catIndex).getValue().equals("Salary"))) {
             categories.remove(catIndex);
             usedCategories.remove(catIndex);
         }

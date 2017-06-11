@@ -7,20 +7,36 @@
     tools:context="mjsma5.budgey.UserAccount">
 
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar3"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/primary"
+        android:elevation="4dp"
+        android:theme="@@style/ThemeOverlay.AppCompat.Light"
+        android:titleTextColor="#ffffff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="User"
+        app:titleTextColor="@android:color/white" />
+
     <LinearLayout
         android:id="@+id/main_layout"
         android:layout_width="368dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="0dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginRight="0dp"
         android:orientation="vertical"
         android:weightSum="4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,10 +77,10 @@
 
             <TextView
                 android:id="@+id/status"
-                style="@android:style/Widget.Material.Button.Borderless.Colored"
-                android:text="@string/signed_out"
+                style="@android:style/Widget.Material.Button.Borderless"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/signed_out" />
 
         </LinearLayout>
 
@@ -87,13 +103,15 @@
 
                 <Button
                     android:id="@+id/sign_out_button"
+                    style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/sign_out"/>
+                    android:text="@string/sign_out" />
 
                 <Button
                     android:id="@+id/btnDelete"
+                    style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"

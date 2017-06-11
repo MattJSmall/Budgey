@@ -14,9 +14,9 @@
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/colorPrimary"
+        android:background="@color/primary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
         android:titleTextColor="#ffffff"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -156,22 +156,24 @@
 
                     <RadioButton
                         android:id="@+id/rbIncome"
-                        style="@android:style/Widget.Material.Light.CompoundButton.RadioButton"
+                        style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Income"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:buttonTint="@color/accent" />
 
                     <RadioButton
                         android:id="@+id/rbExpense"
-                        style="@android:style/Widget.Material.Light.CompoundButton.RadioButton"
+                        style="@style/Base.Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="true"
                         android:text="Expense"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:buttonTint="@color/accent" />
                 </RadioGroup>
 
             </LinearLayout>

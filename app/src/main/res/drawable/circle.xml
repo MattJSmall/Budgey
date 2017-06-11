@@ -6,9 +6,6 @@
         android:bottomLeftRadius="100dp"
         android:bottomRightRadius="100dp"
         />
-    <solid
-        android:color="@color/colorSecondary"
-        />
     <size
         android:width="100dp"
         android:height="100dp"

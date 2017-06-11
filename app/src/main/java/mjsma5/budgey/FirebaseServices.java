@@ -3,8 +3,6 @@ package mjsma5.budgey;
 import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Binder;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -17,7 +15,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -28,7 +25,7 @@ import java.util.Random;
  */
 public class FirebaseServices extends IntentService {
     private static String uID = GoogleSignInActivity.uID;
-    private static FirebaseDatabase  database = GoogleSignInActivity.database;
+    private static FirebaseDatabase database = GoogleSignInActivity.database;
 
     private static DatabaseReference catRef = database.getReference("users/" + uID + "/categories");
 
@@ -62,9 +59,15 @@ public class FirebaseServices extends IntentService {
         super.onStart(intent, startId);
     }
 
+
     private ChildEventListener categoryListener = new ChildEventListener() {
+        /* Purpose: Firebase Even Listener attached to a list of categories.
+         *          this listener ensures any updates to the category list are mirrored locally
+         */
+
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            /* When a database child is added, add the same category to the categoryList class*/
             if (!dataSnapshot.getValue().equals("Salary")) {
                 categories.addIndCategory(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
             }
@@ -72,34 +75,35 @@ public class FirebaseServices extends IntentService {
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
+            /* When a database child is removed, remove the same category to the categoryList class*/
             categories.removeCategory(dataSnapshot.getValue().toString());
             Log.d("FIREBASE", "category child removed: " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
         }
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-
         }
     };
 
-
-
-    // [Entry, x: 0.0 y: 237.0, Entry, x: 0.0 y: 263.0, Entry, x: 0.0 y: 104.0, Entry, x: 0.0 y: 64.0, Entry, x: 0.0 y: 52.0]
     // Transaction event listener
     private ChildEventListener transactionsChildEventListener = new ChildEventListener() {
         String TAG = "FIREBASE";
+        /* Purpose: Firebase Even Listener attached to a list of Transaction objects.
+         *          This listener ensures any updates to the transaction list are mirrored locally.
+         *          transactions also update the CategoryList Class and their resective Categories.
+         */
+
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            /* When a transaction is added, check what type fo transaciton and update list respectively*/
             Log.d(TAG, "onTransactionChildAdded:" + dataSnapshot.getValue());
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
@@ -108,12 +112,14 @@ public class FirebaseServices extends IntentService {
             String cat = t.getCategory();
 
             if (cat.equals("Salary")) {
+                // If transaction is an Income, add to balance and add to salary list
                 balance += Double.valueOf(t.getAmount());
                 salary.addValueSum(0, Double.valueOf(t.getAmount()));
                 salary.addTransaction(0, t);
             } else {
                 balance -= Double.valueOf(t.getAmount());
                 if (categories.isUsed(cat)) {
+                    // If it has been used before update entries list for the PieChart, update category
                     Integer index = -1;
                     Log.d("CATEGORY", cat);
                     for (int i = 0; i < entries.size(); i++) {
@@ -134,6 +140,8 @@ public class FirebaseServices extends IntentService {
                         Log.d("CHART", "entry_failed");
                     }
                 } else {
+                    // If category hasn't been used, create a new Category class for the category list
+                    // and add a new entry.
                     categories.addItem(cat, Double.valueOf(t.getAmount()));
                     entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
                 }
@@ -151,11 +159,13 @@ public class FirebaseServices extends IntentService {
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+            // remove Item from transaction list
 
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
             int transIndex = -1;
             for (int i = 0; i < transactions.size(); i++) {
+                // find transaction index
                 if (transactions.get(i).getID().equals(t.getID())) {
                     transIndex = i;
                     break;
@@ -166,6 +176,7 @@ public class FirebaseServices extends IntentService {
             String cat = t.getCategory();
             if (cat.equals("Salary")) {
                 salary.transRemoved(0, transIndex);
+                // remove transaction from category list
             } else {
                 int index = categories.indexOf(cat);
                 categories.transRemoved(index, transIndex);
@@ -207,30 +218,4 @@ public class FirebaseServices extends IntentService {
         database.getReference("users/" + uID + "/categories").child(id).removeValue();
         Log.d("FIREBASE", "category removed " + id);
     }
-
-    private final IBinder mBinder = new LocalBinder();
-    // Random number generator
-    private final Random mGenerator = new Random();
-
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
-    public class LocalBinder extends Binder {
-        FirebaseServices getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return FirebaseServices.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    /** method for clients */
-    public int getRandomNumber() {
-        return mGenerator.nextInt(100);
-    }
-
 }

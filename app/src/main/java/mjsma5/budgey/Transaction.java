@@ -22,11 +22,11 @@ public class Transaction {
 
     public Transaction(){}
 
-    DatabaseReference transRef = GoogleSignInActivity.transRef;
+    private DatabaseReference transRef = GoogleSignInActivity.transRef;
 
 
-    public Transaction(String nDate, Boolean nTaxable,String nAmount, String nMethod,
-                       String nCategory, String nNote, Boolean nType) {
+    Transaction(String nDate, Boolean nTaxable, String nAmount, String nMethod,
+                String nCategory, String nNote, Boolean nType) {
         amount = nAmount;
         category = nCategory;
         date = nDate;
@@ -37,21 +37,21 @@ public class Transaction {
     }
 
     // methods to get
-    public String getID() { return id; }
-    public String getCategory() {return category;}
-    public String getAmount() {return amount;}
+    String getID() { return id; }
+    String getCategory() {return category;}
+    String getAmount() {return amount;}
     public Boolean gType() {return type; }
-    public String getDate() {
+    String getDate() {
         return date;
     }
 
     // Methods to set
     public void setId(String item) { id = item; };
-    public void setAmount(String item) { amount = item; }
-    public void setCategory(String item) { category = item; }
-    public void setDate(String item) { date = item; }
-    public void setNote(String item) { note = item; }
-    public void setMethod(String item) { method = item; }
+    void setAmount(String item) { amount = item; }
+    void setCategory(String item) { category = item; }
+    void setDate(String item) { date = item; }
+    void setNote(String item) { note = item; }
+    void setMethod(String item) { method = item; }
     public void setTaxable(String item)  { taxable = item.equals("true"); }
     public void setType(String item)  { type = item.equals("true"); }
 
@@ -61,10 +61,10 @@ public class Transaction {
     void switchTaxable() {
         taxable = !taxable;
     }
-    public void setType(Boolean item) { type = item; }
+    void setType(Boolean item) { type = item; }
 
     // Method to update database
-    public void updateDatabase() {
+    void updateDatabase() {
         DatabaseReference currTrans;
 
         HashMap<String, Object> result = new HashMap<>();
@@ -81,11 +81,11 @@ public class Transaction {
         Log.d("FIREBASE_UPLOAD", "Transaction Uploaded");
     }
 
-    public String getMethod() {
+    String getMethod() {
         return method;
     }
 
-    public String getNote() {
+    String getNote() {
         return note;
     }
 }

@@ -32,6 +32,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -44,7 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class Landing extends AppCompatActivity implements View.OnClickListener {
+public class Landing extends AppCompatActivity implements View.OnClickListener, OnChartValueSelectedListener {
 
     // ListView Items
     public ExpandableListView listView;
@@ -102,7 +104,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
-                    createTransaction();
+                    createTransaction("null");
                 }
             }
 
@@ -157,6 +159,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         colours.add(Color.parseColor("#"));
         colours.add(Color.parseColor("#"));
         */
+
+        pChart.setOnChartValueSelectedListener(this);
+
         listView = (ExpandableListView) findViewById(R.id.lvTransactions);
         initiateChart();
         instanceList();
@@ -189,7 +194,6 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -216,13 +220,15 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
     private static void updateListView() {
         listDataHeader.clear();
         listHash.clear();
-        for (Category c: FirebaseServices.categories.getList()) {
+        if (!FirebaseServices.salary.get(0).isEmpty()) {
+            listDataHeader.add("Salary");
+            listHash.put("Salary", FirebaseServices.salary.get(0).getTransactions());
+        }
+        for (Category c : FirebaseServices.categories.getList()) {
             listDataHeader.add(c.getValue());
             listHash.put(c.getValue(), c.getTransactions());
             Log.d("LIST_ITEM_ADDED", c.getValue());
         }
-        listDataHeader.add("Salary");
-        listHash.put("Salary", FirebaseServices.salary.get(0).getTransactions());
         listAdapter.notifyDataSetChanged();
     }
 
@@ -255,7 +261,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                 translateList(2);
                 break;
             case R.id.btnPos:
-                createTransaction();
+                createTransaction("null");
                 break;
         }
     }
@@ -394,18 +400,18 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
-    private void createTransaction() {
+    private void createTransaction(String category) {
         Intent posIntent = new Intent(this, CreateTransaction.class);
-        posIntent.putExtra("category", "null");
+        posIntent.putExtra("category", category);
         startActivity(posIntent);
         Log.d("REACHED", "intent reached");
     }
 
     /***************************************************************/
 
-    private void manageCategories () {
+    private void manageCategories() {
         String[] menuItems = FirebaseServices.categories.getAll();
-        menuItems = Arrays.copyOf(menuItems, menuItems.length-1);
+        menuItems = Arrays.copyOf(menuItems, menuItems.length - 1);
 
         deleteMenu.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -419,7 +425,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                switch (which){
+                                switch (which) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         FirebaseServices.deleteCategory(FirebaseServices.categories.getID(index));
                                         break;
@@ -441,7 +447,20 @@ public class Landing extends AppCompatActivity implements View.OnClickListener {
         deleteMenu.show();
     }
 
+    @Override
+    public void onValueSelected(Entry e,Highlight h) {
+        PieEntry pe = (PieEntry) e;
+        createTransaction(pe.getLabel());
+    }
+
+    @Override
+    public void onNothingSelected() {
+
+    }
 }
+
+
+
 
 class MyValueFormatter implements IValueFormatter {
 
