@@ -116,14 +116,17 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         Intent intent = getIntent();
-        String condition = intent.getStringExtra("stopFirebase");
-        if (condition.equals("1")) {
-            Log.d("FIREBASE", "STOP");
-            stopFirebaseService();
-            signOut();
-        } if (condition.equals("2")) {
-            revokeAccess();
-            signOut();
+        if (intent.getBooleanExtra("stop", false)) {
+            String condition = intent.getStringExtra("condition");
+            if (condition.equals("1")) {
+                Log.d("FIREBASE", "STOP");
+                stopFirebaseService();
+                signOut();
+            } if (condition.equals("2")) {
+                if (mGoogleApiClient.isConnected()) {
+                    revokeAccess();
+                }
+            }
         } else {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             updateUI(currentUser);
@@ -204,30 +207,25 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     private void signOut() {
         // Firebase sign out
+        mGoogleApiClient.connect();
         mAuth.signOut();
         stopFirebaseService();
 
         if (mGoogleApiClient.isConnected()) {
-            disconnect();
-        } else {
-            disconnect();
+            Log.d("Google", "Signed Out");
+            // Google sign out
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            // ...
+                        }
+                    });
         }
+
         updateUI(null);
-
     }
 
-
-    private void disconnect() {
-        Log.d("Google", "Signed Out");
-        // Google sign out
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        updateUI(null);
-                    }
-                });
-    }
 
     private void revokeAccess() {
         Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(

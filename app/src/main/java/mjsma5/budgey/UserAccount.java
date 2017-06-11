@@ -88,7 +88,8 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
 
     private void signOut(String condition) {
         Intent intent = new Intent(this, GoogleSignInActivity.class);
-        intent.putExtra("stopFirebase", condition);
+        intent.putExtra("condition", condition);
+        intent.putExtra("stop", true);
         startActivity(intent);
     }
 
