@@ -26,9 +26,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Objects;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -142,8 +140,8 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         if (!inputCategory.equals("null")) {
             btnCategory.setText("Add Transaction to " + inputCategory);
         }
-        transaction = new Transaction("0 0 0", false, "0.00", "cash", inputCategory, "Note", false);
-        // String nDate, Boolean nTaxable,String nAmount, String nMethod, String nCategory, String nNote, Boolean nType
+        transaction = new Transaction("0 0 0", "0.00", "cash", inputCategory, "Note", false);
+        // String nDate, String nAmount, String nMethod, String nCategory, String nNote, Boolean nType
         setMethodImage();
         methodMenu = new AlertDialog.Builder(this);
         methodMenu.setTitle("Select a Transaction Method");

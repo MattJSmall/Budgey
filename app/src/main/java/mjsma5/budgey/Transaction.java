@@ -17,7 +17,6 @@ public class Transaction {
     private String date;          // Date transaction entered, default current day
     private String note;        // Extra user entered details
     private String method;      // Payment used (eg, Paypal, Visa ...)
-    private boolean taxable;    // Boolean if transaction flagged for taxable
     private boolean type;       // true: positive, false: negative
 
     public Transaction(){}
@@ -25,14 +24,13 @@ public class Transaction {
     private DatabaseReference transRef = GoogleSignInActivity.transRef;
 
 
-    Transaction(String nDate, Boolean nTaxable, String nAmount, String nMethod,
+    Transaction(String nDate, String nAmount, String nMethod,
                 String nCategory, String nNote, Boolean nType) {
         amount = nAmount;
         category = nCategory;
         date = nDate;
         note = nNote;
         method = nMethod;
-        taxable = nTaxable;
         type = nType;
     }
 
@@ -52,15 +50,6 @@ public class Transaction {
     void setDate(String item) { date = item; }
     void setNote(String item) { note = item; }
     void setMethod(String item) { method = item; }
-    public void setTaxable(String item)  { taxable = item.equals("true"); }
-    public void setType(String item)  { type = item.equals("true"); }
-
-    void switchType(boolean t) {
-        type = t;
-    }
-    void switchTaxable() {
-        taxable = !taxable;
-    }
     void setType(Boolean item) { type = item; }
 
     // Method to update database
@@ -73,7 +62,6 @@ public class Transaction {
         result.put("date", date);
         result.put("note", note);
         result.put("method", method);
-        result.put("taxable", taxable);
         result.put("type", type);
         String key = transRef.push().getKey();
         currTrans = transRef.getRef().child("/" + key);

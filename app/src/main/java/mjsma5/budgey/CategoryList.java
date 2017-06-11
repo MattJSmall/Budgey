@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by Matts on 11/05/2017.
  */
 
-public class CategoryList implements Parcelable {
+class CategoryList implements Parcelable {
 
     private ArrayList<Category> categories = new ArrayList<>();
 
@@ -18,7 +18,7 @@ public class CategoryList implements Parcelable {
     private ArrayList<String> usedCategories = new ArrayList<>();
     private ArrayList<String> indCategoryIDs = new ArrayList<>();
 
-    protected CategoryList(Parcel in) {
+    private CategoryList(Parcel in) {
         indCategories = in.createStringArrayList();
     }
 
@@ -34,22 +34,20 @@ public class CategoryList implements Parcelable {
         }
     };
 
-    public void addUsed(String categoryName) {
+    private void addUsed(String categoryName) {
         usedCategories.add(categoryName);
     }
 
 
-    public CategoryList() {
+    CategoryList() {
     }
 
-    public Category get(int index) {
+    Category get(int index) {
          return categories.get(index);
     }
 
-    public void removeCategory(String category) {
-        /* Remove category data including all transactions related to category
-         *
-         */
+    void removeCategory(String category) {
+        /* Remove category data including all transactions related to category */
         Category c = getItem(category);
         if (c.getValue().equals("error")) {
             Log.d("CATEGORY_REMOVAL", "FAILED: " + category);
@@ -60,8 +58,6 @@ public class CategoryList implements Parcelable {
         }
         indCategoryIDs.remove(indCategories.indexOf(category));
         indCategories.remove(indCategories.indexOf(category)); // remove from individual cat list
-
-        Landing.update();
     }
 
     private Category getItem(String category) {
@@ -74,74 +70,52 @@ public class CategoryList implements Parcelable {
     }
 
 
-    public void addItem(String category, Double valueSum) {
+    void addItem(String category, Double valueSum) {
         categories.add(new Category(category, valueSum));
         addUsed(category);
     }
 
-    public void addIndCategory(String id, String category) {
+    void addIndCategory(String id, String category) {
         if (!indCategories.contains(category)) {
             indCategories.add(category);
             indCategoryIDs.add(id);
         }
     }
 
-    public void addTransaction(Integer index, Transaction t) {
+    void addTransaction(Integer index, Transaction t) {
         categories.get(index).addTransaction(t);
     }
 
-    public ArrayList<Category> getList() {
+    ArrayList<Category> getList() {
         return categories;
     }
 
-    public Category getCategory(String category) {
-        // Retrun category based on key ID
-        for (int i = 0; i < categories.size() - 1; i++) {
-            if (categories.get(i).getValue().equals(category)) {
-                return categories.get(i);
-            }
-        }
-        return new Category("error", 0d);
-    }
 
-    public void addValueSum(Integer catIndex, Double val) {
+    void addValueSum(Integer catIndex, Double val) {
         categories.get(catIndex).addValueSum(val); }
 
-    public void transRemoved(int catIndex, Integer transIndex) {
+    void transRemoved(int catIndex, Integer transIndex) {
         Transaction t = FirebaseServices.transactions.get(transIndex);
         categories.get(catIndex).delTransaction(t);
         // If no more expense transactions are contained within this category, remove category object
-        if (categories.get(catIndex).isEmpty() ||
+        if (categories.get(catIndex).isEmpty() &&
                 (!categories.get(catIndex).getValue().equals("Salary"))) {
             categories.remove(catIndex);
             usedCategories.remove(catIndex);
         }
     }
 
-    public int size() {
-        return categories.size() + 1;
-    }
-    public int indSize() {
+    int indSize() {
         return indCategories.size() + 1;
     }
-
-    public boolean contains(String item) {
-        return indCategories.contains(item);
-    }
     
-    public String[] getAll() {
+    String[] getAll() {
         String[] items = indCategories.toArray(new String[indCategories.size() + 1]);
         items[indCategories.size()] = "Create new Category";
         return items;
     }
 
-
-
-    public boolean isEmpty() {
-        return categories.isEmpty();
-    }
-
-    public Integer indexOf(String cat) {
+    Integer indexOf(String cat) {
         return usedCategories.indexOf(cat);
     }
 
@@ -156,11 +130,11 @@ public class CategoryList implements Parcelable {
         dest.writeList(indCategories);
     }
 
-    public boolean isUsed(String cat) {
+    boolean isUsed(String cat) {
         return usedCategories.contains(cat);
     }
 
-    public boolean isCreated(String cat) {
+    boolean isCreated(String cat) {
         return indCategories.contains(cat);
     }
 
@@ -172,13 +146,13 @@ public class CategoryList implements Parcelable {
         return out;
     }
 
-    public Double getCategoryValueSum(String headerTitle) {
+    Double getCategoryValueSum(String headerTitle) {
         Log.d("CATEGORIES", getAllUsedCategories());
         Log.d("CAT_RETRIEVAL", headerTitle);
         return categories.get(usedCategories.indexOf(headerTitle)).getValueSum();
     }
 
-    public String getID(int index) {
+    String getID(int index) {
         return indCategoryIDs.get(index);
     }
 }

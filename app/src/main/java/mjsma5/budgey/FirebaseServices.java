@@ -16,14 +16,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
 public class FirebaseServices extends IntentService {
+    /* @Purpose: This class handles all interaction between the application and Firebase.
+     *           It runs constantly in the background as a listener, ensuring all updates are
+     *           Synchronised to the local storage.
+     */
+
     private static String uID = GoogleSignInActivity.uID;
     private static FirebaseDatabase database = GoogleSignInActivity.database;
 
@@ -175,9 +173,11 @@ public class FirebaseServices extends IntentService {
             // Chart update
             String cat = t.getCategory();
             if (cat.equals("Salary")) {
+                balance -= Double.valueOf(t.getAmount());
                 salary.transRemoved(0, transIndex);
                 // remove transaction from category list
             } else {
+                balance += Double.valueOf(t.getAmount());
                 int index = categories.indexOf(cat);
                 categories.transRemoved(index, transIndex);
                 for (int i = 0; i < entries.size(); i++) {
@@ -210,11 +210,13 @@ public class FirebaseServices extends IntentService {
     };
 
     public static void deleteTransaction(String id) {
+        /* Removes a transaction from the database */
         database.getReference("users/" + uID + "/transactions").child(id).removeValue();
         Log.d("FIREBASE", "transaction removed " + id);
     }
 
     public static void deleteCategory(String id) {
+        /* Removes a Category from the database */
         database.getReference("users/" + uID + "/categories").child(id).removeValue();
         Log.d("FIREBASE", "category removed " + id);
     }

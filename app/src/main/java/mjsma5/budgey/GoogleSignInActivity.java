@@ -256,6 +256,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     }
 
     public void pass() {
+        /* Perform all checks before passing to the landing page and main application */
         uID = mAuth.getCurrentUser().getUid();
         database = FirebaseDatabase.getInstance();
         DatabaseReference categoryRef = database.getReference("users/" + uID);
@@ -280,6 +281,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
 
     private void setupReferences() {
+        /* define global variables for dabase references and start background service */
         userRef = database.getReference("users/").child(uID);
         Log.d("Firebase Login", "User reference success" + uID);
         transRef = database.getReference("users/" + uID ).child("transactions");
@@ -287,6 +289,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     }
 
     private void newUser() {
+        /* Setup pre-defined categories for new users */
         DatabaseReference catListRef = database.getReference("users/" + uID + "/categories");
         categoryInit("Home", catListRef);
         categoryInit("Food", catListRef);
@@ -308,6 +311,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
 
     private void stopFirebaseService() {
+        /* destroy background firebase service */
         ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
 

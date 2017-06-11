@@ -30,7 +30,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     //private static CategoryList categories;
 
 
-    public ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<String>> listHashMap) {
+    ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<String>> listHashMap) {
         // categories = FirebaseServices.categories;
         this._context = context;
         this._listDataHeader = listDataHeader;

@@ -459,14 +459,11 @@ public class Landing extends AppCompatActivity implements View.OnClickListener, 
     }
 }
 
-
-
-
 class MyValueFormatter implements IValueFormatter {
 
     private DecimalFormat mFormat;
 
-    public MyValueFormatter() {
+    MyValueFormatter() {
         mFormat = new DecimalFormat("###,###,##0.00");
     }
 

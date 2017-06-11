@@ -46,7 +46,14 @@ public class About extends AppCompatActivity {
                         "distributed under the License is distributed on an \"AS IS\" BASIS," +
                         "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." +
                         "See the License for the specific language governing permissions and" +
-                        "limitations under the License."
+                        "limitations under the License.\n" +
+                "\n\n" +
+                "Learning Tools:\n" +
+                "Firebase Documentation: https://firebase.google.com/docs/android/setup \n" +
+                "Google API Documentation: https://developers.google.com/maps/documentation/ \n" +
+                "Google Material Design: https://material.io \n" +
+                "MPAndroidChart Documentation: https://github.com/PhilJay/MPAndroidChart/wiki "
+
         );
     }
 }

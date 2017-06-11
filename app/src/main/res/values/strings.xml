@@ -78,5 +78,6 @@
     <string name="create_transaction">Create Transaction</string>
     <string name="neg">-</string>
     <string name="budget">Budget:</string>
+    <string name="logo">Logo</string>
 
 </resources>
