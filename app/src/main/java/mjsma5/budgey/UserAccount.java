@@ -141,7 +141,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
     };
 
     private void delete() {
-        userRef.removeValue();
         signOut("2");
     }
 }

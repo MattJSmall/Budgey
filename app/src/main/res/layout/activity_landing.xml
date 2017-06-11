@@ -42,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight=".25"
-            android:contentDescription="Touch to raise Transactions"
+            android:contentDescription="@string/touch_to_raise_transactions"
             android:fillAfter="true"
             android:fillEnabled="true"
             app:srcCompat="@drawable/arrow" />
@@ -71,7 +71,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight=".25"
-            android:contentDescription="Touch to raise Transactions"
+            android:contentDescription="@string/touch_to_raise_transactions"
             android:fillAfter="true"
             android:fillEnabled="true"
             app:srcCompat="@drawable/arrow" />
@@ -117,7 +117,7 @@
         app:layout_constraintVertical_bias="1.0">
 
         <RelativeLayout
-            android:id="@+id/relativeLayout2"
+            android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="8dp"
@@ -132,39 +132,33 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/my_toolbar">
 
-            <RelativeLayout
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/btnPos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                app:backgroundTint="@color/accent"
+                app:fabSize="normal"
+                app:srcCompat="@drawable/plus" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pChart"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/btnPos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:clickable="true"
-                    app:backgroundTint="@color/accent"
-                    app:fabSize="normal"
-                    app:srcCompat="@drawable/plus" />
-
-            </RelativeLayout>
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/relativeLayout"
+            android:id="@+id/spacing"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="8dp"

@@ -17,9 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Landing" />
-        <activity android:name=".CreateTransaction" />
-        <activity android:name=".GoogleSignInActivity">
+        <activity android:name=".Landing"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".CreateTransaction"
+                  android:screenOrientation="portrait" />/>
+        <activity android:name=".GoogleSignInActivity"
+                  android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -30,8 +33,10 @@
             android:name=".FirebaseServices"
             android:exported="false" />
 
-        <activity android:name=".About" />
-        <activity android:name=".UserAccount" />
+        <activity android:name=".About"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".UserAccount"
+                  android:screenOrientation="portrait" />
     </application>
 
 </manifest>

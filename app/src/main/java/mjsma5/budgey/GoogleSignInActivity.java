@@ -65,7 +65,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private Intent firebaseServiceIntent;
 
     private SignInButton btnSignIn;
-    private ImageView logo;
 
     private Context context;
 
@@ -80,7 +79,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         btnSignIn = (SignInButton) findViewById(R.id.sign_in_button);
         btnSignIn.setVisibility(View.GONE);
 
-        logo = (ImageView) findViewById(R.id.imgLogo);
+        ImageView logo = (ImageView) findViewById(R.id.imgLogo);
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,13 +91,13 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-        // [START config_signin]
+        // [START config_signIn]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        // [END config_signin]
+        // [END config_signIn]
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
@@ -113,21 +112,29 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     // [START onStart check user]
     @Override
     public void onStart() {
+        mGoogleApiClient.connect();
         super.onStart();
+
         // Check if user is signed in (non-null) and update UI accordingly.
         Intent intent = getIntent();
         if (intent.getBooleanExtra("stop", false)) {
             String condition = intent.getStringExtra("condition");
             if (condition.equals("1")) {
+                // Condition: Sign out of firebase
                 Log.d("FIREBASE", "STOP");
                 stopFirebaseService();
                 signOut();
             } if (condition.equals("2")) {
+                // Condition: Delete all data and sign out (de-Authorise)
                 if (mGoogleApiClient.isConnected()) {
+                    stopFirebaseService();
+                    userRef.removeValue();
                     revokeAccess();
+                    btnSignIn.setVisibility(View.VISIBLE);
                 }
             }
         } else {
+            // Condition: app start
             FirebaseUser currentUser = mAuth.getCurrentUser();
             updateUI(currentUser);
         }
@@ -209,8 +216,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements
         // Firebase sign out
         mGoogleApiClient.connect();
         mAuth.signOut();
-        stopFirebaseService();
 
+        stopFirebaseService();
         if (mGoogleApiClient.isConnected()) {
             Log.d("Google", "Signed Out");
             // Google sign out
@@ -221,6 +228,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                             // ...
                         }
                     });
+            mGoogleApiClient.disconnect();
         }
 
         updateUI(null);
@@ -307,7 +315,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private void categoryInit(String value, DatabaseReference ref) {
         String key = ref.push().getKey();
         ref.child(key).setValue(value);
-    };
+    }
 
 
     private void stopFirebaseService() {

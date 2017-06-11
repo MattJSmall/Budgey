@@ -79,5 +79,11 @@
     <string name="neg">-</string>
     <string name="budget">Budget:</string>
     <string name="logo">Logo</string>
+    <string name="textview">TextView</string>
+    <string name="touch_to_raise_transactions">Touch to raise Transactions</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="google_icon">google_icon</string>
+    <string name="profile_image">profile_image</string>
+    <string name="method_image">method image</string>
 
 </resources>

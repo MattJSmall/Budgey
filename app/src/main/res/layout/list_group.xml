@@ -14,10 +14,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight=".8"
-            android:paddingLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
-            android:text="TextView"
+            android:text=""
             android:textColor="#636363"
-            android:textSize="16dp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/txtCatBalance"
