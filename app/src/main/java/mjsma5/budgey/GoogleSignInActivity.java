@@ -131,16 +131,17 @@ public class GoogleSignInActivity extends AppCompatActivity implements
                 stopFirebaseService();
                 signOut();
             } if (condition.equals("2")) {
+                userRef.removeValue();
                 // Condition: Delete all data and sign out (de-Authorise)
                 if (mGoogleApiClient.isConnected()) {
                     stopFirebaseService();
-                    userRef.removeValue();
                     revokeAccess();
                     btnSignIn.setVisibility(View.VISIBLE);
                 }
             }
         } else {
             // Condition: app start
+            Log.d("INIT", "stop pass");
             FirebaseUser currentUser = mAuth.getCurrentUser();
             updateUI(currentUser);
         }
@@ -149,8 +150,10 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
             pass();
+            Log.d("Firebase", "Sign_In_successful");
         } else {
-            btnSignIn.setVisibility(View.VISIBLE);
+            signIn();
+            progressBar.setVisibility(View.GONE);
         }
     }
     // [END onStart check user]
@@ -166,18 +169,22 @@ public class GoogleSignInActivity extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d("ActivityResult", String.valueOf(requestCode));
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
+                Log.d("GOOGLE", "Sign_in_successful");
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
                 // [START_EXCLUDE]
+                Log.d("GOOGLE", "Sign_in_failed");
                 updateUI(null);
+                Toast.makeText(GoogleSignInActivity.this, "Google SignIn failed.",
+                        Toast.LENGTH_SHORT).show();
                 // [END_EXCLUDE]
             }
         }
@@ -213,6 +220,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements
 
     // [START signin]
     private void signIn() {
+        Log.d("Sign in", "START");
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
         progressBar.setVisibility(View.VISIBLE);

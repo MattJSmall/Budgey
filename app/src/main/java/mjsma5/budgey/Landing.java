@@ -220,14 +220,10 @@ public class Landing extends AppCompatActivity implements View.OnClickListener, 
     private static void updateListView() {
         listDataHeader.clear();
         listHash.clear();
-        if (!FirebaseServices.salary.get(0).isEmpty()) {
-            listDataHeader.add("Salary");
-            listHash.put("Salary", FirebaseServices.salary.get(0).getTransactions());
-        }
-        for (Category c : FirebaseServices.categories.getList()) {
-            listDataHeader.add(c.getValue());
-            listHash.put(c.getValue(), c.getTransactions());
-            Log.d("LIST_ITEM_ADDED", c.getValue());
+        for (Category c : FirebaseServices.categories.getCategories()) {
+            listDataHeader.add(c.getLabel());
+            listHash.put(c.getLabel(), c.getTransactions());
+            Log.d("LIST_ITEM_ADDED", c.getLabel());
         }
         listAdapter.notifyDataSetChanged();
     }
@@ -410,7 +406,9 @@ public class Landing extends AppCompatActivity implements View.OnClickListener, 
     /***************************************************************/
 
     private void manageCategories() {
-        String[] menuItems = FirebaseServices.categories.getAll();
+        List<String> items = new ArrayList<>(FirebaseServices.categories.getCategoryLabels());
+        String[] menuItems = new String[items.size()];
+        menuItems = items.toArray(menuItems);
         menuItems = Arrays.copyOf(menuItems, menuItems.length - 1);
 
         deleteMenu.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
@@ -418,6 +416,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener, 
             }
         });
 
+        final String[] finalMenuItems = menuItems;
         deleteMenu.setItems(menuItems,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, final int index) {
@@ -427,7 +426,7 @@ public class Landing extends AppCompatActivity implements View.OnClickListener, 
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
                                     case DialogInterface.BUTTON_POSITIVE:
-                                        FirebaseServices.deleteCategory(FirebaseServices.categories.getID(index));
+                                        FirebaseServices.deleteCategory(FirebaseServices.categories.getKey(finalMenuItems[which]));
                                         break;
 
                                     case DialogInterface.BUTTON_NEGATIVE:

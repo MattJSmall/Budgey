@@ -14,6 +14,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 
 public class FirebaseServices extends IntentService {
@@ -29,8 +32,7 @@ public class FirebaseServices extends IntentService {
 
     public static Double balance = 0d;
     public static CategoryList categories = new CategoryList();
-    public static ArrayList<Transaction> transactions = new ArrayList<>();
-    public static CategoryList salary = new CategoryList();
+    public static HashMap<String, Transaction> transactions = new HashMap<>();
 
     // Colour variables
     public static ArrayList<Color> colours = new ArrayList<>();
@@ -46,10 +48,10 @@ public class FirebaseServices extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        transactions.clear();
         transRef.addChildEventListener(transactionsChildEventListener);
         catRef.addChildEventListener(categoryListener);
         Log.d("FIREBASE", "START");
-        salary.addItem("Salary", 0d);
     }
 
     @Override
@@ -66,9 +68,8 @@ public class FirebaseServices extends IntentService {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
             /* When a database child is added, add the same category to the categoryList class*/
-            if (!dataSnapshot.getValue().equals("Salary")) {
-                categories.addIndCategory(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
-            }
+            Category c = dataSnapshot.getValue(Category.class);
+            categories.newCategory(c);
         }
 
         @Override
@@ -105,15 +106,14 @@ public class FirebaseServices extends IntentService {
             Log.d(TAG, "onTransactionChildAdded:" + dataSnapshot.getValue());
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
-            transactions.add(t); // add to Transaction List
+            transactions.put(t.getID(), t); // add to Transaction List
             // Chart update
             String cat = t.getCategory();
 
             if (cat.equals("Salary")) {
                 // If transaction is an Income, add to balance and add to salary list
                 balance += Double.valueOf(t.getAmount());
-                salary.addValueSum(0, Double.valueOf(t.getAmount()));
-                salary.addTransaction(0, t);
+
             } else {
                 balance -= Double.valueOf(t.getAmount());
                 if (categories.isUsed(cat)) {
@@ -121,18 +121,13 @@ public class FirebaseServices extends IntentService {
                     Integer index = -1;
                     Log.d("CATEGORY", cat);
                     for (int i = 0; i < entries.size(); i++) {
-                        PieEntry entry = entries.get(i);
-                        Log.d("ENTRY", entry.getLabel());
                         if (entries.get(i).getLabel().equals(cat)) {
                             index = i;
-                            Log.d("ENTRY_INDEX", String.valueOf(i));
                             break;
                         }
-                        Log.d("ENTRY_INDEX", String.valueOf(index));
                     }
                     if (index != -1) {
                         entries.set(index, new PieEntry(Float.valueOf(t.getAmount()) + entries.get(index).getValue(), cat));
-                        categories.addValueSum(index, Double.valueOf(t.getAmount()));
                         Log.d("CHART", "entry_successful");
                     } else {
                         Log.d("CHART", "entry_failed");
@@ -140,11 +135,11 @@ public class FirebaseServices extends IntentService {
                 } else {
                     // If category hasn't been used, create a new Category class for the category list
                     // and add a new entry.
-                    categories.addItem(cat, Double.valueOf(t.getAmount()));
+                    categories.newCategory(new Category(cat, Double.valueOf(t.getAmount())));
                     entries.add(new PieEntry(Float.valueOf(t.getAmount()), cat));
                 }
-                categories.addTransaction(categories.indexOf(cat), t);
             }
+            categories.addTransaction(t.getCategory(), t);
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
         }
@@ -161,25 +156,17 @@ public class FirebaseServices extends IntentService {
 
             Transaction t = dataSnapshot.getValue(Transaction.class);
             t.setId(dataSnapshot.getKey());
-            int transIndex = -1;
-            for (int i = 0; i < transactions.size(); i++) {
-                // find transaction index
-                if (transactions.get(i).getID().equals(t.getID())) {
-                    transIndex = i;
-                    break;
-                }
-            }
 
             // Chart update
             String cat = t.getCategory();
             if (cat.equals("Salary")) {
                 balance -= Double.valueOf(t.getAmount());
-                salary.transRemoved(0, transIndex);
+                categories.transRemoved(t.getID());
                 // remove transaction from category list
             } else {
                 balance += Double.valueOf(t.getAmount());
-                int index = categories.indexOf(cat);
-                categories.transRemoved(index, transIndex);
+                categories.transRemoved(t.getID());
+                int index = -1;
                 for (int i = 0; i < entries.size(); i++) {
                     if (entries.get(i).getLabel().equals(cat)) {
                         index = i;
@@ -193,7 +180,7 @@ public class FirebaseServices extends IntentService {
                     entries.set(index, new PieEntry(entryValue, cat));
                 }
             }
-            transactions.remove(transIndex);
+            transactions.remove(t.getID());
             Log.d("UPDATE", "balance: " + balance);
             Landing.update();
         }

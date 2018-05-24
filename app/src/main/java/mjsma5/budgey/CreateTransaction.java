@@ -26,7 +26,10 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 
 public class CreateTransaction extends AppCompatActivity implements View.OnClickListener {
@@ -232,7 +235,7 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
         createCategory.setView(input);
         createCategory.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                if (categories.isCreated(input.getText().toString())) {
+                if (categories.contains(input.getText().toString())) {
                     Toast.makeText(context, "Parenthesis Mismatch", Toast.LENGTH_SHORT).show();
                 } else {
                     DatabaseReference curr_category = database.getReference("users/" + uID + "/categories");
@@ -257,16 +260,21 @@ public class CreateTransaction extends AppCompatActivity implements View.OnClick
             case R.id.btnCategory:
                 if (transaction.getCategory().equals("null")) {
                     createCategoryDialog = reinstanceCreateCategory();
-                    final String[] menuItems = categories.getAll();
+                    List<String> items = new ArrayList<>(categories.getCategoryLabels());
+                    items.add("Create New Category");
+                    String[] menuItems = new String[items.size()];
+                    menuItems = items.toArray(menuItems);
+                    final String[] finalMenuItems = menuItems;
+                    final String[] finalMenuItems1 = menuItems;
                     categoryMenu.setItems(menuItems,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     // The 'which' argument contains the index position
                                     // of the selected item
-                                    if (which == categories.indSize() - 1) {
+                                    if (which == categories.size()) {
                                         createCategoryDialog.show();
                                     } else {
-                                        transaction.setCategory(menuItems[which]);
+                                        transaction.setCategory(finalMenuItems1[which]);
                                     }
                                     btnCategory.setText(transaction.getCategory());
                                     pass();

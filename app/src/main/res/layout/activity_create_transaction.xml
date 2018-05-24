@@ -60,7 +60,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight=".5"
-                        android:background="@drawable/common_full_open_on_phone"
                         android:text="@string/date_placeholder"
                         app:layout_constraintHorizontal_bias="1.0"
                         app:layout_constraintLeft_toLeftOf="parent"

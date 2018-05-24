@@ -10,19 +10,33 @@ import java.util.ArrayList;
 
 class Category {
     /* Purpose: Stores Information about a specific category */
-    private String value;
-    private ArrayList<Transaction> ownedTransactions;
+    private String label;
+    private ArrayList<String> ownedTransactions;
     private Double valueSum;
-    private String id;
+    private String key;
 
-    Category(String _value, Double _valueSum) {
-        value = _value;
+
+    Category(String _label, Double _valueSum) {
+        label = _label;
         valueSum = _valueSum;
         ownedTransactions = new ArrayList<>();
     }
 
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setValueSum(Double valueSum) {
+        this.valueSum = valueSum;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     void addTransaction(Transaction t) {
-        ownedTransactions.add(t);
+        ownedTransactions.add(t.getID());
+        valueSum += Double.valueOf(t.getAmount());
     }
 
     void addValueSum(Double input) {
@@ -30,7 +44,7 @@ class Category {
     }
 
     void delTransaction(Transaction t) {
-        ownedTransactions.remove(ownedTransactions.indexOf(t));
+        ownedTransactions.remove(ownedTransactions.indexOf(t.getID()));
         valueSum -= Double.valueOf(t.getAmount());
     }
     boolean isEmpty() {
@@ -41,19 +55,15 @@ class Category {
         return valueSum;
     }
 
-    String getValue() {
-        return value;
+    String getLabel() {
+        return label;
     }
 
     ArrayList<String> getTransactions() {
+        return ownedTransactions;
+    }
 
-        ArrayList<Transaction> transactions = FirebaseServices.transactions;
-        ArrayList<String> tempList = new ArrayList<>();
-        for (Transaction t : ownedTransactions) {
-            Log.d("LIST_CHILD_DETAILS", t.getNote());
-            Integer index = transactions.indexOf(t);
-            tempList.add(index.toString());
-        }
-        return tempList;
+    public String getKey() {
+        return key;
     }
 }

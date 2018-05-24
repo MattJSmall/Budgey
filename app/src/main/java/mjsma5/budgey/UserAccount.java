@@ -134,12 +134,6 @@ public class UserAccount extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-
-    private void categoryInit(String value, DatabaseReference ref) {
-        String key = ref.push().getKey();
-        ref.child(key).setValue(value);
-    };
-
     private void delete() {
         signOut("2");
     }

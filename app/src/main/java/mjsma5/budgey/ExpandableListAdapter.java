@@ -25,18 +25,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private Context _context;
     private List<String> _listDataHeader;
     private HashMap<String,List<String>> _listHashMap;
-    // private static CategoryList categories;
-    private static ArrayList<Transaction> transactions;
-    //private static CategoryList categories;
-
 
     ExpandableListAdapter(Context context, List<String> listDataHeader, HashMap<String, List<String>> listHashMap) {
-        // categories = FirebaseServices.categories;
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listHashMap = listHashMap;
-        transactions = FirebaseServices.transactions;
-        //categories = FirebaseServices.categories;
 
     }
 
@@ -92,11 +85,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
         // Update Category balance text
         Double catBalance;
+        catBalance = FirebaseServices.categories.getCategoryValueSum(headerTitle);
         if (headerTitle.equals("Salary")) {
-            catBalance = FirebaseServices.salary.get(0).getValueSum();
             lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.positive));
         } else {
-            catBalance = FirebaseServices.categories.getCategoryValueSum(headerTitle);
             lblCatCost.setTextColor(ContextCompat.getColor(_context, R.color.negative));
         }
         lblCatCost.setText(String.valueOf(catBalance));
@@ -117,7 +109,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         TextView txtDate = (TextView) convertView.findViewById(R.id.lblDate);
         Button btnDelete = (Button) convertView.findViewById(R.id.btnDelete);
 
-        final Transaction t = transactions.get(Integer.valueOf(childText));
+        final Transaction t = FirebaseServices.transactions.get(Integer.valueOf(childText));
 
         txtPrice.setText("$" + t.getAmount());
         txtNote.setText(t.getNote());
